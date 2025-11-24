@@ -2,7 +2,6 @@ import { Tabs } from 'expo-router'
 import React from 'react'
 
 import { Icon } from '@/components/ui/icon'
-import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
 import {
 	CloudUploadIcon,
 	HomeIcon,
@@ -10,16 +9,34 @@ import {
 	MenuIcon,
 } from 'lucide-react-native'
 
+import { useScheme } from '@/hooks/useScheme'
+import { StatusBar } from 'react-native'
+import { neutral } from 'tailwindcss/colors'
+
 export default function TabLayout() {
-	const { colorScheme } = useColorSchemeStorage()
+	const { scheme } = useScheme()
 	return (
 		<Tabs
 			screenOptions={{
 				headerShown: false,
+				sceneStyle: {
+					paddingTop: StatusBar.currentHeight,
+					backgroundColor: scheme({
+						dark: neutral[800],
+						light: neutral[50],
+					}),
+				},
 				tabBarStyle: {
 					height: 96,
 					paddingTop: 16,
-					backgroundColor: colorScheme === 'dark' ? '#000' : '#fff',
+					borderColor: scheme({
+						dark: neutral[600],
+						light: neutral[200],
+					}),
+					backgroundColor: scheme({
+						dark: neutral[800],
+						light: neutral[50],
+					}),
 				},
 			}}
 		>
@@ -29,15 +46,6 @@ export default function TabLayout() {
 					title: 'Home',
 					tabBarIcon: ({ color }) => (
 						<Icon as={HomeIcon} size="xl" color={color} />
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="menu"
-				options={{
-					title: 'Menu',
-					tabBarIcon: ({ color }) => (
-						<Icon as={MenuIcon} size="xl" color={color} />
 					),
 				}}
 			/>
@@ -56,6 +64,15 @@ export default function TabLayout() {
 					title: 'Backup',
 					tabBarIcon: ({ color }) => (
 						<Icon as={CloudUploadIcon} size="xl" color={color} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="menu"
+				options={{
+					title: 'Menu',
+					tabBarIcon: ({ color }) => (
+						<Icon as={MenuIcon} size="xl" color={color} />
 					),
 				}}
 			/>

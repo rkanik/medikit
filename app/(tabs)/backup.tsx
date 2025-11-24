@@ -60,7 +60,7 @@ export default function BackupScreen() {
 	return (
 		<Box
 			style={{ paddingTop: StatusBar.currentHeight }}
-			className="flex-1 bg-white dark:bg-black px-4 py-6 gap-4"
+			className="flex-1 px-4 py-6 gap-4"
 		>
 			<View className="rounded-2xl border border-emerald-200 dark:border-emerald-900 p-4 gap-2 bg-emerald-50/80 dark:bg-emerald-900/30">
 				<Text className="text-lg font-semibold text-emerald-900 dark:text-emerald-100">
