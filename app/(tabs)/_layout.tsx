@@ -7,6 +7,7 @@ import {
 	HomeIcon,
 	ListTodoIcon,
 	MenuIcon,
+	UsersIcon,
 } from 'lucide-react-native'
 
 import { useScheme } from '@/hooks/useScheme'
@@ -46,6 +47,15 @@ export default function TabLayout() {
 					title: 'Home',
 					tabBarIcon: ({ color }) => (
 						<Icon as={HomeIcon} size="xl" color={color} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="patients/index"
+				options={{
+					title: 'Patients',
+					tabBarIcon: ({ color }) => (
+						<Icon as={UsersIcon} size="xl" color={color} />
 					),
 				}}
 			/>
