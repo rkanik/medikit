@@ -33,6 +33,24 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="records"
+        options={{
+          title: "Records",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="doc.text.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="backup"
+        options={{
+          title: "Backup",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="icloud.and.arrow.up.fill" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
