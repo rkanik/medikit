@@ -3,11 +3,32 @@ import { TMaybe } from '@/types'
 import { TPatient } from '@/types/database'
 import { fs } from '@/utils/fs'
 import { useCallback, useMemo } from 'react'
+import { useMMKVNumber } from 'react-native-mmkv'
 
 const usePatientsStorage = () => {
 	return useMMKVArray<TPatient>(`patients`, {
 		getKey: item => item.id,
 	})
+}
+
+const useCurrentPatientIdStorage = () => {
+	return useMMKVNumber('currentPatientId')
+}
+
+const useCurrentPatient = () => {
+	const { data: items } = usePatientsStorage()
+	const [currentPatientId, setData] = useCurrentPatientIdStorage()
+	const data = useMemo(() => {
+		return (
+			items.find(item => {
+				return item.id === currentPatientId
+			}) || items[0]
+		)
+	}, [items, currentPatientId])
+	return {
+		data,
+		setData,
+	}
 }
 
 const usePatients = () => {
@@ -69,5 +90,6 @@ const usePatientById = (id: number) => {
 export const patients = {
 	usePatients,
 	usePatientById,
+	useCurrentPatient,
 	usePatientsActions,
 }

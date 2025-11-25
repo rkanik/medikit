@@ -10,6 +10,7 @@ import {
 	UsersIcon,
 } from 'lucide-react-native'
 
+import { CurrentPatientPicker } from '@/components/CurrentPatientPicker'
 import { Text } from '@/components/ui/text'
 import { useScheme } from '@/hooks/useScheme'
 import { cn } from '@/utils/cn'
@@ -23,14 +24,14 @@ const items = [
 		icon: HomeIcon,
 	},
 	{
-		title: 'Patients',
-		name: 'patients/index',
-		icon: UsersIcon,
-	},
-	{
 		title: 'Records',
 		name: 'records',
 		icon: ListTodoIcon,
+	},
+	{
+		title: 'Patients',
+		name: 'patients/index',
+		icon: UsersIcon,
 	},
 	{
 		title: 'Backup',
@@ -52,12 +53,6 @@ export default function TabLayout() {
 			screenOptions={{
 				headerShown: true,
 				headerShadowVisible: false,
-				headerTitleAlign: 'center',
-				headerTitle: () => (
-					<Text size="2xl" bold className="text-green-500">
-						Medi Kit
-					</Text>
-				),
 				headerStyle: {
 					backgroundColor: 'transparent',
 				},
@@ -68,7 +63,6 @@ export default function TabLayout() {
 					dark: green[500],
 					light: green[500],
 				}),
-
 				tabBarStyle: {
 					height: 96,
 					paddingTop: 8,
@@ -81,6 +75,16 @@ export default function TabLayout() {
 						light: neutral[50],
 					}),
 				},
+				headerTitle: () => (
+					<Text size="2xl" bold className="text-green-500">
+						Medi Kit
+					</Text>
+				),
+				headerRight: () => (
+					<View className="mr-5">
+						<CurrentPatientPicker />
+					</View>
+				),
 			}}
 		>
 			{items.map(item => (

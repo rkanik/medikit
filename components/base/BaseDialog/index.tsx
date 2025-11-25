@@ -1,46 +1,80 @@
 import {
-	BottomSheet,
 	BottomSheetBackdrop,
-	BottomSheetContent,
-	BottomSheetDragIndicator,
-	BottomSheetPortal,
-	BottomSheetTrigger,
+	BottomSheetModal,
+	BottomSheetScrollView,
 } from '@/components/ui/bottomsheet'
-import { Text } from '@/components/ui/text'
 import { useScheme } from '@/hooks/useScheme'
+import { createRef, Fragment, useCallback, useEffect } from 'react'
+import { neutral } from 'tailwindcss/colors'
 
-type TBaseDialogProps = React.PropsWithChildren<{
+export type TBaseDialogTriggerProps = {
+	onPress: () => void
+}
+
+export type TBaseDialogTrigger = (
+	props: TBaseDialogTriggerProps,
+) => React.ReactNode
+
+export type TBaseDialogProps = React.PropsWithChildren<{
 	height?: number | string
-	trigger?: React.ReactNode
+	visible?: boolean
+	trigger?: TBaseDialogTrigger
+	setVisible?: (visible: boolean) => void
 }>
 
-export const BaseDialog = ({
-	children,
-	trigger,
-	height = '60%',
-}: TBaseDialogProps) => {
+export const BaseDialog = (props: TBaseDialogProps) => {
+	const { children, visible, height = '60%', trigger, setVisible } = props
 	const { scheme } = useScheme()
+
+	const ref = createRef<BottomSheetModal>()
+
+	const onPress = useCallback(() => ref.current?.present(), [ref])
+	const onClose = useCallback(() => ref.current?.dismiss(), [ref])
+
+	useEffect(() => {
+		if (typeof visible === 'boolean') {
+			if (visible) onPress()
+			else onClose()
+		}
+	}, [visible, onPress, onClose])
+
 	return (
-		<BottomSheet>
-			<BottomSheetTrigger>
-				{trigger || <Text>Open BottomSheet</Text>}
-			</BottomSheetTrigger>
-			<BottomSheetPortal
+		<Fragment>
+			{trigger && trigger({ onPress })}
+			<BottomSheetModal
+				ref={ref}
+				index={1}
+				topInset={0}
+				enableDismissOnClose
+				enablePanDownToClose
 				snapPoints={[1, height]}
+				enableDynamicSizing={false}
 				backdropComponent={BottomSheetBackdrop}
-				handleComponent={BottomSheetDragIndicator}
-				containerStyle={{
-					zIndex: 999,
+				onChange={v => {
+					if (v === 0) return onClose()
+					setVisible?.(v > -1)
+				}}
+				backgroundStyle={{
 					backgroundColor: scheme({
-						dark: 'neutral-700',
+						dark: neutral[800],
 						light: 'white',
 					}),
 				}}
+				handleIndicatorStyle={{
+					backgroundColor: scheme({
+						dark: neutral[600],
+						light: '',
+					}),
+				}}
 			>
-				<BottomSheetContent className="bg-white dark:bg-neutral-700 p-4">
+				<BottomSheetScrollView
+					nestedScrollEnabled
+					keyboardShouldPersistTaps="always"
+					automaticallyAdjustKeyboardInsets={true}
+				>
 					{children}
-				</BottomSheetContent>
-			</BottomSheetPortal>
-		</BottomSheet>
+				</BottomSheetScrollView>
+			</BottomSheetModal>
+		</Fragment>
 	)
 }
