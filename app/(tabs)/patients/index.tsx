@@ -5,9 +5,11 @@ import { Card } from '@/components/ui/card'
 import { Fab, FabIcon, FabLabel } from '@/components/ui/fab'
 import { Heading } from '@/components/ui/heading'
 import { HStack } from '@/components/ui/hstack'
+import { Text } from '@/components/ui/text'
+import { $d, $df } from '@/utils/dayjs'
 import { router } from 'expo-router'
 import { PlusIcon } from 'lucide-react-native'
-import { FlatList, Pressable } from 'react-native'
+import { FlatList, Pressable, View } from 'react-native'
 
 export default function PatientsScreen() {
 	const { data } = api.patients.usePatients()
@@ -30,9 +32,15 @@ export default function PatientsScreen() {
 									<AvatarFallbackText>{item.name}</AvatarFallbackText>
 									<AvatarImage source={{ uri: item.avatar?.uri }} />
 								</Avatar>
-								<Heading size="md" className="mb-1">
-									{item.name}
-								</Heading>
+								<View>
+									<Heading size="md">{item.name}</Heading>
+									{item.dob && (
+										<Text>
+											{$df(item.dob, 'DD MMMM, YYYY')}(
+											{$d().diff(item.dob, 'years')} yrs)
+										</Text>
+									)}
+								</View>
 							</HStack>
 						</Card>
 					</Pressable>

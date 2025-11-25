@@ -1,6 +1,8 @@
 import { api } from '@/api'
+import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
+import { BaseJson } from '@/components/base/Json'
 import { Button, ButtonText } from '@/components/ui/button'
 import { Form, FormSubmit } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
@@ -13,6 +15,7 @@ import { z } from 'zod'
 
 const zPatient = z.object({
 	id: z.number().nullable(),
+	dob: z.string().nullable(),
 	name: z.string().min(1, 'Name is required!'),
 	avatar: z.any(),
 })
@@ -28,6 +31,7 @@ export default function Screen() {
 		defaultValues: {
 			id: null,
 			name: '',
+			dob: null,
 			avatar: null,
 		},
 	})
@@ -93,10 +97,19 @@ export default function Screen() {
 						<BaseInput
 							name="name"
 							label="Name"
-							placeholder="Enter name"
+							placeholder="Write name here..."
 							control={form.control}
 							isRequired={true}
 						/>
+
+						<BaseDatePicker
+							name="dob"
+							label="Date of Birth"
+							placeholder="Select date of birth..."
+							control={form.control}
+							isRequired={true}
+						/>
+
 						<FormSubmit>
 							{props => (
 								<Button {...props} size="xl">
@@ -107,7 +120,7 @@ export default function Screen() {
 							)}
 						</FormSubmit>
 
-						{/* <BaseJson data={form.watch()} /> */}
+						<BaseJson data={form.watch()} />
 					</Form>
 				</FormProvider>
 			</View>

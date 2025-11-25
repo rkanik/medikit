@@ -11,7 +11,7 @@
 		"ios": {
 			"supportsTablet": true,
 			"infoPlist": {
-				"NSPhotoLibraryUsageDescription": "Medikit needs access to your photo library so you can attach prescriptions and receipts."
+				"NSPhotoLibraryUsageDescription": "Medi Kit needs access to your photo library so you can attach prescriptions and receipts."
 			}
 		},
 		"android": {
@@ -48,8 +48,8 @@
 			[
 				"expo-image-picker",
 				{
-					"photosPermission": "Medikit needs access to your photo library so you can attach prescriptions and receipts.",
-					"cameraPermission": "Medikit needs access to your camera so you can take photos of your prescriptions and receipts."
+					"photosPermission": "Medi Kit needs access to your photo library so you can attach prescriptions and receipts.",
+					"cameraPermission": "Medi Kit needs access to your camera so you can take photos of your prescriptions and receipts."
 				}
 			]
 		],
