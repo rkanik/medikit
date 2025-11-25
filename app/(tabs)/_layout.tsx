@@ -10,23 +10,68 @@ import {
 	UsersIcon,
 } from 'lucide-react-native'
 
+import { Text } from '@/components/ui/text'
 import { useScheme } from '@/hooks/useScheme'
-import { StatusBar } from 'react-native'
-import { neutral } from 'tailwindcss/colors'
+import { cn } from '@/utils/cn'
+import { View } from 'react-native'
+import { green, neutral } from 'tailwindcss/colors'
+
+const items = [
+	{
+		title: 'Home',
+		name: 'index',
+		icon: HomeIcon,
+	},
+	{
+		title: 'Patients',
+		name: 'patients/index',
+		icon: UsersIcon,
+	},
+	{
+		title: 'Records',
+		name: 'records',
+		icon: ListTodoIcon,
+	},
+	{
+		title: 'Backup',
+		name: 'backup',
+		icon: CloudUploadIcon,
+	},
+	{
+		title: 'Menu',
+		name: 'menu',
+		icon: MenuIcon,
+	},
+]
 
 export default function TabLayout() {
 	const { scheme } = useScheme()
+
 	return (
 		<Tabs
 			screenOptions={{
-				headerShown: false,
-				sceneStyle: {
-					paddingTop: StatusBar.currentHeight,
+				headerShown: true,
+				headerShadowVisible: false,
+				headerTitleAlign: 'center',
+				headerTitle: () => (
+					<Text size="2xl" bold className="text-green-500">
+						Medi Kit
+					</Text>
+				),
+				headerStyle: {
 					backgroundColor: 'transparent',
 				},
+				sceneStyle: {
+					backgroundColor: 'transparent',
+				},
+				tabBarActiveTintColor: scheme({
+					dark: green[500],
+					light: green[500],
+				}),
+
 				tabBarStyle: {
 					height: 96,
-					paddingTop: 16,
+					paddingTop: 8,
 					borderColor: scheme({
 						dark: neutral[600],
 						light: neutral[200],
@@ -38,51 +83,36 @@ export default function TabLayout() {
 				},
 			}}
 		>
-			<Tabs.Screen
-				name="index"
-				options={{
-					title: 'Home',
-					tabBarIcon: ({ color }) => (
-						<Icon as={HomeIcon} size="xl" color={color} />
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="patients/index"
-				options={{
-					title: 'Patients',
-					tabBarIcon: ({ color }) => (
-						<Icon as={UsersIcon} size="xl" color={color} />
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="records"
-				options={{
-					title: 'Records',
-					tabBarIcon: ({ color }) => (
-						<Icon as={ListTodoIcon} size="xl" color={color} />
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="backup"
-				options={{
-					title: 'Backup',
-					tabBarIcon: ({ color }) => (
-						<Icon as={CloudUploadIcon} size="xl" color={color} />
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="menu"
-				options={{
-					title: 'Menu',
-					tabBarIcon: ({ color }) => (
-						<Icon as={MenuIcon} size="xl" color={color} />
-					),
-				}}
-			/>
+			{items.map(item => (
+				<Tabs.Screen
+					key={item.name}
+					name={item.name}
+					options={{
+						title: item.title,
+						tabBarIcon: v => (
+							<View
+								className={cn('px-4 py-2 rounded-full', {
+									'dark:bg-neutral-900': v.focused,
+								})}
+							>
+								<Icon size="xl" as={item.icon} color={v.color} />
+							</View>
+						),
+						tabBarLabel: v => (
+							<Text
+								style={{
+									color: v.color,
+									fontSize: 12,
+									marginTop: 4,
+									fontWeight: v.focused ? 'bold' : 'normal',
+								}}
+							>
+								{v.children}
+							</Text>
+						),
+					}}
+				/>
+			))}
 		</Tabs>
 	)
 }
