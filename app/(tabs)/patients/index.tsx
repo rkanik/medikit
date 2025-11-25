@@ -1,29 +1,27 @@
 import { api } from '@/api'
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
-import { Box } from '@/components/ui/box'
+import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Fab, FabIcon, FabLabel } from '@/components/ui/fab'
 import { Heading } from '@/components/ui/heading'
 import { HStack } from '@/components/ui/hstack'
 import { Text } from '@/components/ui/text'
 import { $d, $df } from '@/utils/dayjs'
+import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
 import { PlusIcon } from 'lucide-react-native'
-import { FlatList, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 
 export default function PatientsScreen() {
 	const { data } = api.patients.usePatients()
 	return (
-		<Box className="px-5 flex-1">
-			<Fab
-				placement="bottom right"
-				onPress={() => router.push('/patients/new/form')}
-			>
-				<FabIcon as={PlusIcon} />
-				<FabLabel>Add Patient</FabLabel>
-			</Fab>
-			<FlatList
+		<View className="flex-1">
+			<FlashList
 				data={data}
+				contentContainerStyle={{
+					flexGrow: 1,
+					flexDirection: 'column-reverse',
+					paddingHorizontal: 20,
+				}}
 				renderItem={({ item }) => (
 					<Pressable onPress={() => router.push(`/patients/${item.id}`)}>
 						<Card size="lg" variant="elevated" className="mt-2">
@@ -46,6 +44,17 @@ export default function PatientsScreen() {
 					</Pressable>
 				)}
 			/>
-		</Box>
+			<View className="flex-row justify-center p-5">
+				<Button
+					size="xl"
+					variant="solid"
+					className="rounded-full"
+					onPress={() => router.push('/patients/new/form')}
+				>
+					<ButtonIcon as={PlusIcon} size="lg" />
+					<ButtonText size="md">Add Patient</ButtonText>
+				</Button>
+			</View>
+		</View>
 	)
 }

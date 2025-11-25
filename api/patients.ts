@@ -53,9 +53,17 @@ const usePatientsActions = () => {
 }
 
 const usePatientById = (id: number) => {
-	const { getByKey } = usePatientsStorage()
+	const { remove: removeItem, getByKey } = usePatientsStorage()
 	const data = useMemo(() => getByKey(id), [id, getByKey])
-	return { data }
+
+	const remove = useCallback(async () => {
+		if (data?.avatar?.uri) {
+			fs.remove(data.avatar.uri)
+		}
+		removeItem(data?.id)
+	}, [data, removeItem])
+
+	return { data, remove }
 }
 
 export const patients = {

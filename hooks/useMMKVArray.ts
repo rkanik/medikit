@@ -51,10 +51,22 @@ export const useMMKVArray = <T, K = any>(
 		[data, getKey],
 	)
 
+	const remove = useCallback(
+		(key: K) => {
+			setData((data = []) => {
+				return data.filter(v => {
+					return getKey(v) !== key
+				})
+			})
+		},
+		[getKey, setData],
+	)
+
 	return {
 		data,
 		push,
 		update,
+		remove,
 		getByKey,
 		setData,
 	}
