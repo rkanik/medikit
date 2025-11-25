@@ -22,10 +22,7 @@ export default function TabLayout() {
 				headerShown: false,
 				sceneStyle: {
 					paddingTop: StatusBar.currentHeight,
-					backgroundColor: scheme({
-						dark: neutral[800],
-						light: neutral[50],
-					}),
+					backgroundColor: 'transparent',
 				},
 				tabBarStyle: {
 					height: 96,

@@ -4,5 +4,12 @@
 		"source.organizeImports": "explicit",
 		"source.sortMembers": "explicit"
 	},
-	"cSpell.words": ["bottomsheet", "Gluestack", "gorhom", "MMKV", "Pressable"]
+	"cSpell.words": [
+		"bottomsheet",
+		"Gluestack",
+		"gorhom",
+		"MMKV",
+		"nativewind",
+		"Pressable"
+	]
 }

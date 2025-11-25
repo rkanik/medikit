@@ -11,55 +11,54 @@ import {
 	BottomSheetScrollView,
 } from '@gorhom/bottom-sheet'
 import {
+	createContext,
 	createRef,
 	forwardRef,
 	Fragment,
 	useCallback,
+	useContext,
 	useEffect,
-	useMemo,
 } from 'react'
-import { Image, View } from 'react-native'
+import { View } from 'react-native'
 import { neutral } from 'tailwindcss/colors'
-import type {
-	TBaseModalBodyProps,
-	TBaseModalContentProps,
-	TBaseModalFooterProps,
-	TBaseModalHeaderProps,
-	TBaseModalOverlayProps,
-	TBaseModalProps,
-} from './types'
+import type { TBaseModalProps } from './types'
 import { useModal } from './useModal'
 
-const BaseModalHeader = ({
-	title,
-	titleImage,
-	className,
-	hideClose,
-	titleClass,
-	hideDivider,
-	onClose,
-	isFullHeight,
-}: TBaseModalHeaderProps) => {
+type TBaseModalContext = TBaseModalProps & {
+	onClose: () => void | undefined
+}
+
+const BaseModalContext = createContext<TBaseModalContext>(null!)
+const useBaseModal = () => {
+	const context = useContext(BaseModalContext)
+	if (!context) {
+		throw new Error('useBaseModal must be used within a BaseModal')
+	}
+	return context
+}
+
+const BaseModalHeader = () => {
+	const {
+		onClose,
+		title,
+		height,
+		headerClass,
+		hideClose,
+		titleClass,
+		hideHeaderDivider,
+	} = useBaseModal()
 	return (
 		<Fragment>
 			<View
 				className={cn(
 					'flex-row items-center justify-between px-4 py-0',
 					{
-						'pt-12': isFullHeight,
+						'pt-12': height === '100%',
 					},
-					className,
+					headerClass,
 				)}
 			>
 				<View className="flex-1 flex-row items-center">
-					{titleImage && (
-						<Image
-							source={titleImage}
-							style={{ width: 32, height: 32 }}
-							resizeMode="contain"
-							className="mr-2 rounded-xl border border-gray-100"
-						/>
-					)}
 					<Text className={cn('text-xl font-medium', titleClass)}>{title}</Text>
 				</View>
 				{!hideClose && (
@@ -68,21 +67,22 @@ const BaseModalHeader = ({
 					</Button>
 				)}
 			</View>
-			{!hideDivider && <Divider className="mt-2" />}
+			{!hideHeaderDivider && (
+				<Divider className="mt-2 bg-neutral-100 dark:bg-neutral-700" />
+			)}
 		</Fragment>
 	)
 }
-const BaseModalContent = ({ children }: TBaseModalContentProps) => {
+
+const BaseModalContent = ({ children }: React.PropsWithChildren) => {
 	return children
 }
 
 const BaseModalBody = forwardRef<
 	BottomSheetScrollViewMethods,
-	TBaseModalBodyProps
->(function BaseModalBody(
-	{ children, className, scrollViewContainerStyle },
-	ref,
-) {
+	React.PropsWithChildren
+>(function BaseModalBody({ children }, ref) {
+	const { bodyClass, scrollViewContainerStyle } = useBaseModal()
 	return (
 		<BottomSheetScrollView
 			ref={ref}
@@ -91,49 +91,41 @@ const BaseModalBody = forwardRef<
 			keyboardShouldPersistTaps="always"
 			automaticallyAdjustKeyboardInsets={true}
 		>
-			<View className={cn('px-4 pb-8 pt-4', className)}>{children}</View>
+			<View className={cn('px-4 pb-8 pt-4', bodyClass)}>{children}</View>
 		</BottomSheetScrollView>
 	)
 })
 
-const BaseModalOverlay = ({ children }: TBaseModalOverlayProps) => {
+const BaseModalOverlay = ({ children }: React.PropsWithChildren) => {
 	return children
 }
 
-const BaseModalFooter = ({ children, className }: TBaseModalFooterProps) => {
+const BaseModalFooter = ({ children }: React.PropsWithChildren) => {
+	const { footerClass } = useBaseModal()
 	return (
 		<Fragment>
 			<Divider />
-			<View className={cn('flex-row justify-end p-4 pb-8', className)}>
+			<View className={cn('flex-row justify-end p-4 pb-8', footerClass)}>
 				{children}
 			</View>
 		</Fragment>
 	)
 }
 
-const BaseModal = ({
-	title,
-	titleImage,
-	visible,
-	trigger,
-	children,
-	bodyClass,
-	headerClass,
-	hideHeader,
-	hideHeaderDivider,
-	footerClass,
-	titleClass,
-	hideClose,
-	footer,
-	scrollViewContainerStyle,
-	height = '75%',
-	render,
-	onChangeVisible,
-}: TBaseModalProps) => {
+const BaseModal = (props: TBaseModalProps) => {
+	const {
+		visible,
+		trigger,
+		children,
+		footer,
+		hideHeader,
+		height = '75%',
+		wrapper = v => v,
+		setVisible,
+	} = props
 	//
 	const { scheme } = useScheme()
 	const ref = createRef<BottomSheetModal>()
-	const isFullHeight = height === '100%'
 
 	const onPress = useCallback(() => ref.current?.present(), [ref])
 	const onClose = useCallback(() => ref.current?.dismiss(), [ref])
@@ -153,29 +145,6 @@ const BaseModal = ({
 		}
 	}, [visible, onPress, onClose])
 
-	const headerProps = useMemo(
-		() => ({
-			title,
-			titleImage,
-			onClose,
-			hideClose,
-			titleClass,
-			className: headerClass,
-			hideDivider: hideHeaderDivider,
-			isFullHeight,
-		}),
-		[
-			title,
-			titleImage,
-			hideClose,
-			titleClass,
-			hideHeaderDivider,
-			headerClass,
-			onClose,
-			isFullHeight,
-		],
-	)
-
 	//
 	return (
 		<Fragment>
@@ -191,40 +160,31 @@ const BaseModal = ({
 				backdropComponent={BottomSheetBackdrop}
 				onChange={v => {
 					if (v === 0) return onClose()
-					onChangeVisible?.(v > -1)
+					setVisible?.(v > -1)
 				}}
 				backgroundStyle={{
 					backgroundColor: scheme({
-						dark: neutral[700],
+						dark: neutral[800],
 						light: 'white',
 					}),
 				}}
+				handleIndicatorStyle={{
+					backgroundColor: scheme({
+						dark: neutral[600],
+						light: '',
+					}),
+				}}
 			>
-				{render ? (
-					render({
-						onClose,
-						headerProps,
-						contentProps: {
-							className: '',
-						},
-					})
-				) : (
-					<BaseModalOverlay>
-						<BaseModalContent>
-							{!hideHeader && <BaseModalHeader {...headerProps} />}
-							<BaseModalBody
-								className={bodyClass}
-								scrollViewContainerStyle={scrollViewContainerStyle}
-							>
-								{iChildren}
-							</BaseModalBody>
-							{iFooter && (
-								<BaseModalFooter className={footerClass}>
-									{iFooter}
-								</BaseModalFooter>
-							)}
-						</BaseModalContent>
-					</BaseModalOverlay>
+				{wrapper(
+					<BaseModalContext.Provider value={{ ...props, onClose }}>
+						<BaseModalOverlay>
+							<BaseModalContent>
+								{!hideHeader && <BaseModalHeader />}
+								<BaseModalBody>{iChildren}</BaseModalBody>
+								{iFooter && <BaseModalFooter>{iFooter}</BaseModalFooter>}
+							</BaseModalContent>
+						</BaseModalOverlay>
+					</BaseModalContext.Provider>,
 				)}
 			</BottomSheetModal>
 		</Fragment>

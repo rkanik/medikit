@@ -6,10 +6,7 @@ import { Box } from '@/components/ui/box'
 import { Button, ButtonText } from '@/components/ui/button'
 import { useMedicalRecords } from '@/hooks/useMedicalRecords'
 import type { MedicalAttachment } from '@/types/medical'
-import {
-	copyIntoMedikitDirAsync,
-	deleteFileIfExistsAsync,
-} from '@/utils/filesystem'
+import { copyIntoMedikitDirAsync, deleteFileIfExistsAsync } from '@/utils/fs'
 import { createId } from '@/utils/id'
 
 type FormState = {

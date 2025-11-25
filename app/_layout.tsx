@@ -8,6 +8,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import '@/global.css'
 import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
 import { useScheme } from '@/hooks/useScheme'
+import { neutral } from 'tailwindcss/colors'
 
 export const unstable_settings = {
 	anchor: '(tabs)',
@@ -26,7 +27,19 @@ export default function RootLayout() {
 			/>
 			<GestureHandlerRootView>
 				<AuthProvider>
-					<Stack>
+					<Stack
+						screenOptions={{
+							contentStyle: {
+								backgroundColor: scheme({
+									dark: neutral[800],
+									light: neutral[50],
+								}),
+							},
+							headerStyle: {
+								backgroundColor: 'transparent',
+							},
+						}}
+					>
 						<Stack.Screen
 							name="(tabs)"
 							options={{
