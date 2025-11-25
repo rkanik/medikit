@@ -1,25 +1,65 @@
+import { useMMKVArray } from '@/hooks/useMMKVArray'
+import { TMaybe } from '@/types'
 import { TPatient } from '@/types/database'
-import { useCallback } from 'react'
-import { useMMKVObject } from 'react-native-mmkv'
+import { fs } from '@/utils/fs'
+import { useCallback, useMemo } from 'react'
+
+const usePatientsStorage = () => {
+	return useMMKVArray<TPatient>(`patients`, {
+		getKey: item => item.id,
+	})
+}
 
 const usePatients = () => {
-	const [patients = [], setPatients] = useMMKVObject<TPatient[]>('patients')
+	const { data } = usePatientsStorage()
+	return { data }
+}
 
-	const addPatient = useCallback(
-		(patient: TPatient) => {
-			setPatients((patients = []) => {
-				return [...patients, patient]
+const usePatientsActions = () => {
+	const { push, update, getByKey } = usePatientsStorage()
+
+	const submit = useCallback(
+		async (id: TMaybe<number>, item: Omit<TPatient, 'id'>) => {
+			if (item.avatar) {
+				if (id) {
+					const existingPatient = getByKey(id)
+					if (
+						existingPatient?.avatar?.uri &&
+						existingPatient?.avatar?.uri !== item.avatar?.uri
+					) {
+						fs.remove(existingPatient?.avatar?.uri)
+					}
+				}
+				const { data } = fs.copyAssetTo('avatars', item.avatar)
+				if (data) item.avatar = data
+			}
+			if (id) {
+				return update({
+					id,
+					...item,
+				})
+			}
+			push({
+				...item,
+				id: Date.now(),
 			})
 		},
-		[setPatients],
+		[push, update, getByKey],
 	)
 
 	return {
-		patients,
-		addPatient,
+		submit,
 	}
+}
+
+const usePatientById = (id: number) => {
+	const { getByKey } = usePatientsStorage()
+	const data = useMemo(() => getByKey(id), [id, getByKey])
+	return { data }
 }
 
 export const patients = {
 	usePatients,
+	usePatientById,
+	usePatientsActions,
 }

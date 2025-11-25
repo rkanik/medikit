@@ -36,7 +36,10 @@ export default function RootLayout() {
 								}),
 							},
 							headerStyle: {
-								backgroundColor: 'transparent',
+								backgroundColor: scheme({
+									dark: neutral[800],
+									light: neutral[50],
+								}),
 							},
 						}}
 					>
