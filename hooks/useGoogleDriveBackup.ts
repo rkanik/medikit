@@ -18,7 +18,7 @@ import type { MedicalRecord } from '@/types/medical'
 import { storage } from '@/utils/storage'
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.file']
-const TOKEN_TTL_MS = 55 * 60 * 1000
+const TOKEN_TTL_MS = 55 * 60 * 1000 // 55 minutes
 
 const googleConfig: Parameters<typeof GoogleSignin.configure>[0] = {
 	scopes: SCOPES,

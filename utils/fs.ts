@@ -36,6 +36,10 @@ const list = (path?: string | string[]): (File | Directory)[] => {
 	}
 }
 
+const getFiles = (path?: string | string[]): File[] => {
+	return list(path).filter(item => item instanceof File)
+}
+
 /**
  * Get info about a file or directory
  */
@@ -177,6 +181,7 @@ const remove = (path: string) => {
 export const fs = {
 	getDirectory,
 	list,
+	getFiles,
 	getInfo,
 	isDirectory,
 	isFile,

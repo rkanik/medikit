@@ -1,9 +1,15 @@
 import { Pressable, StatusBar, View } from 'react-native'
 
+import { api } from '@/api'
 import { Alert, AlertText } from '@/components/ui/alert'
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
 import { Box } from '@/components/ui/box'
-import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button'
+import {
+	Button,
+	ButtonIcon,
+	ButtonSpinner,
+	ButtonText,
+} from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Divider } from '@/components/ui/divider'
 import { Heading } from '@/components/ui/heading'
@@ -11,10 +17,49 @@ import { HStack } from '@/components/ui/hstack'
 import { CloseIcon, Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
+import { fs } from '@/utils/fs'
+import { CloudDownloadIcon, CloudUploadIcon } from 'lucide-react-native'
+import { useCallback, useState } from 'react'
 
 export default function Screen() {
 	const { user, isLoading, error, login, logout, setError } = useAuth()
 
+	const [uploading, setUploading] = useState(false)
+
+	const onUpload = useCallback(async () => {
+		// const response = await launchImageLibraryAsync({
+		// 	mediaTypes: 'images',
+		// 	allowsMultipleSelection: true,
+		// })
+		// if (response.canceled) {
+		// 	return
+		// }
+
+		const avatars = fs.getFiles('avatars')
+		const attachments = fs.getFiles('attachments')
+
+		setUploading(true)
+		api.drive
+			.uploadFile([
+				...avatars.map(asset => ({
+					folder: 'avatars',
+					asset,
+				})),
+				...attachments.map(asset => ({
+					folder: 'attachments',
+					asset,
+				})),
+			])
+			.then(r => {
+				console.log('response', r)
+			})
+			.catch(e => {
+				console.log('error', e)
+			})
+			.finally(() => {
+				setUploading(false)
+			})
+	}, [])
 	return (
 		<Box
 			style={{ paddingTop: StatusBar.currentHeight }}
@@ -30,7 +75,6 @@ export default function Screen() {
 					you tap Backup.
 				</Text>
 			</View>
-
 			{error && (
 				<Alert action="error" className="gap-3 mt-3">
 					<AlertText className="text-typography-900" size="sm">
@@ -44,38 +88,66 @@ export default function Screen() {
 					</Pressable>
 				</Alert>
 			)}
-
 			{user ? (
-				<Card size="lg" variant="outline" className="mt-3">
-					<Heading size="md">Google Account</Heading>
-					<Text size="sm">Backup and restore your data to Google Drive.</Text>
-					<Divider className="my-3" />
-					<HStack space="lg" className="items-center">
-						<Avatar size="lg">
-							<AvatarFallbackText>
-								{user.name?.charAt(0) || user.email.split('@')[0].charAt(0)}
-							</AvatarFallbackText>
-							<AvatarImage source={{ uri: user.photo ?? '' }} />
-						</Avatar>
-						<Box>
-							<Heading size="sm">
-								{user.name || user.email.split('@')[0]}
-							</Heading>
-							<Text size="sm">{user.email}</Text>
-						</Box>
-					</HStack>
-					<HStack>
-						<Button
-							variant="outline"
-							onPress={logout}
-							disabled={isLoading}
-							className="mt-3"
-						>
-							{isLoading && <ButtonSpinner color="gray" />}
-							<ButtonText>Disconnect</ButtonText>
-						</Button>
-					</HStack>
-				</Card>
+				<View className="mt-4 gap-4">
+					<Card size="lg" variant="outline">
+						<Heading size="md">Google Account</Heading>
+						<Text size="sm">Backup and restore your data to Google Drive.</Text>
+						<Divider className="my-3" />
+						<HStack space="lg" className="items-center">
+							<Avatar size="lg">
+								<AvatarFallbackText>
+									{user.name?.charAt(0) || user.email.split('@')[0].charAt(0)}
+								</AvatarFallbackText>
+								<AvatarImage source={{ uri: user.photo ?? '' }} />
+							</Avatar>
+							<Box>
+								<Heading size="sm">
+									{user.name || user.email.split('@')[0]}
+								</Heading>
+								<Text size="sm">{user.email}</Text>
+							</Box>
+						</HStack>
+						<HStack>
+							<Button
+								variant="outline"
+								onPress={logout}
+								disabled={isLoading}
+								className="mt-3"
+							>
+								{isLoading && <ButtonSpinner color="gray" />}
+								<ButtonText>Disconnect</ButtonText>
+							</Button>
+						</HStack>
+					</Card>
+					<Card size="lg" variant="outline">
+						<Heading size="md">Backup</Heading>
+						<Text size="sm">Backup and restore your data to Google Drive.</Text>
+						<Divider className="my-3" />
+						<View>
+							<Button
+								variant="outline"
+								onPress={onUpload}
+								disabled={uploading}
+								className="mt-3"
+							>
+								{uploading && <ButtonSpinner color="gray" />}
+								<ButtonIcon as={CloudUploadIcon} size="lg" />
+								<ButtonText>Upload to Google Drive</ButtonText>
+							</Button>
+							<Button
+								variant="outline"
+								onPress={logout}
+								disabled={isLoading}
+								className="mt-3"
+							>
+								{isLoading && <ButtonSpinner color="gray" />}
+								<ButtonIcon as={CloudDownloadIcon} size="lg" />
+								<ButtonText>Restore from Google Drive</ButtonText>
+							</Button>
+						</View>
+					</Card>
+				</View>
 			) : (
 				<Card size="lg" variant="outline" className="mt-3">
 					<Heading size="md">Google Drive Backup</Heading>

@@ -1,8 +1,8 @@
-import { FileInfo } from 'expo-file-system'
+import { File, FileInfo } from 'expo-file-system'
 import { ImagePickerAsset } from 'expo-image-picker'
 import { TMaybe } from '.'
 
-export type TAsset = FileInfo | ImagePickerAsset
+export type TAsset = File | FileInfo | ImagePickerAsset
 
 export type TPatient = {
 	id: number

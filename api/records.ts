@@ -6,9 +6,9 @@ import { fs } from '@/utils/fs'
 import { useCallback, useMemo } from 'react'
 import { Alert } from 'react-native'
 import { z } from 'zod'
-import { api } from '.'
 import { patients } from './patients'
 
+export type TZRecord = z.infer<typeof zRecord>
 const zRecord = z.object({
 	id: z.number().nullish(),
 	type: z.string().min(1, 'Type is required!'),
@@ -18,7 +18,10 @@ const zRecord = z.object({
 	attachments: z.array(z.any()).default([]),
 })
 
-export type TZRecord = z.infer<typeof zRecord>
+const types = ['Visit', 'Investigation', 'Medicine', 'Other'].map(type => ({
+	label: type,
+	value: type,
+}))
 
 const useRecordsStorage = () => {
 	return useMMKVArray<TRecord>(`records`, {
@@ -51,7 +54,7 @@ const useRecords = () => {
 				}
 				acc.total += record.amount
 
-				api.records.types.forEach(type => {
+				types.forEach(type => {
 					if (record.type === type.value) {
 						acc.types[type.value] = (acc.types[type.value] ?? 0) + record.amount
 					}
@@ -148,11 +151,6 @@ const useRecordById = (id: number) => {
 
 	return { data, remove }
 }
-
-const types = ['Visit', 'Investigation', 'Medicine', 'Other'].map(type => ({
-	label: type,
-	value: type,
-}))
 
 export const records = {
 	types,
