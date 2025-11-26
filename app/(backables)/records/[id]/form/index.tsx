@@ -13,33 +13,45 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 import { z } from 'zod'
 
-const zPatient = z.object({
+const zRecord = z.object({
 	id: z.number().nullable(),
-	dob: z.string().nullable(),
-	name: z.string().min(1, 'Name is required!'),
-	avatar: z.any(),
+	type: z.string().min(1, 'Type is required!'),
+	title: z.string().min(1, 'Title is required!'),
+	description: z.string().nullable(),
+	date: z.string().nullable(),
+	doctor: z.string().nullable(),
+	hospital: z.string().nullable(),
+	location: z.string().nullable(),
+	amount: z.number().nullable(),
+	attachments: z.array(z.any()),
 })
 
-type TZPatient = z.infer<typeof zPatient>
+type TZRecord = z.infer<typeof zRecord>
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
 	const { data } = api.patients.usePatientById(Number(id))
 
 	const form = useForm({
-		resolver: zodResolver(zPatient),
+		resolver: zodResolver(zRecord),
 		defaultValues: {
 			id: null,
-			name: '',
-			dob: null,
-			avatar: null,
+			type: '',
+			title: '',
+			description: '',
+			date: '',
+			doctor: '',
+			hospital: '',
+			location: '',
+			amount: 0,
+			attachments: [],
 		},
 	})
 
-	const { submit } = api.patients.usePatientsActions()
+	const { submit } = api.records.useRecordsActions()
 
 	const onSubmit = useCallback(
-		(data: TZPatient) => {
+		(data: TZRecord) => {
 			const promise = submit(data.id, data)
 			promise
 				.then(() => router.back())
@@ -81,31 +93,68 @@ export default function Screen() {
 			<KeyboardAvoidingScrollView>
 				<FormProvider {...form}>
 					<Form
-						onSubmit={form.handleSubmit(onSubmit)}
 						className="px-8 py-16 flex flex-col gap-5 justify-end flex-1"
+						onSubmit={form.handleSubmit(onSubmit)}
 					>
-						<BaseImagePicker
-							name="avatar"
-							label="Avatar"
-							control={form.control}
-							options={{
-								aspect: [1, 1],
-								mediaTypes: 'images',
-								allowsEditing: true,
-							}}
-						/>
 						<BaseInput
-							name="name"
-							label="Name"
-							placeholder="Write name here..."
+							name="type"
+							label="Type"
+							placeholder="Enter type..."
 							control={form.control}
 							isRequired={true}
 						/>
-						<BaseDatePicker
-							name="dob"
-							label="Date of Birth"
-							placeholder="Select date of birth..."
+						<BaseInput
+							name="title"
+							label="Title"
+							placeholder="Enter title..."
 							control={form.control}
+							isRequired={true}
+						/>
+						<BaseInput
+							name="description"
+							label="Description"
+							placeholder="Enter description..."
+							control={form.control}
+						/>
+						<BaseInput
+							name="doctor"
+							label="Doctor"
+							placeholder="Doctor name..."
+							control={form.control}
+						/>
+						<BaseInput
+							name="hospital"
+							label="Hospital"
+							placeholder="Hospital name..."
+							control={form.control}
+						/>
+						<BaseInput
+							name="location"
+							label="Location"
+							placeholder="Location..."
+							control={form.control}
+						/>
+						<BaseInput
+							name="amount"
+							label="Amount"
+							keyboardType="numeric"
+							placeholder="Amount..."
+							control={form.control}
+						/>
+						<BaseDatePicker
+							name="date"
+							label="Date"
+							placeholder="Select date..."
+							control={form.control}
+						/>
+						<BaseImagePicker
+							name="attachments"
+							label="Attachments"
+							control={form.control}
+							options={{
+								mediaTypes: 'images',
+								allowsMultipleSelection: true,
+							}}
 						/>
 						<FormSubmit>
 							{props => (

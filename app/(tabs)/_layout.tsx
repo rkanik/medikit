@@ -25,7 +25,7 @@ const items = [
 	},
 	{
 		title: 'Records',
-		name: 'records',
+		name: 'records/index',
 		icon: ListTodoIcon,
 	},
 	{

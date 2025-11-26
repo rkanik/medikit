@@ -18,7 +18,7 @@ const useCurrentPatientIdStorage = () => {
 const useCurrentPatient = () => {
 	const { data: items } = usePatientsStorage()
 	const [currentPatientId, setData] = useCurrentPatientIdStorage()
-	const data = useMemo(() => {
+	const data = useMemo<TMaybe<TPatient>>(() => {
 		return (
 			items.find(item => {
 				return item.id === currentPatientId
@@ -58,11 +58,14 @@ const usePatientsActions = () => {
 				return update({
 					id,
 					...item,
+					updatedAt: new Date().toISOString(),
 				})
 			}
 			push({
 				...item,
 				id: Date.now(),
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
 			})
 		},
 		[push, update, getByKey],

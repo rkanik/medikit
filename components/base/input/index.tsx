@@ -12,7 +12,7 @@ type TProps<T extends FieldValues> = TBaseControllerProps<T> &
 	}
 
 const BaseInputInner = <T extends FieldValues>(
-	{ size = 'lg', ...props }: TProps<T>,
+	{ keyboardType, size = 'lg', ...props }: TProps<T>,
 	ref: Ref<TextInput>,
 ) => {
 	const form = useCurrentForm()
@@ -24,9 +24,16 @@ const BaseInputInner = <T extends FieldValues>(
 				<Input size={size}>
 					<InputField
 						size={size}
-						value={v.field.value || ''}
+						value={String(v.field.value)}
 						placeholder={props.placeholder || ''}
-						onChangeText={v.field.onChange}
+						keyboardType={keyboardType}
+						onChangeText={text => {
+							if (keyboardType === 'numeric') {
+								v.field.onChange(Number(text))
+							} else {
+								v.field.onChange(text)
+							}
+						}}
 						onFocus={(e: any) => {
 							props.onFocus?.(e)
 							form?.onFocus(e)

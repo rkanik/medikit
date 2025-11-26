@@ -18,6 +18,7 @@ const Context = createContext<
 	Pick<TFormProps, 'onSubmit'> & {
 		blur: () => void
 		onFocus: (event?: any) => void
+		currentFocused: React.RefObject<any>
 	}
 >(null!)
 
@@ -52,8 +53,30 @@ export const Form = forwardRef<TFormRef, TFormProps>(function Form(
 		}
 	}, [])
 
+	// const scrollViewRef = useCurrentScrollView()
 	const onFocus = useCallback((event: any) => {
 		currentFocused.current = event?.target
+		// if (
+		// 	scrollViewRef &&
+		// 	typeof scrollViewRef.current?.scrollTo === 'function' &&
+		// 	event?.target?.measure
+		// ) {
+		// 	event.target.measure?.(
+		// 		(
+		// 			x: number,
+		// 			y: number,
+		// 			width: number,
+		// 			height: number,
+		// 			pageX: number,
+		// 			pageY: number,
+		// 		) => {
+		// 			scrollViewRef.current?.scrollTo({
+		// 				y: pageY - 100, // offset to reveal above keyboard, adjust as needed
+		// 				animated: true,
+		// 			})
+		// 		},
+		// 	)
+		// }
 	}, [])
 
 	useImperativeHandle(ref, () => ({
@@ -61,7 +84,14 @@ export const Form = forwardRef<TFormRef, TFormProps>(function Form(
 	}))
 
 	return (
-		<Context.Provider value={{ onSubmit, blur, onFocus }}>
+		<Context.Provider
+			value={{
+				blur,
+				onFocus,
+				onSubmit,
+				currentFocused,
+			}}
+		>
 			<FormInner touchable={touchable} blurOnPress={blurOnPress}>
 				<View {...rest}>{children}</View>
 			</FormInner>
