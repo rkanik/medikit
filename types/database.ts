@@ -17,11 +17,11 @@ export type TRecord = {
 	type: string
 	title: string
 	date?: TMaybe<string>
-	description?: TMaybe<string>
 	doctor?: TMaybe<string>
+	amount?: TMaybe<number>
 	hospital?: TMaybe<string>
 	location?: TMaybe<string>
-	amount?: TMaybe<number>
+	description?: TMaybe<string>
 	attachments?: TMaybe<FileInfo | ImagePickerAsset>[]
 	createdAt?: TMaybe<string>
 	updatedAt?: TMaybe<string>

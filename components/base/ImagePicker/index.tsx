@@ -7,6 +7,7 @@ import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
 import { BaseController, TBaseControllerProps } from '../controller'
 
+import { Grid, GridItem } from '@/components/ui/grid'
 import {
 	ImagePickerOptions,
 	launchImageLibraryAsync,
@@ -88,11 +89,10 @@ const BaseImagePickerInner = <T extends FieldValues>(
 				const assets = toAssetArray(v.field.value)
 				return (
 					<View className="gap-4">
-						{!!assets.length && (
-							<View className="flex-row flex-wrap gap-3">
-								{assets.map((asset, index) => (
+						<Grid className="gap-4" _extra={{ className: 'grid-cols-3' }}>
+							{assets.map((asset, index) => (
+								<GridItem key={index} _extra={{ className: 'col-span-1' }}>
 									<Pressable
-										key={asset?.assetId ?? asset?.uri ?? index}
 										className="relative rounded overflow-hidden border border-background-300"
 										onPress={() => {
 											if (allowsMultipleSelection) return
@@ -101,8 +101,9 @@ const BaseImagePickerInner = <T extends FieldValues>(
 									>
 										<Image
 											source={{ uri: asset?.uri }}
-											style={{ width: 96, height: 96 }}
+											style={{ width: '100%', aspectRatio: 1 }}
 											contentFit="cover"
+											contentPosition="center"
 										/>
 										<Pressable
 											onPress={() => handleRemove(v.field, index)}
@@ -112,20 +113,24 @@ const BaseImagePickerInner = <T extends FieldValues>(
 											<XIcon size={14} color="#fff" />
 										</Pressable>
 									</Pressable>
-								))}
-							</View>
-						)}
-						{(allowsMultipleSelection ||
-							(!allowsMultipleSelection && !assets.length)) && (
-							<Button
-								variant="outline"
-								style={{ width: 96, height: 96 }}
-								className="border-background-300"
-								onPress={() => onPress(v.field)}
-							>
-								<ButtonIcon as={PlusIcon} size="lg" />
-							</Button>
-						)}
+								</GridItem>
+							))}
+							{(allowsMultipleSelection ||
+								(!allowsMultipleSelection && !assets.length)) && (
+								<GridItem
+									className="aspect-square"
+									_extra={{ className: 'col-span-1' }}
+								>
+									<Button
+										variant="outline"
+										className="border-background-300 h-full"
+										onPress={() => onPress(v.field)}
+									>
+										<ButtonIcon as={PlusIcon} size="lg" />
+									</Button>
+								</GridItem>
+							)}
+						</Grid>
 					</View>
 				)
 			}}

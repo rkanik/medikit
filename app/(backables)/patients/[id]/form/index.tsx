@@ -97,6 +97,7 @@ export default function Screen() {
 						<BaseInput
 							name="name"
 							label="Name"
+							autoFocus={true}
 							placeholder="Write name here..."
 							control={form.control}
 							isRequired={true}

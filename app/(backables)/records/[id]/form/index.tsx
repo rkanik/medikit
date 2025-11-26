@@ -30,7 +30,7 @@ type TZRecord = z.infer<typeof zRecord>
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
-	const { data } = api.patients.usePatientById(Number(id))
+	const { data } = api.records.useRecordById(Number(id))
 
 	const form = useForm({
 		resolver: zodResolver(zRecord),

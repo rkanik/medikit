@@ -12,7 +12,7 @@ type TProps<T extends FieldValues> = TBaseControllerProps<T> &
 	}
 
 const BaseInputInner = <T extends FieldValues>(
-	{ keyboardType, size = 'lg', ...props }: TProps<T>,
+	{ autoFocus, keyboardType, size = 'lg', ...props }: TProps<T>,
 	ref: Ref<TextInput>,
 ) => {
 	const form = useCurrentForm()
@@ -24,6 +24,7 @@ const BaseInputInner = <T extends FieldValues>(
 				<Input size={size}>
 					<InputField
 						size={size}
+						autoFocus={autoFocus}
 						value={String(v.field.value)}
 						placeholder={props.placeholder || ''}
 						keyboardType={keyboardType}

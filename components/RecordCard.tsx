@@ -1,32 +1,58 @@
 import { TRecord } from '@/types/database'
+import { cn } from '@/utils/cn'
 import { $df } from '@/utils/dayjs'
+import { Image } from 'expo-image'
 import { GestureResponderEvent, Pressable, View } from 'react-native'
-import { Card } from './ui/card'
+import { Grid, GridItem } from './ui/grid'
 import { Heading } from './ui/heading'
-import { HStack } from './ui/hstack'
 import { Text } from './ui/text'
 
 type TRecordCardProps = {
 	data: TRecord
+	className?: string
 	onPress?: (e: GestureResponderEvent) => void
 }
 
-export const RecordCard = ({ data, onPress }: TRecordCardProps) => {
+export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
+	const attachments = data.attachments || []
+
 	return (
-		<Pressable className="mt-2" onPress={onPress}>
-			<Card size="lg" variant="elevated">
-				<HStack space="lg" className="items-center">
-					{/* <Avatar>
-						<AvatarFallbackText>{data.name}</AvatarFallbackText>
-						<AvatarImage source={{ uri: data.avatar?.uri }} />
-					</Avatar> */}
-					<View>
-						<Heading size="md">{data.title}</Heading>
-						<Text>{data.description}</Text>
-						{data.date && <Text>{$df(data.date, 'DD MMMM, YYYY')}</Text>}
-					</View>
-				</HStack>
-			</Card>
+		<Pressable
+			className={cn(
+				'dark:bg-neutral-900 rounded-lg overflow-hidden',
+				className,
+			)}
+			onPress={onPress}
+		>
+			<View className="p-5">
+				<Heading size="md">{data.title}</Heading>
+				{data.description && <Text>{data.description}</Text>}
+				{data.date && <Text>{$df(data.date, 'DD MMMM, YYYY')}</Text>}
+			</View>
+			{attachments.length > 0 && (
+				<Grid
+					className="gap-1"
+					_extra={{
+						className: attachments.length > 2 ? 'grid-cols-2' : 'grid-cols-1',
+					}}
+				>
+					{attachments.slice(0, 4).map((attachment, index) => (
+						<GridItem key={index} _extra={{ className: 'col-span-1' }}>
+							<Image
+								source={{ uri: attachment?.uri }}
+								style={{ width: '100%', aspectRatio: 1 }}
+								contentFit="cover"
+								contentPosition="center"
+							/>
+							{attachments.length > 4 && index === 3 && (
+								<View className="absolute inset-0 bg-black/50 p-2 rounded-full items-center justify-center">
+									<Text size="4xl">+{attachments.length - 4}</Text>
+								</View>
+							)}
+						</GridItem>
+					))}
+				</Grid>
+			)}
 		</Pressable>
 	)
 }

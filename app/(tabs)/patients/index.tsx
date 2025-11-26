@@ -12,7 +12,9 @@ export default function PatientsScreen() {
 		<View className="flex-1">
 			<FlashList
 				data={data}
-				contentContainerClassName="px-8 flex-col-reverse flex-1"
+				scrollEnabled
+				contentContainerClassName="px-8 flex-col-reverse"
+				contentContainerStyle={{ flexGrow: 1 }}
 				renderItem={({ item }) => (
 					<PatientCard
 						data={item}

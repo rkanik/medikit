@@ -1,6 +1,7 @@
 import { useMMKVArray } from '@/hooks/useMMKVArray'
 import { TMaybe } from '@/types'
 import { TRecord } from '@/types/database'
+import { fs } from '@/utils/fs'
 import { useCallback, useMemo } from 'react'
 import { Alert } from 'react-native'
 import { patients } from './patients'
@@ -25,7 +26,7 @@ const useRecords = () => {
 }
 
 const useRecordsActions = () => {
-	const { push, update } = useRecordsStorage()
+	const { push, update, getByKey } = useRecordsStorage()
 	const { data: patient } = patients.useCurrentPatient()
 
 	const submit = useCallback(
@@ -34,6 +35,31 @@ const useRecordsActions = () => {
 				Alert.alert('Error', 'Please select a patient first')
 				return
 			}
+			if (id) {
+				const existingRecord = getByKey(id)
+				const removedAttachments = existingRecord?.attachments?.filter(
+					attachment => {
+						return !item.attachments?.some(a => {
+							return a?.uri === attachment?.uri
+						})
+					},
+				)
+				if (removedAttachments) {
+					for (const attachment of removedAttachments) {
+						if (attachment?.uri) {
+							fs.remove(attachment.uri)
+						}
+					}
+				}
+			}
+			item.attachments = item.attachments?.map(attachment => {
+				if (attachment?.uri) {
+					const { data } = fs.copyAssetTo('attachments', attachment)
+					if (data) attachment.uri = data.uri
+					return attachment
+				}
+				return attachment
+			})
 			if (id) {
 				return update({
 					id,
@@ -50,10 +76,30 @@ const useRecordsActions = () => {
 				updatedAt: new Date().toISOString(),
 			})
 		},
-		[patient, push, update],
+		[patient, push, update, getByKey],
 	)
 
 	return { submit }
 }
 
-export const records = { useRecords, useRecordsActions }
+const useRecordById = (id: number) => {
+	const { remove: removeItem, getByKey } = useRecordsStorage()
+	const data = useMemo(() => getByKey(id), [id, getByKey])
+
+	const remove = useCallback(async () => {
+		for (const attachment of data?.attachments ?? []) {
+			if (attachment?.uri) {
+				fs.remove(attachment.uri)
+			}
+		}
+		removeItem(data?.id)
+	}, [data, removeItem])
+
+	return { data, remove }
+}
+
+export const records = {
+	useRecords,
+	useRecordById,
+	useRecordsActions,
+}
