@@ -96,19 +96,19 @@ export default function Screen() {
 							control={form.control}
 							isRequired={true}
 						/>
-						<BaseInput
-							name="amount"
-							label="Amount"
-							keyboardType="numeric"
-							placeholder="Amount..."
-							control={form.control}
-						/>
 						<BaseDatePicker
 							name="date"
 							label="Date"
 							placeholder="Select date..."
 							control={form.control}
 							isRequired={true}
+						/>
+						<BaseInput
+							name="amount"
+							label="Amount"
+							keyboardType="numeric"
+							placeholder="Amount..."
+							control={form.control}
 						/>
 						<FormSubmit>
 							{props => (

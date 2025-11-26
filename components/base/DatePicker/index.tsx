@@ -16,7 +16,7 @@ import { BaseController, TBaseControllerProps } from '../controller'
 type TProps<T extends FieldValues> = TBaseControllerProps<T> &
 	React.ComponentProps<typeof InputField> &
 	Omit<AndroidNativeProps, 'value' | 'onChange'> & {
-		//
+		initialValue?: Date
 	}
 
 const BaseDatePickerInner = <T extends FieldValues>(
@@ -28,7 +28,9 @@ const BaseDatePickerInner = <T extends FieldValues>(
 			if (isAndroid) {
 				DateTimePickerAndroid.open({
 					mode: props.mode,
-					value: field.value ? new Date(field.value) : new Date('2000-01-01'),
+					value: field.value
+						? new Date(field.value)
+						: props.initialValue || new Date(),
 					display: props.display,
 					maximumDate: props.maximumDate,
 					onChange(_, date) {
@@ -46,7 +48,12 @@ const BaseDatePickerInner = <T extends FieldValues>(
 			size={size}
 			render={v => (
 				<TouchableOpacity
-					className="border border-background-300 rounded p-2 h-12 flex-row items-center justify-between"
+					className={cn(
+						'border border-background-300 rounded p-2 h-12 flex-row items-center justify-between',
+						{
+							'border-red-500': !!v.fieldState.error,
+						},
+					)}
 					onPress={() => onPress(v.field)}
 				>
 					<Text
