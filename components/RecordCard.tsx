@@ -45,7 +45,7 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 								contentPosition="center"
 							/>
 							{attachments.length > 4 && index === 3 && (
-								<View className="absolute inset-0 bg-black/50 p-2 rounded-full items-center justify-center">
+								<View className="absolute inset-0 bg-black/50 p-2 items-center justify-center">
 									<Text size="4xl">+{attachments.length - 4}</Text>
 								</View>
 							)}
