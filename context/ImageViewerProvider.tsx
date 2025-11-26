@@ -1,5 +1,4 @@
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
-import { FlashList } from '@shopify/flash-list'
 import { Image } from 'expo-image'
 import { ChevronDownIcon } from 'lucide-react-native'
 import {
@@ -9,11 +8,8 @@ import {
 	useContext,
 	useState,
 } from 'react'
-import { Modal, StyleSheet, View } from 'react-native'
-import {
-	GestureViewer,
-	useGestureViewerController,
-} from 'react-native-gesture-image-viewer'
+import { Modal, ScrollView, StyleSheet, View } from 'react-native'
+import { GestureViewer } from 'react-native-gesture-image-viewer'
 
 type TAsset = { uri?: string }
 
@@ -28,24 +24,17 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 	const [index, setIndex] = useState(0)
 	const [visible, setVisible] = useState(false)
 
-	const { goToIndex } = useGestureViewerController()
-
 	const onDismiss = useCallback(() => {
 		setVisible(false)
 	}, [])
 
-	const openImageViewer = useCallback(
-		(assets: TAsset[], index = 0) => {
-			const urls = assets.filter(v => !!v.uri).map(asset => asset.uri as string)
-			if (!assets.length) return
-			setIndex(index)
-			setUrls(urls)
-			setVisible(true)
-			goToIndex(index)
-			console.log('openImageViewer', index)
-		},
-		[goToIndex],
-	)
+	const openImageViewer = useCallback((assets: TAsset[], index = 0) => {
+		const urls = assets.filter(v => !!v.uri).map(asset => asset.uri!)
+		if (!assets.length) return
+		setUrls(urls)
+		setIndex(index)
+		setVisible(true)
+	}, [])
 
 	const renderItem = useCallback(
 		(uri: string) => (
@@ -59,26 +48,22 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 		[],
 	)
 
-	console.log({ index })
-
 	return (
 		<Context.Provider value={{ openImageViewer }}>
 			{children}
 			{visible && urls.length > 0 && (
 				<Modal
 					transparent
-					statusBarTranslucent
 					visible={visible}
 					animationType="fade"
 					onRequestClose={onDismiss}
-					presentationStyle="fullScreen"
 				>
 					<GestureViewer
 						data={urls}
 						initialIndex={index}
 						onDismiss={onDismiss}
 						renderItem={renderItem}
-						ListComponent={FlashList}
+						ListComponent={ScrollView}
 						renderContainer={(children, { dismiss }) => (
 							<View className="flex-1">
 								{children}

@@ -14,12 +14,13 @@ export default function PatientsScreen() {
 			<View className="flex-1 relative">
 				<FlashList
 					data={data}
+					keyExtractor={item => item.id?.toString() ?? ''}
 					contentContainerStyle={{ flexGrow: 1 }}
-					contentContainerClassName="flex-col-reverse pb-24 px-8"
-					renderItem={({ item, index }) => (
+					contentContainerClassName="flex-col-reverse pb-20 px-4"
+					renderItem={({ item }) => (
 						<RecordCard
 							data={item}
-							className="mt-4"
+							className="mb-4"
 							onPress={() => router.push(`/records/${item.id}`)}
 						/>
 					)}
