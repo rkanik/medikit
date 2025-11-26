@@ -2,13 +2,7 @@ import { Tabs } from 'expo-router'
 import React from 'react'
 
 import { Icon } from '@/components/ui/icon'
-import {
-	CloudUploadIcon,
-	HomeIcon,
-	ListTodoIcon,
-	MenuIcon,
-	UsersIcon,
-} from 'lucide-react-native'
+import { HomeIcon, MenuIcon, UsersIcon } from 'lucide-react-native'
 
 import { CurrentPatientPicker } from '@/components/CurrentPatientPicker'
 import { Text } from '@/components/ui/text'
@@ -24,19 +18,9 @@ const items = [
 		icon: HomeIcon,
 	},
 	{
-		title: 'Records',
-		name: 'records/index',
-		icon: ListTodoIcon,
-	},
-	{
 		title: 'Patients',
 		name: 'patients/index',
 		icon: UsersIcon,
-	},
-	{
-		title: 'Backup',
-		name: 'backup',
-		icon: CloudUploadIcon,
 	},
 	{
 		title: 'Menu',
