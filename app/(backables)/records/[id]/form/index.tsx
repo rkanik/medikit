@@ -1,4 +1,5 @@
 import { api } from '@/api'
+import { TZRecord } from '@/api/records'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
@@ -11,39 +12,19 @@ import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { Fragment, useCallback, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
-import { z } from 'zod'
-
-const zRecord = z.object({
-	id: z.number().nullish(),
-	type: z.string().min(1, 'Type is required!'),
-	title: z.string().min(1, 'Title is required!'),
-	description: z.string().nullish(),
-	date: z.string().nullish(),
-	doctor: z.string().nullish(),
-	hospital: z.string().nullish(),
-	location: z.string().nullish(),
-	amount: z.number().nullish(),
-	attachments: z.array(z.any()).nullish(),
-})
-
-type TZRecord = z.infer<typeof zRecord>
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
 	const { data } = api.records.useRecordById(Number(id))
 
 	const form = useForm({
-		resolver: zodResolver(zRecord),
+		resolver: zodResolver(api.records.zRecord),
 		defaultValues: {
 			id: null,
 			type: '',
-			title: '',
-			description: '',
-			date: '',
-			doctor: '',
-			hospital: '',
-			location: '',
+			text: '',
 			amount: 0,
+			date: new Date().toISOString(),
 			attachments: [],
 		},
 	})
@@ -65,11 +46,7 @@ export default function Screen() {
 	)
 
 	useEffect(() => {
-		if (data) {
-			form.reset({
-				...data,
-			})
-		}
+		if (data) form.reset(data)
 	}, [form, data])
 
 	if (id !== 'new' && !data) {
@@ -96,6 +73,15 @@ export default function Screen() {
 						className="px-8 py-16 flex flex-col gap-5 justify-end flex-1"
 						onSubmit={form.handleSubmit(onSubmit)}
 					>
+						<BaseImagePicker
+							name="attachments"
+							label="Attachments"
+							control={form.control}
+							options={{
+								mediaTypes: 'images',
+								allowsMultipleSelection: true,
+							}}
+						/>
 						<BaseInput
 							name="type"
 							label="Type"
@@ -104,35 +90,11 @@ export default function Screen() {
 							isRequired={true}
 						/>
 						<BaseInput
-							name="title"
-							label="Title"
-							placeholder="Enter title..."
-							control={form.control}
-							isRequired={true}
-						/>
-						<BaseInput
-							name="description"
+							name="text"
 							label="Description"
 							placeholder="Enter description..."
 							control={form.control}
-						/>
-						<BaseInput
-							name="doctor"
-							label="Doctor"
-							placeholder="Doctor name..."
-							control={form.control}
-						/>
-						<BaseInput
-							name="hospital"
-							label="Hospital"
-							placeholder="Hospital name..."
-							control={form.control}
-						/>
-						<BaseInput
-							name="location"
-							label="Location"
-							placeholder="Location..."
-							control={form.control}
+							isRequired={true}
 						/>
 						<BaseInput
 							name="amount"
@@ -146,15 +108,7 @@ export default function Screen() {
 							label="Date"
 							placeholder="Select date..."
 							control={form.control}
-						/>
-						<BaseImagePicker
-							name="attachments"
-							label="Attachments"
-							control={form.control}
-							options={{
-								mediaTypes: 'images',
-								allowsMultipleSelection: true,
-							}}
+							isRequired={true}
 						/>
 						<FormSubmit>
 							{props => (

@@ -11,16 +11,22 @@ import { Text } from './ui/text'
 type TPatientCardProps = {
 	data: TPatient
 	selected?: boolean
+	className?: string
 	onPress?: (e: GestureResponderEvent) => void
 }
 
-export const PatientCard = ({ data, selected, onPress }: TPatientCardProps) => {
+export const PatientCard = ({
+	data,
+	selected,
+	className,
+	onPress,
+}: TPatientCardProps) => {
 	return (
-		<Pressable onPress={onPress}>
+		<Pressable onPress={onPress} className={className}>
 			<Card
 				size="lg"
 				variant="elevated"
-				className={cn('mt-2', {
+				className={cn({
 					'border-2 border-green-500': selected,
 				})}
 			>

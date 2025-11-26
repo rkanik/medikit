@@ -4,7 +4,19 @@ import { TRecord } from '@/types/database'
 import { fs } from '@/utils/fs'
 import { useCallback, useMemo } from 'react'
 import { Alert } from 'react-native'
+import { z } from 'zod'
 import { patients } from './patients'
+
+const zRecord = z.object({
+	id: z.number().nullish(),
+	type: z.string().min(1, 'Type is required!'),
+	text: z.string().min(1, 'Text is required!'),
+	date: z.string().min(1, 'Date is required!'),
+	amount: z.number().default(0),
+	attachments: z.array(z.any()).default([]),
+})
+
+export type TZRecord = z.infer<typeof zRecord>
 
 const useRecordsStorage = () => {
 	return useMMKVArray<TRecord>(`records`, {
@@ -30,13 +42,19 @@ const useRecordsActions = () => {
 	const { data: patient } = patients.useCurrentPatient()
 
 	const submit = useCallback(
-		async (id: TMaybe<number>, item: Omit<TRecord, 'id' | 'patientId'>) => {
+		async (id: TMaybe<number>, item: TZRecord) => {
 			if (!patient) {
 				Alert.alert('Error', 'Please select a patient first')
 				return
 			}
+
+			const existingRecord = getByKey(id)
+			if (id && !existingRecord) {
+				Alert.alert('Error', 'Record not found')
+				return
+			}
+
 			if (id) {
-				const existingRecord = getByKey(id)
 				const removedAttachments = existingRecord?.attachments?.filter(
 					attachment => {
 						return !item.attachments?.some(a => {
@@ -62,9 +80,8 @@ const useRecordsActions = () => {
 			})
 			if (id) {
 				return update({
-					id,
 					...item,
-					patientId: patient.id,
+					id,
 					updatedAt: new Date().toISOString(),
 				})
 			}
@@ -99,6 +116,7 @@ const useRecordById = (id: number) => {
 }
 
 export const records = {
+	zRecord,
 	useRecords,
 	useRecordById,
 	useRecordsActions,

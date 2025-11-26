@@ -9,20 +9,21 @@ import { View } from 'react-native'
 export default function PatientsScreen() {
 	const { data } = api.patients.usePatients()
 	return (
-		<View className="flex-1">
+		<View className="flex-1 relative">
 			<FlashList
 				data={data}
-				scrollEnabled
-				contentContainerClassName="px-8 flex-col-reverse"
+				keyExtractor={item => item.id?.toString() ?? ''}
 				contentContainerStyle={{ flexGrow: 1 }}
+				contentContainerClassName="flex-col-reverse pb-20 px-4"
 				renderItem={({ item }) => (
 					<PatientCard
 						data={item}
+						className="mb-4"
 						onPress={() => router.push(`/patients/${item.id}`)}
 					/>
 				)}
 			/>
-			<View className="flex-row justify-center p-5">
+			<View className="flex-row justify-center p-5 absolute bottom-0 left-0 right-0">
 				<Button
 					size="xl"
 					variant="solid"

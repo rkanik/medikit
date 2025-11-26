@@ -6,7 +6,6 @@ import { Image } from 'expo-image'
 import { useCallback, useMemo } from 'react'
 import { GestureResponderEvent, Pressable, View } from 'react-native'
 import { Grid, GridItem } from './ui/grid'
-import { Heading } from './ui/heading'
 import { Text } from './ui/text'
 
 type TRecordCardProps = {
@@ -40,9 +39,8 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 			onPress={onPress}
 		>
 			<View className="p-5">
-				<Heading size="md">{data.title}</Heading>
-				{data.description && <Text>{data.description}</Text>}
-				{data.date && <Text>{$df(data.date, 'DD MMMM, YYYY')}</Text>}
+				<Text>{$df(data.date, 'DD MMMM, YYYY')}</Text>
+				<Text>{data.text}</Text>
 			</View>
 			{attachments.length > 0 && (
 				<Grid

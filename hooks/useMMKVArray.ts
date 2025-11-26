@@ -4,13 +4,13 @@ import { useMMKVObject } from 'react-native-mmkv'
 export const useMMKVArray = <T, K = any>(
 	key: string,
 	options?: {
-		getKey?: (item: T) => K
+		getKey?: (item: Partial<T>) => K
 	},
 ) => {
 	const [data = [], setData] = useMMKVObject<T[]>(key)
 
 	const getKey = useCallback(
-		(item: T) => {
+		(item: Partial<T>) => {
 			return options?.getKey?.(item) ?? ((v: T) => v)
 		},
 		[options],
@@ -26,7 +26,7 @@ export const useMMKVArray = <T, K = any>(
 	)
 
 	const update = useCallback(
-		(item: T) => {
+		(item: Partial<T>) => {
 			setData((data = []) => {
 				return data.map(v => {
 					if (getKey(v) === getKey(item)) {

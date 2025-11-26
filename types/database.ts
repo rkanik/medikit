@@ -15,16 +15,12 @@ export type TPatient = {
 
 export type TRecord = {
 	id: number
-	patientId: number
 	type: string
-	title: string
-	date?: TMaybe<string>
-	doctor?: TMaybe<string>
-	amount?: TMaybe<number>
-	hospital?: TMaybe<string>
-	location?: TMaybe<string>
-	description?: TMaybe<string>
-	attachments?: TMaybe<TAsset[]>
-	createdAt?: TMaybe<string>
-	updatedAt?: TMaybe<string>
+	text: string
+	date: string
+	amount: number
+	patientId: number
+	attachments: TAsset[]
+	createdAt: string
+	updatedAt: string
 }

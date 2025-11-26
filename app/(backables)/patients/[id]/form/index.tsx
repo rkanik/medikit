@@ -104,6 +104,7 @@ export default function Screen() {
 						/>
 						<BaseDatePicker
 							name="dob"
+							display="spinner"
 							label="Date of Birth"
 							placeholder="Select date of birth..."
 							control={form.control}
