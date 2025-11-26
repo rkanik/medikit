@@ -100,7 +100,7 @@ const useRecordsActions = () => {
 }
 
 const useRecordById = (id: number) => {
-	const { remove: removeItem, getByKey } = useRecordsStorage()
+	const { remove: removeData, getByKey } = useRecordsStorage()
 	const data = useMemo(() => getByKey(id), [id, getByKey])
 
 	const remove = useCallback(async () => {
@@ -109,8 +109,8 @@ const useRecordById = (id: number) => {
 				fs.remove(attachment.uri)
 			}
 		}
-		removeItem(data?.id)
-	}, [data, removeItem])
+		removeData(data?.id)
+	}, [data, removeData])
 
 	return { data, remove }
 }

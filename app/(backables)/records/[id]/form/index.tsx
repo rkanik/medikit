@@ -64,7 +64,7 @@ export default function Screen() {
 		<Fragment>
 			<Stack.Screen
 				options={{
-					title: data ? `Update Profile` : `New Profile`,
+					title: data ? `Update Record` : `New Record`,
 				}}
 			/>
 			<KeyboardAvoidingScrollView>
