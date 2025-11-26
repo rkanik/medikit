@@ -77,7 +77,7 @@ const getFolderId = async (v: TFolderOptions) => {
 	return id
 }
 
-const uploadFile = async (items: { folder: string; asset: TAsset }[]) => {
+const uploadFiles = async (files: (TAsset & { folder?: string })[]) => {
 	const tokenResponse = await GoogleSignin.getTokens()
 	if (!tokenResponse?.accessToken) {
 		return {
@@ -92,15 +92,16 @@ const uploadFile = async (items: { folder: string; asset: TAsset }[]) => {
 	})
 
 	const data: any = []
-	for (const item of items) {
+	for (const file of files) {
 		try {
-			const { folder, asset } = item
-			const parent = await getFolderId({
-				token,
-				name: folder,
-				parent: rootFolderId,
-			})
-			const name = asset.uri?.split('/').pop()!
+			const parent = file.folder
+				? await getFolderId({
+						token,
+						name: file.folder,
+						parent: rootFolderId,
+				  })
+				: rootFolderId
+			const name = file.uri?.split('/').pop()!
 			const fileId = await findFile({ name, token, parent })
 			if (fileId) {
 				data.push({
@@ -112,8 +113,8 @@ const uploadFile = async (items: { folder: string; asset: TAsset }[]) => {
 			}
 			const metadata = {
 				parents: [parent],
-				name: asset.uri?.split('/').pop(),
-				mimeType: mime.getType(asset.uri!),
+				name: file.uri?.split('/').pop(),
+				mimeType: mime.getType(file.uri!),
 			}
 			const response = await ReactNativeBlobUtil.fetch(
 				'POST',
@@ -131,7 +132,7 @@ const uploadFile = async (items: { folder: string; asset: TAsset }[]) => {
 						name: 'file',
 						type: metadata.mimeType,
 						filename: metadata.name,
-						data: ReactNativeBlobUtil.wrap(asset.uri!),
+						data: ReactNativeBlobUtil.wrap(file.uri!),
 					},
 				],
 			)
@@ -150,5 +151,5 @@ const uploadFile = async (items: { folder: string; asset: TAsset }[]) => {
 }
 
 export const drive = {
-	uploadFile,
+	uploadFiles,
 }

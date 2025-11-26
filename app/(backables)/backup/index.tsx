@@ -17,7 +17,9 @@ import { HStack } from '@/components/ui/hstack'
 import { CloseIcon, Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
+import { TPatient, TRecord } from '@/types/database'
 import { fs } from '@/utils/fs'
+import { storage } from '@/utils/storage'
 import { CloudDownloadIcon, CloudUploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
 
@@ -26,30 +28,24 @@ export default function Screen() {
 
 	const [uploading, setUploading] = useState(false)
 
-	const onUpload = useCallback(async () => {
-		// const response = await launchImageLibraryAsync({
-		// 	mediaTypes: 'images',
-		// 	allowsMultipleSelection: true,
-		// })
-		// if (response.canceled) {
-		// 	return
-		// }
-
-		const avatars = fs.getFiles('avatars')
-		const attachments = fs.getFiles('attachments')
-
+	const onUploadPatients = useCallback(async () => {
+		const base = fs.getDirectory().uri
+		const patients: TPatient[] = JSON.parse(storage.getString('patients')!)
+		const patientsJSON = patients.map(v => {
+			return {
+				...v,
+				avatar: v.avatar?.uri
+					? {
+							...v.avatar,
+							uri: v.avatar.uri.replace(base, ''),
+					  }
+					: undefined,
+			}
+		})
+		const patientsFile = fs.createJsonFile(patientsJSON, 'patients.json')
 		setUploading(true)
 		api.drive
-			.uploadFile([
-				...avatars.map(asset => ({
-					folder: 'avatars',
-					asset,
-				})),
-				...attachments.map(asset => ({
-					folder: 'attachments',
-					asset,
-				})),
-			])
+			.uploadFiles([patientsFile])
 			.then(r => {
 				console.log('response', r)
 			})
@@ -59,6 +55,63 @@ export default function Screen() {
 			.finally(() => {
 				setUploading(false)
 			})
+	}, [])
+
+	const onUploadRecords = useCallback(async () => {
+		const base = fs.getDirectory().uri
+		const records: TRecord[] = JSON.parse(storage.getString('records')!)
+		const recordsJSON = records.map(v => {
+			return {
+				...v,
+				attachments: v.attachments.map(attachment => {
+					return {
+						...attachment,
+						uri: attachment.uri?.replace(base, ''),
+					}
+				}),
+			}
+		})
+		const recordsFile = fs.createJsonFile(recordsJSON, 'records.json')
+		setUploading(true)
+		api.drive
+			.uploadFiles([recordsFile])
+			.then(r => {
+				console.log('response', r)
+			})
+			.catch(e => {
+				console.log('error', e)
+			})
+			.finally(() => {
+				setUploading(false)
+			})
+	}, [])
+
+	const onUpload = useCallback(async () => {
+		// onUploadPatients()
+		// onUploadRecords()
+		// const avatars = fs.getFiles('avatars')
+		// const attachments = fs.getFiles('attachments')
+		// setUploading(true)
+		// api.drive
+		// 	.uploadFile([
+		// 		...avatars.map(asset => ({
+		// 			folder: 'avatars',
+		// 			asset,
+		// 		})),
+		// 		...attachments.map(asset => ({
+		// 			folder: 'attachments',
+		// 			asset,
+		// 		})),
+		// 	])
+		// 	.then(r => {
+		// 		console.log('response', r)
+		// 	})
+		// 	.catch(e => {
+		// 		console.log('error', e)
+		// 	})
+		// 	.finally(() => {
+		// 		setUploading(false)
+		// 	})
 	}, [])
 	return (
 		<Box

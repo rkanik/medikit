@@ -178,6 +178,12 @@ const remove = (path: string) => {
 	}
 }
 
+const createJsonFile = (object: object, name: string) => {
+	const file = new File(Paths.join(Paths.cache, name))
+	file.write(JSON.stringify(object))
+	return file.info()
+}
+
 export const fs = {
 	getDirectory,
 	list,
@@ -191,4 +197,5 @@ export const fs = {
 	deleteItem,
 	copyAssetTo,
 	remove,
+	createJsonFile,
 }
