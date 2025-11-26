@@ -1,7 +1,9 @@
+import { useImageViewer } from '@/context/ImageViewerProvider'
 import { TRecord } from '@/types/database'
 import { cn } from '@/utils/cn'
 import { $df } from '@/utils/dayjs'
 import { Image } from 'expo-image'
+import { useCallback, useMemo } from 'react'
 import { GestureResponderEvent, Pressable, View } from 'react-native'
 import { Grid, GridItem } from './ui/grid'
 import { Heading } from './ui/heading'
@@ -14,7 +16,20 @@ type TRecordCardProps = {
 }
 
 export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
-	const attachments = data.attachments || []
+	const { openImageViewer } = useImageViewer()
+
+	const attachments = useMemo(
+		() => (data.attachments ?? []).filter(v => !!v.uri),
+		[data],
+	)
+
+	const onPressImage = useCallback(
+		(event: GestureResponderEvent, index: number) => {
+			event.stopPropagation()
+			openImageViewer(attachments, index)
+		},
+		[attachments, openImageViewer],
+	)
 
 	return (
 		<Pressable
@@ -38,17 +53,25 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 				>
 					{attachments.slice(0, 4).map((attachment, index) => (
 						<GridItem key={index} _extra={{ className: 'col-span-1' }}>
-							<Image
-								source={{ uri: attachment?.uri }}
-								style={{ width: '100%', aspectRatio: 1 }}
-								contentFit="cover"
-								contentPosition="center"
-							/>
-							{attachments.length > 4 && index === 3 && (
-								<View className="absolute inset-0 bg-black/50 p-2 items-center justify-center">
-									<Text size="4xl">+{attachments.length - 4}</Text>
-								</View>
-							)}
+							<Pressable
+								className="relative"
+								onPress={e => onPressImage(e, index)}
+							>
+								<Image
+									source={{ uri: attachment?.uri }}
+									style={{ width: '100%', aspectRatio: 1 }}
+									contentFit="cover"
+									contentPosition="center"
+								/>
+								{attachments.length > 4 && index === 3 && (
+									<View
+										pointerEvents="none"
+										className="absolute inset-0 bg-black/50 p-2 items-center justify-center"
+									>
+										<Text size="4xl">+{attachments.length - 4}</Text>
+									</View>
+								)}
+							</Pressable>
 						</GridItem>
 					))}
 				</Grid>

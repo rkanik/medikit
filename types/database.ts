@@ -2,11 +2,13 @@ import { FileInfo } from 'expo-file-system'
 import { ImagePickerAsset } from 'expo-image-picker'
 import { TMaybe } from '.'
 
+export type TAsset = FileInfo | ImagePickerAsset
+
 export type TPatient = {
 	id: number
 	name: string
 	dob?: TMaybe<string>
-	avatar?: TMaybe<FileInfo | ImagePickerAsset>
+	avatar?: TMaybe<TAsset>
 	createdAt?: TMaybe<string>
 	updatedAt?: TMaybe<string>
 }
@@ -22,7 +24,7 @@ export type TRecord = {
 	hospital?: TMaybe<string>
 	location?: TMaybe<string>
 	description?: TMaybe<string>
-	attachments?: TMaybe<FileInfo | ImagePickerAsset>[]
+	attachments?: TMaybe<TAsset[]>
 	createdAt?: TMaybe<string>
 	updatedAt?: TMaybe<string>
 }

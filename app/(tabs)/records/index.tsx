@@ -1,6 +1,7 @@
 import { api } from '@/api'
 import { RecordCard } from '@/components/RecordCard'
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
+import { ImageViewerProvider } from '@/context/ImageViewerProvider'
 import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
 import { PlusIcon } from 'lucide-react-native'
@@ -9,30 +10,32 @@ import { View } from 'react-native'
 export default function PatientsScreen() {
 	const { data } = api.records.useRecords()
 	return (
-		<View className="flex-1 relative">
-			<FlashList
-				data={data}
-				contentContainerStyle={{ flexGrow: 1 }}
-				contentContainerClassName="flex-col-reverse pb-24 px-8"
-				renderItem={({ item, index }) => (
-					<RecordCard
-						data={item}
-						className="mt-4"
-						onPress={() => router.push(`/records/${item.id}`)}
-					/>
-				)}
-			/>
-			<View className="flex-row justify-center p-5 absolute bottom-0 left-0 right-0">
-				<Button
-					size="xl"
-					variant="solid"
-					className="rounded-full"
-					onPress={() => router.push('/records/new/form')}
-				>
-					<ButtonIcon as={PlusIcon} size="lg" />
-					<ButtonText size="md">Add Record</ButtonText>
-				</Button>
+		<ImageViewerProvider>
+			<View className="flex-1 relative">
+				<FlashList
+					data={data}
+					contentContainerStyle={{ flexGrow: 1 }}
+					contentContainerClassName="flex-col-reverse pb-24 px-8"
+					renderItem={({ item, index }) => (
+						<RecordCard
+							data={item}
+							className="mt-4"
+							onPress={() => router.push(`/records/${item.id}`)}
+						/>
+					)}
+				/>
+				<View className="flex-row justify-center p-5 absolute bottom-0 left-0 right-0">
+					<Button
+						size="xl"
+						variant="solid"
+						className="rounded-full"
+						onPress={() => router.push('/records/new/form')}
+					>
+						<ButtonIcon as={PlusIcon} size="lg" />
+						<ButtonText size="md">Add Record</ButtonText>
+					</Button>
+				</View>
 			</View>
-		</View>
+		</ImageViewerProvider>
 	)
 }

@@ -14,16 +14,16 @@ import { View } from 'react-native'
 import { z } from 'zod'
 
 const zRecord = z.object({
-	id: z.number().nullable(),
+	id: z.number().nullish(),
 	type: z.string().min(1, 'Type is required!'),
 	title: z.string().min(1, 'Title is required!'),
-	description: z.string().nullable(),
-	date: z.string().nullable(),
-	doctor: z.string().nullable(),
-	hospital: z.string().nullable(),
-	location: z.string().nullable(),
-	amount: z.number().nullable(),
-	attachments: z.array(z.any()),
+	description: z.string().nullish(),
+	date: z.string().nullish(),
+	doctor: z.string().nullish(),
+	hospital: z.string().nullish(),
+	location: z.string().nullish(),
+	amount: z.number().nullish(),
+	attachments: z.array(z.any()).nullish(),
 })
 
 type TZRecord = z.infer<typeof zRecord>
