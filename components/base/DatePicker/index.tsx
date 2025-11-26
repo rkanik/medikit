@@ -1,6 +1,7 @@
 import { CloseIcon, Icon } from '@/components/ui/icon'
 import { InputField } from '@/components/ui/input'
 import { cn } from '@/utils/cn'
+import { $df } from '@/utils/dayjs'
 import { isAndroid } from '@/utils/is'
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker'
 import type { Ref } from 'react'
@@ -8,7 +9,6 @@ import { forwardRef, useCallback } from 'react'
 import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form'
 import { Pressable, Text, TextInput, TouchableOpacity } from 'react-native'
 import { BaseController, TBaseControllerProps } from '../controller'
-import { $df } from '@/utils/dayjs'
 
 type TProps<T extends FieldValues> = TBaseControllerProps<T> &
 	React.ComponentProps<typeof InputField> & {
@@ -56,8 +56,8 @@ const BaseDatePickerInner = <T extends FieldValues>(
 						<Pressable onPress={() => v.field.onChange(null)}>
 							<Icon
 								as={CloseIcon}
-								size="xl"
-								className="text-typography-500 ml-auto"
+								size="lg"
+								className="text-background-300 ml-auto"
 							/>
 						</Pressable>
 					)}

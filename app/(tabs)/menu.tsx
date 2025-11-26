@@ -1,3 +1,4 @@
+import { FileManager } from '@/components/base/FileManager'
 import { Box } from '@/components/ui/box'
 import { Button, ButtonText } from '@/components/ui/button'
 import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
@@ -13,6 +14,7 @@ export default function Screen() {
 			>
 				<ButtonText className="capitalize">{colorScheme} mode</ButtonText>
 			</Button>
+			<FileManager />
 		</Box>
 	)
 }

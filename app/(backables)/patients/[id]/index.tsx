@@ -44,75 +44,78 @@ export default function Screen() {
 					),
 				}}
 			/>
-			<View className="px-5 py-5 items-center">
-				<Avatar size="2xl">
-					<AvatarFallbackText>{data.name}</AvatarFallbackText>
-					<AvatarImage source={{ uri: data.avatar?.uri }} />
-				</Avatar>
-				<Heading size="xl" className="mt-5">
-					{data.name}
-				</Heading>
-				{data.dob && (
-					<Text>
-						{$df(data.dob, 'DD MMMM, YYYY')} ({$d().diff(data.dob, 'years')}
-						yrs)
-					</Text>
-				)}
-			</View>
-			<View className="px-5 py-5">
-				<View>
-					<Text className="uppercase text-sm tracking-wide ml-2">
-						Basic Information
-					</Text>
-					<View className="dark:bg-neutral-900 rounded-lg mt-2">
-						<BaseListItem text={data.name} icon={UserIcon} label="Name" />
-						{data.dob && (
-							<Fragment>
-								<Divider className="dark:bg-neutral-700" />
-								<BaseListItem
-									text={$df(data.dob, 'DD MMMM, YYYY')}
-									icon={CalendarIcon}
-									label="Date of Birth"
-								/>
-							</Fragment>
-						)}
-					</View>
+			<View className="flex-1 flex-col justify-end px-8 py-16">
+				<View className="items-center">
+					<Avatar size="2xl">
+						<AvatarFallbackText>{data.name}</AvatarFallbackText>
+						<AvatarImage source={{ uri: data.avatar?.uri }} />
+					</Avatar>
+					<Heading size="xl" className="mt-5">
+						{data.name}
+					</Heading>
+					{data.dob && (
+						<Text>
+							{$df(data.dob, 'DD MMMM, YYYY')} ({$d().diff(data.dob, 'years')}
+							yrs)
+						</Text>
+					)}
 				</View>
-
-				<View className="mt-5">
-					<Text className="uppercase text-sm tracking-wide ml-2">Actions</Text>
-					<View className="dark:bg-neutral-900 rounded-lg mt-2">
-						<BaseListItem
-							text="Update Profile"
-							showRightIcon
-							onPress={() => router.push(`/patients/${id}/form`)}
-						/>
-						<Divider className="dark:bg-neutral-700" />
-						<BaseListItem
-							text="Delete Profile"
-							textClassName="dark:text-red-500"
-							showRightIcon
-							rightIconClassName="dark:text-red-500"
-							onPress={() => {
-								Alert.alert(
-									'Delete Profile',
-									'Are you sure you want to delete this profile?',
-									[
-										{
-											text: 'Cancel',
-											style: 'cancel',
-										},
-										{
-											text: 'Delete',
-											onPress: () => {
-												remove()
-												router.back()
+				<View className="py-5">
+					<View>
+						<Text className="uppercase text-sm tracking-wide ml-2">
+							Basic Information
+						</Text>
+						<View className="dark:bg-neutral-900 rounded-lg mt-2">
+							<BaseListItem text={data.name} icon={UserIcon} label="Name" />
+							{data.dob && (
+								<Fragment>
+									<Divider className="dark:bg-neutral-700" />
+									<BaseListItem
+										text={$df(data.dob, 'DD MMMM, YYYY')}
+										icon={CalendarIcon}
+										label="Date of Birth"
+									/>
+								</Fragment>
+							)}
+						</View>
+					</View>
+					<View className="mt-5">
+						<Text className="uppercase text-sm tracking-wide ml-2">
+							Actions
+						</Text>
+						<View className="dark:bg-neutral-900 rounded-lg mt-2">
+							<BaseListItem
+								text="Update Profile"
+								showRightIcon
+								onPress={() => router.push(`/patients/${id}/form`)}
+							/>
+							<Divider className="dark:bg-neutral-700" />
+							<BaseListItem
+								text="Delete Profile"
+								textClassName="dark:text-red-500"
+								showRightIcon
+								rightIconClassName="dark:text-red-500"
+								onPress={() => {
+									Alert.alert(
+										'Delete Profile',
+										'Are you sure you want to delete this profile?',
+										[
+											{
+												text: 'Cancel',
+												style: 'cancel',
 											},
-										},
-									],
-								)
-							}}
-						/>
+											{
+												text: 'Delete',
+												onPress: () => {
+													remove()
+													router.back()
+												},
+											},
+										],
+									)
+								}}
+							/>
+						</View>
 					</View>
 				</View>
 			</View>
