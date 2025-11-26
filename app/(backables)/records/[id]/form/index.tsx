@@ -3,9 +3,11 @@ import { TZRecord } from '@/api/records'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
+import { BaseSelect } from '@/components/base/select'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Button, ButtonText } from '@/components/ui/button'
 import { Form, FormSubmit } from '@/components/ui/form'
+import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
@@ -70,58 +72,79 @@ export default function Screen() {
 			<KeyboardAvoidingScrollView>
 				<FormProvider {...form}>
 					<Form
-						className="px-8 py-16 flex flex-col gap-5 justify-end flex-1"
+						className="px-8 py-16 flex flex-col justify-end flex-1"
 						onSubmit={form.handleSubmit(onSubmit)}
 					>
-						<BaseImagePicker
-							name="attachments"
-							label="Attachments"
-							control={form.control}
-							options={{
-								mediaTypes: 'images',
-								allowsMultipleSelection: true,
-							}}
-						/>
-						<BaseInput
-							name="type"
-							label="Type"
-							placeholder="Enter type..."
-							control={form.control}
-							isRequired={true}
-						/>
-						<BaseInput
-							name="text"
-							label="Description"
-							placeholder="Enter description..."
-							control={form.control}
-							isRequired={true}
-						/>
-						<BaseDatePicker
-							name="date"
-							label="Date"
-							placeholder="Select date..."
-							control={form.control}
-							isRequired={true}
-						/>
-						<BaseInput
-							name="amount"
-							label="Amount"
-							keyboardType="numeric"
-							placeholder="Amount..."
-							control={form.control}
-						/>
-						<FormSubmit>
-							{props => (
-								<Button {...props} size="xl">
-									<ButtonText size="md">
-										{data ? 'Update' : 'Submit'}
-									</ButtonText>
+						<Grid className="gap-4" _extra={{ className: 'grid-cols-2' }}>
+							<GridItem _extra={{ className: 'col-span-2' }}>
+								<BaseImagePicker
+									name="attachments"
+									label="Attachments"
+									control={form.control}
+									options={{
+										mediaTypes: 'images',
+										allowsMultipleSelection: true,
+									}}
+								/>
+							</GridItem>
+							<GridItem _extra={{ className: 'col-span-2' }}>
+								<BaseSelect
+									name="type"
+									label="Type"
+									placeholder="Select type..."
+									control={form.control}
+									isRequired={true}
+									options={api.records.types}
+								/>
+							</GridItem>
+							<GridItem _extra={{ className: 'col-span-2' }}>
+								<BaseInput
+									name="text"
+									label="Description"
+									placeholder="Enter description..."
+									control={form.control}
+									isRequired={true}
+								/>
+							</GridItem>
+							<GridItem _extra={{ className: 'col-span-1' }}>
+								<BaseDatePicker
+									name="date"
+									label="Date"
+									placeholder="Select date..."
+									control={form.control}
+									isRequired={true}
+								/>
+							</GridItem>
+							<GridItem _extra={{ className: 'col-span-1' }}>
+								<BaseInput
+									name="amount"
+									label="Cost (TK)"
+									keyboardType="numeric"
+									placeholder="Cost..."
+									control={form.control}
+								/>
+							</GridItem>
+							<GridItem _extra={{ className: 'col-span-2' }}>
+								<FormSubmit>
+									{props => (
+										<Button {...props} size="xl">
+											<ButtonText size="md">
+												{data ? 'Update' : 'Submit'}
+											</ButtonText>
+										</Button>
+									)}
+								</FormSubmit>
+							</GridItem>
+							<GridItem _extra={{ className: 'col-span-2' }}>
+								<Button
+									variant="outline"
+									size="xl"
+									onPress={() => router.back()}
+								>
+									<ButtonText size="md">Cancel</ButtonText>
 								</Button>
-							)}
-						</FormSubmit>
-						<Button variant="outline" size="xl" onPress={() => router.back()}>
-							<ButtonText size="md">Cancel</ButtonText>
-						</Button>
+							</GridItem>
+						</Grid>
 						{/* <BaseJson data={form.watch()} /> */}
 					</Form>
 				</FormProvider>

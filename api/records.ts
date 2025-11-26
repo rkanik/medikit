@@ -1,10 +1,12 @@
 import { useMMKVArray } from '@/hooks/useMMKVArray'
 import { TMaybe } from '@/types'
 import { TRecord } from '@/types/database'
+import { $d } from '@/utils/dayjs'
 import { fs } from '@/utils/fs'
 import { useCallback, useMemo } from 'react'
 import { Alert } from 'react-native'
 import { z } from 'zod'
+import { api } from '.'
 import { patients } from './patients'
 
 const zRecord = z.object({
@@ -29,12 +31,44 @@ const useRecords = () => {
 	const { data: patient } = patients.useCurrentPatient()
 
 	const data = useMemo(() => {
-		return records.filter(record => {
-			return record.patientId === patient?.id
-		})
+		return records
+			.filter(record => {
+				return record.patientId === patient?.id
+			})
+			.sort((a, b) => {
+				return new Date(b.date).getTime() - new Date(a.date).getTime()
+			})
 	}, [records, patient])
 
-	return { data }
+	const summary = useMemo(() => {
+		return data.reduce(
+			(acc, record) => {
+				if ($d().isSame(record.date, 'month')) {
+					acc.thisMonth += record.amount
+				}
+				if ($d().isSame(record.date, 'year')) {
+					acc.thisYear += record.amount
+				}
+				acc.total += record.amount
+
+				api.records.types.forEach(type => {
+					if (record.type === type.value) {
+						acc.types[type.value] = (acc.types[type.value] ?? 0) + record.amount
+					}
+				})
+
+				return acc
+			},
+			{
+				total: 0,
+				thisMonth: 0,
+				thisYear: 0,
+				types: {} as Record<string, number>,
+			},
+		)
+	}, [data])
+
+	return { data, summary }
 }
 
 const useRecordsActions = () => {
@@ -115,7 +149,13 @@ const useRecordById = (id: number) => {
 	return { data, remove }
 }
 
+const types = ['Visit', 'Investigation', 'Medicine', 'Other'].map(type => ({
+	label: type,
+	value: type,
+}))
+
 export const records = {
+	types,
 	zRecord,
 	useRecords,
 	useRecordById,

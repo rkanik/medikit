@@ -20,6 +20,7 @@ const PatientItems = ({ value, onChange }: TPatientPickerProps) => {
 			renderItem={({ item }) => (
 				<PatientCard
 					data={item}
+					className="mb-4"
 					selected={value?.id === item.id}
 					onPress={() => onChange?.(item)}
 				/>

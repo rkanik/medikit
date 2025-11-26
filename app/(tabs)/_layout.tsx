@@ -24,7 +24,7 @@ const items = [
 	},
 	{
 		title: 'Menu',
-		name: 'menu',
+		name: 'menu/index',
 		icon: MenuIcon,
 	},
 ]

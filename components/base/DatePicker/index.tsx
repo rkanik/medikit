@@ -17,6 +17,8 @@ type TProps<T extends FieldValues> = TBaseControllerProps<T> &
 	React.ComponentProps<typeof InputField> &
 	Omit<AndroidNativeProps, 'value' | 'onChange'> & {
 		initialValue?: Date
+		inputFormat?: string
+		outputFormat?: string
 	}
 
 const BaseDatePickerInner = <T extends FieldValues>(
@@ -35,7 +37,7 @@ const BaseDatePickerInner = <T extends FieldValues>(
 					maximumDate: props.maximumDate,
 					onChange(_, date) {
 						if (!date) return
-						field.onChange(date.toISOString().split('T')[0])
+						field.onChange($df(date, props.outputFormat ?? 'YYYY-MM-DD'))
 					},
 				})
 			}
@@ -62,7 +64,7 @@ const BaseDatePickerInner = <T extends FieldValues>(
 						})}
 					>
 						{v.field.value
-							? $df(v.field.value, 'DD MMMM, YYYY')
+							? $df(v.field.value, props.inputFormat ?? 'YYYY-MM-DD')
 							: props.placeholder}
 					</Text>
 					{v.field.value && (

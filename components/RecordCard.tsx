@@ -6,6 +6,7 @@ import { Image } from 'expo-image'
 import { useCallback, useMemo } from 'react'
 import { GestureResponderEvent, Pressable, View } from 'react-native'
 import { Grid, GridItem } from './ui/grid'
+import { Icon, ThreeDotsIcon } from './ui/icon'
 import { Text } from './ui/text'
 
 type TRecordCardProps = {
@@ -33,26 +34,33 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 	return (
 		<Pressable
 			className={cn(
-				'dark:bg-neutral-900 rounded-lg overflow-hidden',
+				'dark:bg-neutral-900 rounded-lg overflow-hidden p-4',
 				className,
 			)}
 			onPress={onPress}
 		>
-			<View className="p-5">
-				<Text>{$df(data.date, 'DD MMMM, YYYY')}</Text>
-				<Text>{data.text}</Text>
+			<View className="flex-row justify-between">
+				<View className="flex-1 gap-1">
+					<Text className="uppercase text-sm opacity-75">
+						{$df(data.date, 'DD MMM, YYYY')} | {data.type}
+					</Text>
+					<Text className="text-lg">{data.text}</Text>
+					{data.amount > 0 && (
+						<Text bold className="text-green-500">
+							{data.amount} TK
+						</Text>
+					)}
+				</View>
+				<View className="flex-none">
+					<Icon as={ThreeDotsIcon} size="xl" />
+				</View>
 			</View>
 			{attachments.length > 0 && (
-				<Grid
-					className="gap-1"
-					_extra={{
-						className: attachments.length > 2 ? 'grid-cols-2' : 'grid-cols-1',
-					}}
-				>
-					{attachments.slice(0, 4).map((attachment, index) => (
+				<Grid className="gap-4 mt-2" _extra={{ className: 'grid-cols-3' }}>
+					{attachments.slice(0, 3).map((attachment, index) => (
 						<GridItem key={index} _extra={{ className: 'col-span-1' }}>
 							<Pressable
-								className="relative"
+								className="relative rounded-lg overflow-hidden"
 								onPress={e => onPressImage(e, index)}
 							>
 								<Image
@@ -61,12 +69,12 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 									contentFit="cover"
 									contentPosition="center"
 								/>
-								{attachments.length > 4 && index === 3 && (
+								{attachments.length > 3 && index === 2 && (
 									<View
 										pointerEvents="none"
 										className="absolute inset-0 bg-black/50 p-2 items-center justify-center"
 									>
-										<Text size="4xl">+{attachments.length - 4}</Text>
+										<Text size="4xl">+{attachments.length - 3}</Text>
 									</View>
 								)}
 							</Pressable>
