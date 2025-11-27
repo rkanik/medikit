@@ -1,9 +1,9 @@
 import { TColorScheme } from '@/types'
+import { useColorScheme } from 'nativewind'
 import { useCallback } from 'react'
-import { useColorSchemeStorage } from '../useColorSchemeStorage'
 
 export const useScheme = () => {
-	const { colorScheme } = useColorSchemeStorage()
+	const { colorScheme = 'light' } = useColorScheme()
 	const scheme = useCallback(
 		<T>(object: Partial<Record<TColorScheme, T>>) => {
 			return object[colorScheme]
