@@ -1,4 +1,4 @@
-export type TColorScheme = 'light' | 'dark'
+export type TColorScheme = 'light' | 'dark' | 'system'
 
 export type TNullable<T> = T | null
 export type TOptional<T> = T | undefined

@@ -5,7 +5,7 @@ import { useColorSchemeStorage } from '../useColorSchemeStorage'
 export const useScheme = () => {
 	const { colorScheme } = useColorSchemeStorage()
 	const scheme = useCallback(
-		<T>(object: Record<TColorScheme, T>) => {
+		<T>(object: Partial<Record<TColorScheme, T>>) => {
 			return object[colorScheme]
 		},
 		[colorScheme],

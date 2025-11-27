@@ -1,39 +1,50 @@
-import { FileManager } from '@/components/base/FileManager'
-import { ListGroup } from '@/components/base/ListGroup'
-import { BaseListItem } from '@/components/base/ListItem'
-import { Button, ButtonText } from '@/components/ui/button'
-import { Divider } from '@/components/ui/divider'
-import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
+import { ColorSchemePicker } from '@/components/ColorSchemePicker'
+import { IconCard } from '@/components/IconCard'
+import { Grid, GridItem } from '@/components/ui/grid'
 import { router } from 'expo-router'
-import { CloudUploadIcon } from 'lucide-react-native'
-import { View } from 'react-native'
+import {
+	CloudUploadIcon,
+	FolderSyncIcon,
+	PaletteIcon,
+} from 'lucide-react-native'
+import { ScrollView } from 'react-native'
 
 export default function Screen() {
-	const { colorScheme, setColorScheme } = useColorSchemeStorage()
 	return (
-		<View className="flex-1 px-4">
-			<ListGroup title="General">
-				<BaseListItem
-					showRightIcon
-					text="Backup to Cloud"
-					label="Backup"
-					icon={CloudUploadIcon}
-					onPress={() => router.push('/backup')}
-				/>
-				<Divider className="dark:bg-neutral-700" />
-				<BaseListItem showRightIcon text="Restore from Cloud" label="Restore" />
-			</ListGroup>
-
-			<View className="mt-4 dark:bg-neutral-900 rounded-lg p-4 flex-1">
-				<Button
-					onPress={() => {
-						setColorScheme(colorScheme === 'light' ? 'dark' : 'light')
-					}}
-				>
-					<ButtonText className="capitalize">{colorScheme} mode</ButtonText>
-				</Button>
-				<FileManager />
-			</View>
-		</View>
+		<ScrollView
+			contentContainerClassName="justify-end px-4 py-4"
+			contentContainerStyle={{ flexGrow: 1 }}
+		>
+			<Grid className="gap-4" _extra={{ className: 'grid-cols-3' }}>
+				<GridItem _extra={{ className: 'col-span-1' }}>
+					<IconCard
+						icon={CloudUploadIcon}
+						title="Backup"
+						iconClassName="text-blue-500"
+						onTouchStart={() => router.push('/backup')}
+					/>
+				</GridItem>
+				<GridItem _extra={{ className: 'col-span-1' }}>
+					<IconCard
+						icon={FolderSyncIcon}
+						title="Files"
+						iconClassName="text-orange-500"
+						onTouchStart={() => router.push('/files')}
+					/>
+				</GridItem>
+				<GridItem _extra={{ className: 'col-span-1' }}>
+					<ColorSchemePicker
+						trigger={v => (
+							<IconCard
+								icon={PaletteIcon}
+								title="Theme"
+								iconClassName="text-green-500"
+								onTouchStart={v.onPress}
+							/>
+						)}
+					/>
+				</GridItem>
+			</Grid>
+		</ScrollView>
 	)
 }
