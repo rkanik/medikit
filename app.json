@@ -51,6 +51,14 @@
 					"photosPermission": "Medi Kit needs access to your photo library so you can attach prescriptions and receipts.",
 					"cameraPermission": "Medi Kit needs access to your camera so you can take photos of your prescriptions and receipts."
 				}
+			],
+			[
+				"expo-notifications",
+				{
+					"icon": "./assets/images/icon.png",
+					"color": "#E6F4FE",
+					"sounds": []
+				}
 			]
 		],
 		"experiments": {

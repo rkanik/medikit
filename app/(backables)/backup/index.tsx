@@ -1,4 +1,4 @@
-import { Pressable, StatusBar, View } from 'react-native'
+import { Platform, Pressable, StatusBar, View } from 'react-native'
 
 import { api } from '@/api'
 import { Alert, AlertText } from '@/components/ui/alert'
@@ -20,13 +20,47 @@ import { useAuth } from '@/context/AuthContext'
 import { TPatient, TRecord } from '@/types/database'
 import { fs } from '@/utils/fs'
 import { storage } from '@/utils/storage'
+import * as Notifications from 'expo-notifications'
 import { CloudDownloadIcon, CloudUploadIcon } from 'lucide-react-native'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+// Configure notification handler
+Notifications.setNotificationHandler({
+	handleNotification: async () => ({
+		shouldPlaySound: false,
+		shouldSetBadge: false,
+		shouldShowBanner: true,
+		shouldShowList: true,
+	}),
+})
 
 export default function Screen() {
 	//
 	const [uploading, setUploading] = useState(false)
 	const { user, isLoading, error, login, logout, setError } = useAuth()
+	const notificationIdRef = useRef<string | null>(null)
+
+	// Set up notification channel for Android and request permissions
+	useEffect(() => {
+		const setupNotifications = async () => {
+			if (Platform.OS === 'android') {
+				await Notifications.setNotificationChannelAsync('backup-progress', {
+					name: 'Backup Progress',
+					importance: Notifications.AndroidImportance.LOW,
+					vibrationPattern: [0, 250, 250, 250],
+					lightColor: '#E6F4FE',
+				})
+			}
+
+			const { status: existingStatus } =
+				await Notifications.getPermissionsAsync()
+			if (existingStatus !== 'granted') {
+				await Notifications.requestPermissionsAsync()
+			}
+		}
+
+		setupNotifications()
+	}, [])
 
 	const createJsonFiles = useCallback(() => {
 		const base = fs.getDirectory().uri
@@ -60,6 +94,23 @@ export default function Screen() {
 		const avatars = fs.getFiles('avatars')
 		const attachments = fs.getFiles('attachments')
 		const jsonFiles = createJsonFiles()
+		const totalFiles = jsonFiles.length + avatars.length + attachments.length
+
+		// Show initial notification
+		const notificationId = await Notifications.scheduleNotificationAsync({
+			content: {
+				title: 'Backup Started',
+				body: `Uploading ${totalFiles} files to Google Drive...`,
+			},
+			trigger: null,
+			...(Platform.OS === 'android' && {
+				android: {
+					channelId: 'backup-progress',
+				},
+			}),
+		})
+		notificationIdRef.current = notificationId
+
 		api.drive.upload(
 			[
 				...jsonFiles,
@@ -73,14 +124,77 @@ export default function Screen() {
 				}),
 			],
 			{
-				onProgress: event => {
+				onProgress: async event => {
 					console.log('onProgress', JSON.stringify(event, null, 2))
+					const progress = Math.round(event.progress)
+					const fileName = event.file.uri?.split('/').pop() || 'file'
+
+					// Cancel previous notification and show updated progress
+					if (notificationIdRef.current) {
+						await Notifications.dismissNotificationAsync(
+							notificationIdRef.current,
+						)
+					}
+					const notificationId = await Notifications.scheduleNotificationAsync({
+						content: {
+							title: 'Backup in Progress',
+							body: `${progress}% - ${event.index + 1}/${
+								event.total
+							} files (${fileName})`,
+						},
+						trigger: null,
+						...(Platform.OS === 'android' && {
+							android: {
+								channelId: 'backup-progress',
+							},
+						}),
+					})
+					notificationIdRef.current = notificationId
 				},
-				onError: event => {
+				onError: async event => {
 					console.log('onError', event)
+					if (notificationIdRef.current) {
+						await Notifications.dismissNotificationAsync(
+							notificationIdRef.current,
+						)
+					}
+					await Notifications.scheduleNotificationAsync({
+						content: {
+							title: 'Backup Failed',
+							body: `Error: ${event.errorCount} file(s) failed to upload`,
+						},
+						trigger: null,
+						...(Platform.OS === 'android' && {
+							android: {
+								channelId: 'backup-progress',
+							},
+						}),
+					})
+					notificationIdRef.current = null
+					setUploading(false)
 				},
-				onComplete: event => {
+				onComplete: async event => {
 					console.log('onComplete', event)
+					if (notificationIdRef.current) {
+						await Notifications.dismissNotificationAsync(
+							notificationIdRef.current,
+						)
+					}
+					await Notifications.scheduleNotificationAsync({
+						content: {
+							title: 'Backup Complete',
+							body: `Successfully uploaded ${event.successCount} file(s)${
+								event.errorCount > 0 ? ` (${event.errorCount} failed)` : ''
+							}`,
+						},
+						trigger: null,
+						...(Platform.OS === 'android' && {
+							android: {
+								channelId: 'backup-progress',
+							},
+						}),
+					})
+					notificationIdRef.current = null
 					setUploading(false)
 				},
 			},
