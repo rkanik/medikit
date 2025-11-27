@@ -21,7 +21,7 @@ export default function Screen() {
 				contentContainerStyle={{ flexGrow: 1 }}
 				contentContainerClassName={cn('flex-col-reverse px-4', {
 					'pb-4': data.length === 0,
-					'pb-20': data.length > 0,
+					'pb-28': data.length > 0,
 				})}
 				ListFooterComponent={() => {
 					if (data.length === 0)
@@ -77,17 +77,17 @@ export default function Screen() {
 						</View>
 					)
 				}}
-				renderItem={({ item,index }) => (
+				renderItem={({ item, index }) => (
 					<RecordCard
 						data={item}
-						className={index?'mt-4':''}
-						onPress={() =>router.push(`/records/${item.id}`)}
+						className={index ? 'mt-4' : ''}
+						onPress={() => router.push(`/records/${item.id}`)}
 					/>
 				)}
 			/>
 			{data.length > 0 && (
 				<BaseActions
-					className="bottom-4"
+					className="bottom-8"
 					data={[
 						{
 							icon: PlusIcon,
@@ -96,7 +96,6 @@ export default function Screen() {
 						},
 					]}
 				/>
-				
 			)}
 		</View>
 	)

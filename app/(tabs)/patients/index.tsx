@@ -14,7 +14,7 @@ export default function PatientsScreen() {
 				data={data}
 				keyExtractor={item => item.id?.toString() ?? ''}
 				contentContainerStyle={{ flexGrow: 1 }}
-				contentContainerClassName="flex-col-reverse pb-20 px-4"
+				contentContainerClassName="flex-col-reverse pb-28 px-4"
 				renderItem={({ item, index }) => (
 					<PatientCard
 						data={item}
@@ -24,7 +24,7 @@ export default function PatientsScreen() {
 				)}
 			/>
 			<BaseActions
-				className="bottom-4"
+				className="bottom-8"
 				data={[
 					{
 						icon: PlusIcon,

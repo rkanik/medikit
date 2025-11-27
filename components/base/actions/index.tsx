@@ -17,7 +17,7 @@ export const BaseActions = ({ data, className }: TBaseActionsProps) => {
 	return (
 		<View
 			className={cn(
-				'absolute bottom-0 right-0 px-4 flex-row items-center justify-center gap-2',
+				'absolute bottom-0 right-0 px-4 flex-row items-center gap-2',
 				className,
 			)}
 		>

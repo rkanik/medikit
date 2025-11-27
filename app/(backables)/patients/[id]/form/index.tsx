@@ -9,7 +9,7 @@ import { Text } from '@/components/ui/text'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { CheckCircleIcon, XIcon } from 'lucide-react-native'
-import { Fragment, useCallback, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
 import { z } from 'zod'
@@ -63,57 +63,54 @@ export default function Screen() {
 
 	if (id !== 'new' && !data) {
 		return (
-			<Fragment>
+			<View className="flex-1 px-4">
 				<Stack.Screen options={{ title: 'Not Found!' }} />
-				<View className="flex-1 px-5">
-					<Text>Patient not found!</Text>
-				</View>
-			</Fragment>
+				<Text>Patient not found!</Text>
+			</View>
 		)
 	}
 
 	return (
-		<Fragment>
+		<KeyboardAvoidingScrollView>
 			<Stack.Screen
 				options={{
 					title: data ? `Update Patient` : `New Patient`,
 				}}
 			/>
-			<KeyboardAvoidingScrollView>
-				<FormProvider {...form}>
-					<Form
-						onSubmit={form.handleSubmit(onSubmit)}
-						className="px-4 pt-4 pb-28 flex justify-end flex-1"
-					>
-						<View className="gap-4">
-							<BaseImagePicker
-								name="avatar"
-								label="Avatar"
-								control={form.control}
-								options={{
-									aspect: [1, 1],
-									mediaTypes: 'images',
-									allowsEditing: true,
-								}}
-							/>
-							<BaseInput
-								name="name"
-								label="Name"
-								placeholder="Write name here..."
-								control={form.control}
-								isRequired={true}
-							/>
-							<BaseDatePicker
-								name="dob"
-								display="spinner"
-								initialValue={new Date('2000-01-01')}
-								label="Date of Birth"
-								placeholder="Select date of birth..."
-								control={form.control}
-							/>
-						</View>
+			<FormProvider {...form}>
+				<Form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="px-4 pt-4 pb-32 flex justify-end flex-1"
+				>
+					<View className="gap-4">
+						<BaseImagePicker
+							name="avatar"
+							label="Avatar"
+							control={form.control}
+							options={{
+								aspect: [1, 1],
+								mediaTypes: 'images',
+								allowsEditing: true,
+							}}
+						/>
+						<BaseInput
+							name="name"
+							label="Name"
+							placeholder="Write name here..."
+							control={form.control}
+							isRequired={true}
+							autoFocus={true}
+						/>
+						<BaseDatePicker
+							name="dob"
+							display="spinner"
+							initialValue={new Date('2000-01-01')}
+							label="Date of Birth"
+							placeholder="Select date of birth..."
+							control={form.control}
+						/>
 						<BaseActions
-							className="bottom-8"
+							className="relative justify-end px-0"
 							data={[
 								{
 									icon: XIcon,
@@ -128,9 +125,9 @@ export default function Screen() {
 								},
 							]}
 						/>
-					</Form>
-				</FormProvider>
-			</KeyboardAvoidingScrollView>
-		</Fragment>
+					</View>
+				</Form>
+			</FormProvider>
+		</KeyboardAvoidingScrollView>
 	)
 }
