@@ -1,4 +1,5 @@
 import { AuthProvider } from '@/context/AuthContext'
+import { ImageViewerProvider } from '@/context/ImageViewerProvider'
 import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { GestureHandlerRootView } from '../GestureHandlerRootView'
@@ -10,7 +11,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
 		<GluestackUIProvider mode={colorScheme}>
 			<GestureHandlerRootView>
 				<BottomSheetModalProvider>
-					<AuthProvider>{children}</AuthProvider>
+					<AuthProvider>
+						<ImageViewerProvider>{children}</ImageViewerProvider>
+					</AuthProvider>
 				</BottomSheetModalProvider>
 			</GestureHandlerRootView>
 		</GluestackUIProvider>

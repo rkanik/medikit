@@ -6,8 +6,6 @@ import { useScheme } from '@/hooks/useScheme'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { neutral } from 'tailwindcss/colors'
-// ;(Blob.prototype as any)[Symbol.toStringTag] = 'Blob'
-// ;(File.prototype as any)[Symbol.toStringTag] = 'File'
 
 export const unstable_settings = {
 	anchor: '(tabs)',

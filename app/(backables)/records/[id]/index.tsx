@@ -1,11 +1,14 @@
 import { api } from '@/api'
-import { BaseJson } from '@/components/base/Json'
-import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
+import { BaseActions } from '@/components/base/actions'
+import { BaseImage } from '@/components/base/image'
 import { Text } from '@/components/ui/text'
+import { useImageViewer } from '@/context/ImageViewerProvider'
+import { $df } from '@/utils/dayjs'
+// import { Image } from 'expo-image'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { EditIcon } from 'lucide-react-native'
-import { Fragment, useCallback } from 'react'
-import { Alert, ScrollView, View } from 'react-native'
+import { EditIcon, Trash2Icon } from 'lucide-react-native'
+import { Fragment, useCallback, useMemo } from 'react'
+import { Alert, GestureResponderEvent, ScrollView, View } from 'react-native'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
@@ -29,6 +32,20 @@ export default function Screen() {
 		)
 	}, [remove])
 
+	const attachments = useMemo(
+		() => (data?.attachments ?? []).filter(v => !!v.uri),
+		[data],
+	)
+
+	const { openImageViewer } = useImageViewer()
+	const onPressImage = useCallback(
+		(event: GestureResponderEvent, index: number) => {
+			event.stopPropagation()
+			openImageViewer(attachments, index)
+		},
+		[attachments, openImageViewer],
+	)
+
 	if (!data) {
 		return (
 			<Fragment>
@@ -42,27 +59,45 @@ export default function Screen() {
 
 	return (
 		<Fragment>
-			<Stack.Screen
-				options={{
-					title: 'Record',
-					headerRight: () => (
-						<Button
-							size="lg"
-							variant="link"
-							onPress={() => router.push(`/records/${id}/form`)}
-						>
-							<ButtonIcon as={EditIcon} size="lg" />
-						</Button>
-					),
-				}}
-			/>
-			<ScrollView contentContainerClassName="px-5">
-				<Text>Record: {id}</Text>
-				<Button size="xl" variant="outline" onPress={onDelete}>
-					<ButtonText size="md">Delete</ButtonText>
-				</Button>
-				<BaseJson data={data} />
-			</ScrollView>
+			<Stack.Screen options={{ title: 'Record Details' }} />
+			<View className="flex-1 relative">
+				<ScrollView contentContainerClassName="px-4 pb-28">
+					<View className="flex-row justify-between">
+						<View className="flex-1 gap-1">
+							<Text className="uppercase text-sm opacity-75">
+								{$df(data.date, 'DD MMM, YYYY')} | {data.type}
+							</Text>
+							<Text className="text-lg">{data.text}</Text>
+							{data.amount > 0 && (
+								<Text bold className="text-green-500">
+									{data.amount} TK
+								</Text>
+							)}
+						</View>
+						<View className="flex-none"></View>
+					</View>
+					<View className="mt-4 gap-4">
+						{attachments.map((attachment, index) => (
+							<BaseImage
+								key={index}
+								uri={attachment?.uri}
+								onPress={e => onPressImage(e, index)}
+							/>
+						))}
+					</View>
+				</ScrollView>
+				<BaseActions
+					className="bottom-8"
+					data={[
+						{ icon: Trash2Icon, onPress: onDelete },
+						{
+							icon: EditIcon,
+							text: 'Update',
+							onPress: () => router.push(`/records/${id}/form`),
+						},
+					]}
+				/>
+			</View>
 		</Fragment>
 	)
 }

@@ -6,13 +6,9 @@ export const KeyboardAvoidingScrollView = ({ children }: PropsWithChildren) => {
 		<KeyboardAvoidingView
 			className="flex-1"
 			behavior={Platform.select({
-				android: 'padding',
 				ios: 'height',
+				android: 'padding',
 			})}
-			// keyboardVerticalOffset={Platform.select({
-			// 	android: 100,
-			// 	ios: 0,
-			// })}
 		>
 			<ScrollView
 				keyboardShouldPersistTaps="always"

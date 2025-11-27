@@ -8,6 +8,7 @@ import { Pressable, View } from 'react-native'
 import { BaseController, TBaseControllerProps } from '../controller'
 
 import { Grid, GridItem } from '@/components/ui/grid'
+import { useImageViewer } from '@/context/ImageViewerProvider'
 import {
 	ImagePickerOptions,
 	launchImageLibraryAsync,
@@ -24,6 +25,7 @@ const BaseImagePickerInner = <T extends FieldValues>(
 ) => {
 	const [permission, request] = useMediaLibraryPermissions()
 	const allowsMultipleSelection = props.options?.allowsMultipleSelection
+	const { openImageViewer } = useImageViewer()
 
 	const toAssetArray = useCallback((value: any) => {
 		if (!value) {
@@ -95,7 +97,10 @@ const BaseImagePickerInner = <T extends FieldValues>(
 									<Pressable
 										className="relative rounded overflow-hidden border border-background-300"
 										onPress={() => {
-											if (allowsMultipleSelection) return
+											if (allowsMultipleSelection) {
+												openImageViewer(assets, index)
+												return
+											}
 											onPress(v.field)
 										}}
 									>

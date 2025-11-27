@@ -1,16 +1,17 @@
 import { api } from '@/api'
 import { TZRecord } from '@/api/records'
+import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
 import { BaseSelect } from '@/components/base/select'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
-import { Button, ButtonText } from '@/components/ui/button'
-import { Form, FormSubmit } from '@/components/ui/form'
+import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
+import { CheckCircleIcon, XIcon } from 'lucide-react-native'
 import { Fragment, useCallback, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -72,7 +73,7 @@ export default function Screen() {
 			<KeyboardAvoidingScrollView>
 				<FormProvider {...form}>
 					<Form
-						className="px-8 py-16 flex flex-col justify-end flex-1"
+						className="px-4 pt-4 pb-28 flex flex-col justify-end flex-1"
 						onSubmit={form.handleSubmit(onSubmit)}
 					>
 						<Grid className="gap-4" _extra={{ className: 'grid-cols-2' }}>
@@ -124,28 +125,23 @@ export default function Screen() {
 									control={form.control}
 								/>
 							</GridItem>
-							<GridItem _extra={{ className: 'col-span-2' }}>
-								<FormSubmit>
-									{props => (
-										<Button {...props} size="xl">
-											<ButtonText size="md">
-												{data ? 'Update' : 'Submit'}
-											</ButtonText>
-										</Button>
-									)}
-								</FormSubmit>
-							</GridItem>
-							<GridItem _extra={{ className: 'col-span-2' }}>
-								<Button
-									variant="outline"
-									size="xl"
-									onPress={() => router.back()}
-								>
-									<ButtonText size="md">Cancel</ButtonText>
-								</Button>
-							</GridItem>
 						</Grid>
-						{/* <BaseJson data={form.watch()} /> */}
+						<BaseActions
+							className="bottom-8"
+							data={[
+								{
+									icon: XIcon,
+									onPress: () => router.back(),
+								},
+								{
+									icon: CheckCircleIcon,
+									text: 'Submit',
+									onPress(e) {
+										form.handleSubmit(onSubmit)(e)
+									},
+								},
+							]}
+						/>
 					</Form>
 				</FormProvider>
 			</KeyboardAvoidingScrollView>
