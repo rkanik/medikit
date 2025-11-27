@@ -68,7 +68,7 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 							<View className="flex-1">
 								{children}
 								<BaseActions
-									className="bottom-8"
+									className="bottom-12"
 									data={[
 										{
 											icon: ChevronDownIcon,

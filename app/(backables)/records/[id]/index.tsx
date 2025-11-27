@@ -58,10 +58,10 @@ export default function Screen() {
 	}
 
 	return (
-		<Fragment>
+		<View className="flex-1">
 			<Stack.Screen options={{ title: 'Record Details' }} />
 			<ScrollView
-				contentContainerClassName="px-4 pb-12 justify-end"
+				contentContainerClassName="px-4 pb-32 justify-end"
 				contentContainerStyle={{ flexGrow: 1 }}
 			>
 				<View className="flex-row justify-between">
@@ -87,18 +87,18 @@ export default function Screen() {
 						/>
 					))}
 				</View>
-				<BaseActions
-					className="relative justify-end px-0 mt-8"
-					data={[
-						{ icon: Trash2Icon, onPress: onDelete },
-						{
-							icon: EditIcon,
-							text: 'Update',
-							onPress: () => router.push(`/records/${id}/form`),
-						},
-					]}
-				/>
 			</ScrollView>
-		</Fragment>
+			<BaseActions
+				className="bottom-12"
+				data={[
+					{ icon: Trash2Icon, onPress: onDelete },
+					{
+						icon: EditIcon,
+						text: 'Update',
+						onPress: () => router.push(`/records/${id}/form`),
+					},
+				]}
+			/>
+		</View>
 	)
 }

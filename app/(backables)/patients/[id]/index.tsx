@@ -15,7 +15,7 @@ import {
 	UserIcon,
 } from 'lucide-react-native'
 import { Fragment, useCallback } from 'react'
-import { Alert, View } from 'react-native'
+import { Alert, ScrollView, View } from 'react-native'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
@@ -46,55 +46,60 @@ export default function Screen() {
 	}
 
 	return (
-		<View className="flex-1 justify-end px-4 pt-4 pb-12">
+		<View className="flex-1">
 			<Stack.Screen options={{ title: 'Patient Details' }} />
-			<View className="items-center">
-				<Avatar size="2xl">
-					<AvatarFallbackText>{data.name}</AvatarFallbackText>
-					<AvatarImage source={{ uri: data.avatar?.uri }} />
-				</Avatar>
-				<Heading size="xl" className="mt-5">
-					{data.name}
-				</Heading>
-				{data.dob && (
-					<Text>
-						{$df(data.dob, 'DD MMMM, YYYY')} ({$d().diff(data.dob, 'years')}
-						yrs)
-					</Text>
-				)}
-			</View>
-			<View className="mt-8">
-				<Text className="uppercase text-sm tracking-wide ml-2">
-					Basic Information
-				</Text>
-				<View className="dark:bg-neutral-900 rounded-lg mt-2">
-					<BaseListItem text={data.name} icon={UserIcon} label="Name" />
+			<ScrollView
+				contentContainerClassName="px-4 pb-32 justify-end"
+				contentContainerStyle={{ flexGrow: 1 }}
+			>
+				<View className="items-center">
+					<Avatar size="2xl">
+						<AvatarFallbackText>{data.name}</AvatarFallbackText>
+						<AvatarImage source={{ uri: data.avatar?.uri }} />
+					</Avatar>
+					<Heading size="xl" className="mt-5">
+						{data.name}
+					</Heading>
 					{data.dob && (
-						<Fragment>
-							<Divider className="dark:bg-neutral-700" />
-							<BaseListItem
-								text={$df(data.dob, 'DD MMMM, YYYY')}
-								icon={CalendarIcon}
-								label="Date of Birth"
-							/>
-						</Fragment>
+						<Text>
+							{$df(data.dob, 'DD MMMM, YYYY')} ({$d().diff(data.dob, 'years')}
+							yrs)
+						</Text>
 					)}
 				</View>
-				<BaseActions
-					className="relative justify-end px-0 mt-8"
-					data={[
-						{
-							icon: Trash2Icon,
-							onPress: onDelete,
-						},
-						{
-							icon: EditIcon,
-							text: 'Update',
-							onPress: () => router.push(`/patients/${id}/form`),
-						},
-					]}
-				/>
-			</View>
+				<View className="mt-8">
+					<Text className="uppercase text-sm tracking-wide ml-2">
+						Basic Information
+					</Text>
+					<View className="dark:bg-neutral-900 rounded-lg mt-2">
+						<BaseListItem text={data.name} icon={UserIcon} label="Name" />
+						{data.dob && (
+							<Fragment>
+								<Divider className="dark:bg-neutral-700" />
+								<BaseListItem
+									text={$df(data.dob, 'DD MMMM, YYYY')}
+									icon={CalendarIcon}
+									label="Date of Birth"
+								/>
+							</Fragment>
+						)}
+					</View>
+				</View>
+			</ScrollView>
+			<BaseActions
+				className="bottom-12"
+				data={[
+					{
+						icon: Trash2Icon,
+						onPress: onDelete,
+					},
+					{
+						icon: EditIcon,
+						text: 'Update',
+						onPress: () => router.push(`/patients/${id}/form`),
+					},
+				]}
+			/>
 		</View>
 	)
 }
