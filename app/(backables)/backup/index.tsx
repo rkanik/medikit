@@ -86,7 +86,7 @@ export default function Screen() {
 		}))
 		const recordsFile = fs.createJsonFile(recordsJSON, 'records.json')
 		const patientsFile = fs.createJsonFile(patientsJSON, 'patients.json')
-		return [recordsFile, patientsFile]
+		return [recordsFile, patientsFile].map(v => ({ ...v, overwrite: true }))
 	}, [])
 
 	const onUpload = useCallback(async () => {

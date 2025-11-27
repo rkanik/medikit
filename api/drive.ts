@@ -9,6 +9,7 @@ const ROOT_FOLDER = 'MediKit'
 
 type TFile = TAsset & {
 	folder?: string
+	overwrite?: boolean
 }
 
 type TFolderOptions = {
@@ -142,6 +143,25 @@ const upload = async (
 				: rootFolderId
 			const name = file.uri?.split('/').pop()!
 			const fileId = await findFile({ name, token, parent })
+			if (fileId && !file.overwrite) {
+				successCount++
+				options?.onProgress?.({
+					file,
+					data: null,
+					error: null,
+					total: files.length,
+					index,
+					successCount,
+					errorCount,
+					progress: ((index + 1) / files.length) * 100,
+				})
+				results.push({
+					data: {
+						id: fileId,
+					},
+				})
+				continue
+			}
 			const metadata = {
 				...(fileId ? {} : { parents: [parent] }),
 				name: file.uri?.split('/').pop(),
