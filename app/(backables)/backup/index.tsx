@@ -24,95 +24,68 @@ import { CloudDownloadIcon, CloudUploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
 
 export default function Screen() {
+	//
+	const [uploading, setUploading] = useState(false)
 	const { user, isLoading, error, login, logout, setError } = useAuth()
 
-	const [uploading, setUploading] = useState(false)
-
-	const onUploadPatients = useCallback(async () => {
-		const base = fs.getDirectory().uri
-		const patients: TPatient[] = JSON.parse(storage.getString('patients')!)
-		const patientsJSON = patients.map(v => {
-			return {
-				...v,
-				avatar: v.avatar?.uri
-					? {
-							...v.avatar,
-							uri: v.avatar.uri.replace(base, ''),
-					  }
-					: undefined,
-			}
-		})
-		const patientsFile = fs.createJsonFile(patientsJSON, 'patients.json')
-		setUploading(true)
-		api.drive
-			.uploadFiles([patientsFile])
-			.then(r => {
-				console.log('response', r)
-			})
-			.catch(e => {
-				console.log('error', e)
-			})
-			.finally(() => {
-				setUploading(false)
-			})
-	}, [])
-
-	const onUploadRecords = useCallback(async () => {
+	const createJsonFiles = useCallback(() => {
 		const base = fs.getDirectory().uri
 		const records: TRecord[] = JSON.parse(storage.getString('records')!)
-		const recordsJSON = records.map(v => {
-			return {
-				...v,
-				attachments: v.attachments.map(attachment => {
-					return {
-						...attachment,
-						uri: attachment.uri?.replace(base, ''),
-					}
-				}),
-			}
-		})
+		const patients: TPatient[] = JSON.parse(storage.getString('patients')!)
+		const recordsJSON = records.map(v => ({
+			...v,
+			attachments: v.attachments.map(attachment => {
+				return {
+					...attachment,
+					uri: attachment.uri?.replace(base, ''),
+				}
+			}),
+		}))
+		const patientsJSON = patients.map(v => ({
+			...v,
+			avatar: v.avatar?.uri
+				? {
+						...v.avatar,
+						uri: v.avatar.uri.replace(base, ''),
+				  }
+				: undefined,
+		}))
 		const recordsFile = fs.createJsonFile(recordsJSON, 'records.json')
-		setUploading(true)
-		api.drive
-			.uploadFiles([recordsFile])
-			.then(r => {
-				console.log('response', r)
-			})
-			.catch(e => {
-				console.log('error', e)
-			})
-			.finally(() => {
-				setUploading(false)
-			})
+		const patientsFile = fs.createJsonFile(patientsJSON, 'patients.json')
+		return [recordsFile, patientsFile]
 	}, [])
 
 	const onUpload = useCallback(async () => {
-		// onUploadPatients()
-		// onUploadRecords()
-		// const avatars = fs.getFiles('avatars')
-		// const attachments = fs.getFiles('attachments')
-		// setUploading(true)
-		// api.drive
-		// 	.uploadFile([
-		// 		...avatars.map(asset => ({
-		// 			folder: 'avatars',
-		// 			asset,
-		// 		})),
-		// 		...attachments.map(asset => ({
-		// 			folder: 'attachments',
-		// 			asset,
-		// 		})),
-		// 	])
-		// 	.then(r => {
-		// 		console.log('response', r)
-		// 	})
-		// 	.catch(e => {
-		// 		console.log('error', e)
-		// 	})
-		// 	.finally(() => {
-		// 		setUploading(false)
-		// 	})
-	}, [])
+		setUploading(true)
+		const avatars = fs.getFiles('avatars')
+		const attachments = fs.getFiles('attachments')
+		const jsonFiles = createJsonFiles()
+		api.drive
+			.upload([
+				...jsonFiles,
+				...avatars.map(v => {
+					return {
+						...v,
+						folder: 'avatars',
+					} as any
+				}),
+				...attachments.map(v => {
+					return {
+						...v,
+						folder: 'attachments',
+					}
+				}),
+			])
+			.then(r => {
+				console.log('response', r)
+			})
+			.catch(e => {
+				console.log('error', e)
+			})
+			.finally(() => {
+				setUploading(false)
+			})
+	}, [createJsonFiles])
 	return (
 		<Box
 			style={{ paddingTop: StatusBar.currentHeight }}

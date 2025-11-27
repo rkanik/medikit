@@ -77,7 +77,7 @@ const getFolderId = async (v: TFolderOptions) => {
 	return id
 }
 
-const uploadFiles = async (files: (TAsset & { folder?: string })[]) => {
+const upload = async (files: (TAsset & { folder?: string })[]) => {
 	const tokenResponse = await GoogleSignin.getTokens()
 	if (!tokenResponse?.accessToken) {
 		return {
@@ -151,5 +151,5 @@ const uploadFiles = async (files: (TAsset & { folder?: string })[]) => {
 }
 
 export const drive = {
-	uploadFiles,
+	upload,
 }
