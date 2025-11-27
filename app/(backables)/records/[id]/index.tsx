@@ -60,44 +60,45 @@ export default function Screen() {
 	return (
 		<Fragment>
 			<Stack.Screen options={{ title: 'Record Details' }} />
-			<View className="flex-1 relative">
-				<ScrollView contentContainerClassName="px-4 pb-28">
-					<View className="flex-row justify-between">
-						<View className="flex-1 gap-1">
-							<Text className="uppercase text-sm opacity-75">
-								{$df(data.date, 'DD MMM, YYYY')} | {data.type}
+			<ScrollView
+				contentContainerClassName="px-4 pb-28 justify-end"
+				contentContainerStyle={{ flexGrow: 1 }}
+			>
+				<View className="flex-row justify-between">
+					<View className="flex-1 gap-1">
+						<Text className="uppercase text-sm opacity-75">
+							{$df(data.date, 'DD MMM, YYYY')} | {data.type}
+						</Text>
+						<Text className="text-lg">{data.text}</Text>
+						{data.amount > 0 && (
+							<Text bold className="text-green-500">
+								{data.amount} TK
 							</Text>
-							<Text className="text-lg">{data.text}</Text>
-							{data.amount > 0 && (
-								<Text bold className="text-green-500">
-									{data.amount} TK
-								</Text>
-							)}
-						</View>
-						<View className="flex-none"></View>
+						)}
 					</View>
-					<View className="mt-4 gap-4">
-						{attachments.map((attachment, index) => (
-							<BaseImage
-								key={index}
-								uri={attachment?.uri}
-								onPress={e => onPressImage(e, index)}
-							/>
-						))}
-					</View>
-				</ScrollView>
-				<BaseActions
-					className="bottom-8"
-					data={[
-						{ icon: Trash2Icon, onPress: onDelete },
-						{
-							icon: EditIcon,
-							text: 'Update',
-							onPress: () => router.push(`/records/${id}/form`),
-						},
-					]}
-				/>
-			</View>
+					<View className="flex-none"></View>
+				</View>
+				<View className="mt-4 gap-4">
+					{attachments.map((attachment, index) => (
+						<BaseImage
+							key={index}
+							uri={attachment?.uri}
+							onPress={e => onPressImage(e, index)}
+						/>
+					))}
+				</View>
+			</ScrollView>
+			<BaseActions
+				className="bottom-8"
+				data={[
+					{ icon: Trash2Icon, onPress: onDelete },
+					{
+						icon: EditIcon,
+						text: 'Update',
+						onPress: () => router.push(`/records/${id}/form`),
+					},
+				]}
+			/>
 		</Fragment>
 	)
 }

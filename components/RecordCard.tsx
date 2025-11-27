@@ -6,7 +6,6 @@ import { Image } from 'expo-image'
 import { useCallback, useMemo } from 'react'
 import { GestureResponderEvent, Pressable, View } from 'react-native'
 import { Grid, GridItem } from './ui/grid'
-import { Icon, ThreeDotsIcon } from './ui/icon'
 import { Text } from './ui/text'
 
 type TRecordCardProps = {
@@ -52,7 +51,7 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 					)}
 				</View>
 				<View className="flex-none">
-					<Icon as={ThreeDotsIcon} size="xl" />
+					{/* <Icon as={ThreeDotsIcon} size="xl" /> */}
 				</View>
 			</View>
 			{attachments.length > 0 && (

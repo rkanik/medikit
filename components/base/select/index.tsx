@@ -3,7 +3,13 @@ import { cn } from '@/utils/cn'
 import type { Ref } from 'react'
 import { forwardRef, Fragment, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
-import { Pressable, TextInput, TouchableOpacity, View } from 'react-native'
+import {
+	Keyboard,
+	Pressable,
+	TextInput,
+	TouchableOpacity,
+	View,
+} from 'react-native'
 import { BaseDialog } from '../BaseDialog'
 import { BaseController, TBaseControllerProps } from '../controller'
 
@@ -43,15 +49,18 @@ const BaseSelectInner = <T extends FieldValues>(
 								40
 							}
 							setVisible={setVisible}
-							trigger={trigger => (
+							trigger={({ onPress }) => (
 								<TouchableOpacity
-									{...trigger}
 									className={cn(
 										'border border-background-300 rounded p-2 h-12 flex-row items-center justify-between',
 										{
 											'border-red-500': !!v.fieldState.error,
 										},
 									)}
+									onPress={() => {
+										onPress()
+										Keyboard.dismiss()
+									}}
 								>
 									<Text
 										className={cn('text-typography-900 text-lg', {

@@ -1,4 +1,4 @@
-import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
+import { BaseActions } from '@/components/base/actions'
 import { Image } from 'expo-image'
 import { ChevronDownIcon } from 'lucide-react-native'
 import {
@@ -67,20 +67,16 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 						renderContainer={(children, { dismiss }) => (
 							<View className="flex-1">
 								{children}
-								<View
-									style={{ bottom: 64 }}
-									className="absolute left-0 right-0 flex-row justify-center"
-								>
-									<Button
-										size="xl"
-										variant="outline"
-										className="rounded-full"
-										onPress={dismiss}
-									>
-										<ButtonIcon as={ChevronDownIcon} size="lg" />
-										<ButtonText size="md">Close</ButtonText>
-									</Button>
-								</View>
+								<BaseActions
+									className="bottom-8"
+									data={[
+										{
+											icon: ChevronDownIcon,
+											text: 'Close',
+											onPress: dismiss,
+										},
+									]}
+								/>
 							</View>
 						)}
 					/>

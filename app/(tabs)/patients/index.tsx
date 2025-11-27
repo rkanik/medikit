@@ -15,10 +15,10 @@ export default function PatientsScreen() {
 				keyExtractor={item => item.id?.toString() ?? ''}
 				contentContainerStyle={{ flexGrow: 1 }}
 				contentContainerClassName="flex-col-reverse pb-20 px-4"
-				renderItem={({ item }) => (
+				renderItem={({ item, index }) => (
 					<PatientCard
 						data={item}
-						className="mb-4"
+						className={index ? 'mt-4' : ''}
 						onPress={() => router.push(`/patients/${item.id}`)}
 					/>
 				)}

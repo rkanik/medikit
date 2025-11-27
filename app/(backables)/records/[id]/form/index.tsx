@@ -73,7 +73,7 @@ export default function Screen() {
 			<KeyboardAvoidingScrollView>
 				<FormProvider {...form}>
 					<Form
-						className="px-4 pt-4 pb-28 flex flex-col justify-end flex-1"
+						className="px-4 pt-4 pb-28 flex justify-end flex-1"
 						onSubmit={form.handleSubmit(onSubmit)}
 					>
 						<Grid className="gap-4" _extra={{ className: 'grid-cols-2' }}>
