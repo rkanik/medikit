@@ -7,6 +7,10 @@ const GET_API = 'https://www.googleapis.com/drive/v3'
 const POST_API = 'https://www.googleapis.com/upload/drive/v3'
 const ROOT_FOLDER = 'MediKit'
 
+type TFile = TAsset & {
+	folder?: string
+}
+
 type TFolderOptions = {
 	name: string
 	parent: string
@@ -77,12 +81,42 @@ const getFolderId = async (v: TFolderOptions) => {
 	return id
 }
 
-const upload = async (files: (TAsset & { folder?: string })[]) => {
+const upload = async (
+	files: TFile[],
+	options?: {
+		onError?: (event: {
+			data?: any[]
+			error: any
+			errorCount: number
+			successCount: number
+		}) => void
+		onComplete?: (event: {
+			data: any[]
+			errorCount: number
+			successCount: number
+		}) => void
+		onProgress?: (event: {
+			file: TFile
+			data: any
+			error: any
+			total: number
+			index: number
+			progress: number
+			errorCount: number
+			successCount: number
+		}) => void
+	},
+) => {
 	const tokenResponse = await GoogleSignin.getTokens()
 	if (!tokenResponse?.accessToken) {
-		return {
-			error: 'No access token found',
-		}
+		const error = new Error('No access token found')
+		options?.onError?.({
+			data: [],
+			error,
+			errorCount: 0,
+			successCount: 0,
+		})
+		return { error }
 	}
 	const token = tokenResponse.accessToken
 	const rootFolderId = await getFolderId({
@@ -91,8 +125,13 @@ const upload = async (files: (TAsset & { folder?: string })[]) => {
 		parent: 'root',
 	})
 
-	const data: any = []
-	for (const file of files) {
+	const results: any = []
+
+	let errorCount = 0
+	let successCount = 0
+
+	for (let index = 0; index < files.length; index++) {
+		const file = files[index]
 		try {
 			const parent = file.folder
 				? await getFolderId({
@@ -103,22 +142,18 @@ const upload = async (files: (TAsset & { folder?: string })[]) => {
 				: rootFolderId
 			const name = file.uri?.split('/').pop()!
 			const fileId = await findFile({ name, token, parent })
-			if (fileId) {
-				data.push({
-					data: {
-						id: fileId,
-					},
-				})
-				continue
-			}
 			const metadata = {
-				parents: [parent],
+				...(fileId ? {} : { parents: [parent] }),
 				name: file.uri?.split('/').pop(),
 				mimeType: mime.getType(file.uri!),
 			}
+			const url = fileId
+				? `${POST_API}/files/${fileId}?uploadType=multipart`
+				: `${POST_API}/files?uploadType=multipart`
+			const method = fileId ? 'PATCH' : 'POST'
 			const response = await ReactNativeBlobUtil.fetch(
-				'POST',
-				`${POST_API}/files?uploadType=multipart`,
+				method,
+				url,
 				{
 					Authorization: `Bearer ${token}`,
 					'Content-Type': 'multipart/form-data',
@@ -136,17 +171,40 @@ const upload = async (files: (TAsset & { folder?: string })[]) => {
 					},
 				],
 			)
-			data.push({
-				data: JSON.parse(response.data),
+			const data = JSON.parse(response.data)
+			successCount++
+			options?.onProgress?.({
+				file,
+				data,
+				error: null,
+				total: files.length,
+				index,
+				successCount,
+				errorCount,
+				progress: ((index + 1) / files.length) * 100,
 			})
+			results.push({ data })
 		} catch (error) {
-			data.push({
+			errorCount++
+			options?.onProgress?.({
+				file,
 				error,
+				data: null,
+				total: files.length,
+				index,
+				successCount,
+				errorCount,
+				progress: ((index + 1) / files.length) * 100,
 			})
 		}
 	}
+	options?.onComplete?.({
+		data: results,
+		errorCount,
+		successCount,
+	})
 	return {
-		data,
+		results,
 	}
 }
 

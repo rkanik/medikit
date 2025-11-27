@@ -60,31 +60,31 @@ export default function Screen() {
 		const avatars = fs.getFiles('avatars')
 		const attachments = fs.getFiles('attachments')
 		const jsonFiles = createJsonFiles()
-		api.drive
-			.upload([
+		api.drive.upload(
+			[
 				...jsonFiles,
-				...avatars.map(v => {
-					return {
-						...v,
-						folder: 'avatars',
-					} as any
+				...avatars.map((v: any) => {
+					v.folder = 'avatars'
+					return v
 				}),
-				...attachments.map(v => {
-					return {
-						...v,
-						folder: 'attachments',
-					}
+				...attachments.map((v: any) => {
+					v.folder = 'attachments'
+					return v
 				}),
-			])
-			.then(r => {
-				console.log('response', r)
-			})
-			.catch(e => {
-				console.log('error', e)
-			})
-			.finally(() => {
-				setUploading(false)
-			})
+			],
+			{
+				onProgress: event => {
+					console.log('onProgress', JSON.stringify(event, null, 2))
+				},
+				onError: event => {
+					console.log('onError', event)
+				},
+				onComplete: event => {
+					console.log('onComplete', event)
+					setUploading(false)
+				},
+			},
+		)
 	}, [createJsonFiles])
 	return (
 		<Box
