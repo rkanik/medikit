@@ -1,4 +1,5 @@
 import { api } from '@/api'
+import { TZPatient } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
@@ -12,23 +13,13 @@ import { CheckCircleIcon, XIcon } from 'lucide-react-native'
 import { useCallback, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
-import { z } from 'zod'
-
-const zPatient = z.object({
-	id: z.number().nullable(),
-	dob: z.string().nullable(),
-	name: z.string().min(1, 'Name is required!'),
-	avatar: z.any(),
-})
-
-type TZPatient = z.infer<typeof zPatient>
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
 	const { data } = api.patients.usePatientById(Number(id))
 
 	const form = useForm({
-		resolver: zodResolver(zPatient),
+		resolver: zodResolver(api.patients.zPatient),
 		defaultValues: {
 			id: null,
 			name: '',

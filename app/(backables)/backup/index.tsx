@@ -62,7 +62,7 @@ export default function Screen() {
 
 		const drive = new GoogleDrive()
 
-		const { data: existingFiles } = await drive.list()
+		const { data: existingFiles } = await drive.find()
 		const extraFiles = (existingFiles || []).filter(v => {
 			return (
 				!['application/json', 'application/vnd.google-apps.folder'].includes(
@@ -75,7 +75,7 @@ export default function Screen() {
 		})
 
 		console.log('extraFiles', extraFiles.length)
-		drive.remove(extraFiles.map(v => v.id)).then(response => {
+		drive.delete(extraFiles.map(v => v.id)).then(response => {
 			console.log('removeResponse', response)
 		})
 
@@ -92,6 +92,19 @@ export default function Screen() {
 			},
 		})
 	}, [createJsonFiles])
+
+	const onTest = useCallback(async () => {
+		const drive = new GoogleDrive()
+		const { data } = await drive.find({
+			mimeTypes: ['image/jpeg'],
+			names: [
+				'records.json',
+				'patients.json',
+				'5c5a3be1-a7a3-4dbd-953e-6a06f917cbc3.jpeg',
+			],
+		})
+		console.log('data', JSON.stringify(data, null, 2))
+	}, [])
 
 	return (
 		<Box
@@ -177,6 +190,10 @@ export default function Screen() {
 								{isLoading && <ButtonSpinner color="gray" />}
 								<ButtonIcon as={CloudDownloadIcon} size="lg" />
 								<ButtonText>Restore from Google Drive</ButtonText>
+							</Button>
+
+							<Button onPress={onTest} className="mt-4">
+								<ButtonText>Test</ButtonText>
 							</Button>
 						</View>
 					</Card>

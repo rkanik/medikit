@@ -1,5 +1,8 @@
 import { TAsset } from '@/types/database'
-import { GoogleSignin } from '@react-native-google-signin/google-signin'
+import {
+	GetTokensResponse,
+	GoogleSignin,
+} from '@react-native-google-signin/google-signin'
 import mime from 'mime/lite'
 import ReactNativeBlobUtil from 'react-native-blob-util'
 
@@ -70,8 +73,10 @@ const createFolder = async (v: TFolderOptions) => {
 	}
 }
 
-const folderIds = new Map<string, string>()
-const getFolderId = async (v: TFolderOptions) => {
+const getFolderId = async (
+	v: TFolderOptions,
+	folderIds: Map<string, string>,
+) => {
 	const key = JSON.stringify({
 		name: v.name,
 		parent: v.parent,
@@ -82,17 +87,31 @@ const getFolderId = async (v: TFolderOptions) => {
 	return id
 }
 
+type TFindQuery = {
+	names?: string[]
+	mimeTypes?: string[]
+}
+
 export class GoogleDrive {
 	private token: string | null = null
+	private tokenPromise: Promise<GetTokensResponse> | null = null
 
 	private async getToken() {
-		if (this.token) return this.token
-		const response = await GoogleSignin.getTokens()
-		if (!response?.accessToken) {
+		try {
+			if (this.token) return this.token
+
+			this.tokenPromise = this.tokenPromise || GoogleSignin.getTokens()
+			const response = await this.tokenPromise
+
+			this.token = response.accessToken
+			this.tokenPromise = null
+
+			return this.token
+		} catch {
+			this.token = null
+			this.tokenPromise = null
 			return null
 		}
-		this.token = response.accessToken
-		return this.token
 	}
 
 	private async withToken<T>(
@@ -111,17 +130,38 @@ export class GoogleDrive {
 		return callback(token)
 	}
 
-	public async list() {
+	public async find(query?: TFindQuery) {
 		return this.withToken(async token => {
-			const r = await ReactNativeBlobUtil.fetch('GET', `${GET_API}/files`, {
-				Authorization: `Bearer ${token}`,
-			})
+			const queries: string[] = []
+			if (query?.names) {
+				queries.push(
+					`(${query.names.map(name => `name='${name}'`).join(' or ')})`,
+				)
+			}
+			if (query?.mimeTypes) {
+				queries.push(
+					`(${query.mimeTypes
+						.map(mimeType => `mimeType='${mimeType}'`)
+						.join(' or ')})`,
+				)
+			}
+			const r = await ReactNativeBlobUtil.fetch(
+				'GET',
+				`${GET_API}/files${
+					queries.length > 0
+						? `?q=${encodeURIComponent(queries.join(' and '))}`
+						: ''
+				}`,
+				{
+					Authorization: `Bearer ${token}`,
+				},
+			)
 			const data = JSON.parse(r.data)
 			return { data: data.files as any[] }
 		})
 	}
 
-	public async remove(ids: string[]) {
+	public async delete(ids: string[]) {
 		return this.withToken(async token => {
 			const results: any = []
 			for (const id of ids) {
@@ -172,11 +212,15 @@ export class GoogleDrive {
 	) {
 		return this.withToken(
 			async token => {
-				const rootFolderId = await getFolderId({
-					token,
-					name: ROOT_FOLDER,
-					parent: 'root',
-				})
+				const folderIds = new Map<string, string>()
+				const rootFolderId = await getFolderId(
+					{
+						token,
+						name: ROOT_FOLDER,
+						parent: 'root',
+					},
+					folderIds,
+				)
 
 				const results: any = []
 
@@ -187,11 +231,14 @@ export class GoogleDrive {
 					const file = files[index]
 					try {
 						const parent = file.folder
-							? await getFolderId({
-									token,
-									name: file.folder,
-									parent: rootFolderId,
-							  })
+							? await getFolderId(
+									{
+										token,
+										name: file.folder,
+										parent: rootFolderId,
+									},
+									folderIds,
+							  )
 							: rootFolderId
 						const name = file.uri?.split('/').pop()!
 						const fileId = await findFile({ name, token, parent })
@@ -288,5 +335,13 @@ export class GoogleDrive {
 				})
 			},
 		)
+	}
+
+	public async findAndDelete(query: TFindQuery) {
+		const { data } = await this.find(query)
+		if (data && data.length > 0) {
+			return this.delete(data.map(v => v.id))
+		}
+		return { data: [] }
 	}
 }
