@@ -1,4 +1,4 @@
-import { Pressable, StatusBar, View } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 
 import { GoogleDrive } from '@/api/drive'
 import { Alert, AlertText } from '@/components/ui/alert'
@@ -17,9 +17,13 @@ import { HStack } from '@/components/ui/hstack'
 import { CloseIcon, Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
+import { useMMKVArray } from '@/hooks/useMMKVArray'
+import { useBackgroundTask } from '@/services/background'
 import { TPatient, TRecord } from '@/types/database'
+import { $df } from '@/utils/dayjs'
 import { fs } from '@/utils/fs'
 import { storage } from '@/utils/storage'
+import { FlashList } from '@shopify/flash-list'
 import { CloudDownloadIcon, CloudUploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
 
@@ -106,10 +110,13 @@ export default function Screen() {
 		console.log('data', JSON.stringify(data, null, 2))
 	}, [])
 
+	const { status, isRegistered, trigger, unregister } = useBackgroundTask()
+	const { data: tasks } = useMMKVArray<any>('tasks')
+
 	return (
-		<Box
-			style={{ paddingTop: StatusBar.currentHeight }}
-			className="flex-1 px-4 py-6 gap-4"
+		<ScrollView
+			contentContainerClassName="px-4"
+			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<View className="rounded-2xl border border-emerald-200 dark:border-emerald-900 p-4 gap-2 bg-emerald-50/80 dark:bg-emerald-900/30">
 				<Text className="text-lg font-semibold text-emerald-900 dark:text-emerald-100">
@@ -219,6 +226,38 @@ export default function Screen() {
 					</HStack>
 				</Card>
 			)}
-		</Box>
+
+			<Card size="lg" variant="outline" className="mt-3">
+				<Heading size="md">Background Tasks</Heading>
+				<Text size="sm">
+					Background tasks are used to backup and restore your data to Google
+					Drive.
+				</Text>
+				<Button onPress={trigger} className="mt-3">
+					<ButtonText>Trigger</ButtonText>
+				</Button>
+				<Button onPress={unregister} className="mt-3">
+					<ButtonText>Unregister</ButtonText>
+				</Button>
+				<Divider className="my-3" />
+				<View>
+					<Text>Status: {status}</Text>
+					<Text>Is Registered: {isRegistered ? 'Yes' : 'No'}</Text>
+				</View>
+				<Text>Tasks: {tasks?.length}</Text>
+				<FlashList
+					data={tasks}
+					scrollEnabled={false}
+					keyExtractor={item => item.date}
+					renderItem={({ item }) => (
+						<View className="p-4 rounded-lg border border-neutral-200 dark:bg-neutral-900 mb-2">
+							<Text>{$df(item.date, 'DD MMM, YYYY hh:mm:ssA')}</Text>
+							<Text>Token: {item.token?.data ?? item.token?.error}</Text>
+							{/* <BaseJson data={item} /> */}
+						</View>
+					)}
+				/>
+			</Card>
+		</ScrollView>
 	)
 }
