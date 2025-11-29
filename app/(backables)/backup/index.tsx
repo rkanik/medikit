@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View } from 'react-native'
+import { Pressable, Alert as RNAlert, ScrollView, View } from 'react-native'
 
 import { Alert, AlertText } from '@/components/ui/alert'
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
@@ -22,35 +22,58 @@ import { backup } from '@/services/backup'
 import { restore } from '@/services/restore'
 import { $df } from '@/utils/dayjs'
 import { FlashList } from '@shopify/flash-list'
-import { CloudDownloadIcon, CloudUploadIcon } from 'lucide-react-native'
+import { Stack } from 'expo-router'
+import { DownloadIcon, UploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
 
 export default function Screen() {
 	//
-	const [uploading, setUploading] = useState(false)
 	const { user, isLoading, error, login, logout, setError } = useAuth()
 
+	const [isUploading, setUploading] = useState(false)
 	const onUpload = useCallback(async () => {
-		setUploading(true)
-
-		const response = await backup()
-		console.log('onUpload', response)
-
-		setUploading(false)
+		RNAlert.alert(
+			'Upload to Google Drive',
+			'Are you sure you want to upload your data to Google Drive? This will overwrite your backup data.',
+			[
+				{
+					text: 'Cancel',
+					style: 'cancel',
+				},
+				{
+					text: 'Upload',
+					onPress: async () => {
+						setUploading(true)
+						const response = await backup()
+						console.log('onUpload', response)
+						setUploading(false)
+					},
+				},
+			],
+		)
 	}, [])
 
 	const [isRestoring, setRestoring] = useState(false)
 	const onRestore = useCallback(async () => {
-		setRestoring(true)
-
-		const response = await restore()
-		console.log('onRestore', response)
-
-		setRestoring(false)
-	}, [])
-
-	const onTest = useCallback(async () => {
-		//
+		RNAlert.alert(
+			'Restore from Google Drive',
+			'Are you sure you want to restore your data from Google Drive? This will overwrite your current data.',
+			[
+				{
+					text: 'Cancel',
+					style: 'cancel',
+				},
+				{
+					text: 'Restore',
+					onPress: async () => {
+						setRestoring(true)
+						const response = await restore()
+						console.log('onRestore', response)
+						setRestoring(false)
+					},
+				},
+			],
+		)
 	}, [])
 
 	const { status, isRegistered, trigger, unregister } = useBackgroundTask()
@@ -61,14 +84,15 @@ export default function Screen() {
 			contentContainerClassName="px-4"
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
+			<Stack.Screen options={{ title: 'Backup & Restore' }} />
 			<View className="rounded-2xl border border-emerald-200 dark:border-emerald-900 p-4 gap-2 bg-emerald-50/80 dark:bg-emerald-900/30">
 				<Text className="text-lg font-semibold text-emerald-900 dark:text-emerald-100">
-					Google Drive backup
+					Google Drive Backup
 				</Text>
 				<Text className="text-sm text-emerald-900/80 dark:text-emerald-100/80">
 					Keep your medical histories safe by syncing them to your own Drive. No
 					external servers are involved — everything stays on your device until
-					you tap Backup.
+					you tap &apos;Upload to Google Drive&apos;.
 				</Text>
 			</View>
 			{error && (
@@ -88,7 +112,10 @@ export default function Screen() {
 				<View className="mt-4 gap-4">
 					<Card size="lg" variant="outline">
 						<Heading size="md">Google Account</Heading>
-						<Text size="sm">Backup and restore your data to Google Drive.</Text>
+						<Text size="sm">
+							This account will be used to backup and restore your data to
+							Google Drive.
+						</Text>
 						<Divider className="my-3" />
 						<HStack space="lg" className="items-center">
 							<Avatar size="lg">
@@ -104,46 +131,31 @@ export default function Screen() {
 								<Text size="sm">{user.email}</Text>
 							</Box>
 						</HStack>
-						<HStack>
+						<View className="flex-row">
 							<Button
 								variant="outline"
-								onPress={logout}
 								disabled={isLoading}
 								className="mt-3"
+								onPress={logout}
 							>
 								{isLoading && <ButtonSpinner color="gray" />}
 								<ButtonText>Disconnect</ButtonText>
 							</Button>
-						</HStack>
+						</View>
 					</Card>
 					<Card size="lg" variant="outline">
-						<Heading size="md">Backup</Heading>
+						<Heading size="md">Backup & Restore</Heading>
 						<Text size="sm">Backup and restore your data to Google Drive.</Text>
-						<Divider className="my-3" />
-						<View>
-							<Button
-								variant="outline"
-								onPress={onUpload}
-								disabled={uploading}
-								className="mt-3"
-							>
-								{uploading && <ButtonSpinner color="gray" />}
-								<ButtonIcon as={CloudUploadIcon} size="lg" />
+						<View className="gap-2 mt-4">
+							<Button size="2xl" disabled={isUploading} onPress={onUpload}>
+								{isUploading && <ButtonSpinner color="gray" />}
+								<ButtonIcon as={UploadIcon} size="lg" />
 								<ButtonText>Upload to Google Drive</ButtonText>
 							</Button>
-							<Button
-								variant="outline"
-								onPress={onRestore}
-								disabled={isRestoring}
-								className="mt-3"
-							>
+							<Button size="2xl" disabled={isRestoring} onPress={onRestore}>
 								{isRestoring && <ButtonSpinner color="gray" />}
-								<ButtonIcon as={CloudDownloadIcon} size="lg" />
+								<ButtonIcon as={DownloadIcon} size="lg" />
 								<ButtonText>Restore from Google Drive</ButtonText>
-							</Button>
-
-							<Button onPress={onTest} className="mt-4">
-								<ButtonText>Test</ButtonText>
 							</Button>
 						</View>
 					</Card>
@@ -152,17 +164,13 @@ export default function Screen() {
 				<Card size="lg" variant="outline" className="mt-3">
 					<Heading size="md">Google Drive Backup</Heading>
 					<Text size="sm">
-						Connect your Google account to backup and restore your data to
-						Google Drive.
+						Connect your google account to backup and restore your data to
+						Google Drive. Make sure to grant the necessary permissions to the
+						app.
 					</Text>
 					<Divider className="my-3" />
 					<HStack>
-						<Button
-							variant="outline"
-							onPress={login}
-							disabled={isLoading}
-							className="mt-3"
-						>
+						<Button onPress={login} disabled={isLoading} className="mt-3">
 							{isLoading && <ButtonSpinner color="gray" />}
 							<ButtonText>Connect Google</ButtonText>
 						</Button>
