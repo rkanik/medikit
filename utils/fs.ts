@@ -164,18 +164,19 @@ const copyAssetTo = (path: string, asset: ImagePickerAsset | FileInfo) => {
 	}
 }
 
-const remove = (path: string) => {
+type TRemovablePath = string | { uri: string }
+const remove = (path: TRemovablePath) => {
 	try {
-		const file = new File(path)
+		const file = new File(typeof path === 'string' ? path : path.uri)
 		file.delete()
-		return {
-			error: null,
-		}
+		return { error: null }
 	} catch (error: any) {
-		return {
-			error,
-		}
+		return { error }
 	}
+}
+
+const removeMany = (paths: TRemovablePath[]) => {
+	return paths.map(path => remove(path))
 }
 
 const createJsonFile = (object: object, name: string) => {
@@ -197,5 +198,6 @@ export const fs = {
 	deleteItem,
 	copyAssetTo,
 	remove,
+	removeMany,
 	createJsonFile,
 }

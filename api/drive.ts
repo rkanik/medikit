@@ -1,4 +1,3 @@
-import { TAsset } from '@/types/database'
 import {
 	GetTokensResponse,
 	GoogleSignin,
@@ -10,7 +9,8 @@ const GET_API = 'https://www.googleapis.com/drive/v3'
 const POST_API = 'https://www.googleapis.com/upload/drive/v3'
 const ROOT_FOLDER = 'MediKit'
 
-type TFile = TAsset & {
+type TFile = {
+	uri: string
 	folder?: string
 	overwrite?: boolean
 }

@@ -1,6 +1,5 @@
 import { Pressable, ScrollView, View } from 'react-native'
 
-import { GoogleDrive } from '@/api/drive'
 import { Alert, AlertText } from '@/components/ui/alert'
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
 import { Box } from '@/components/ui/box'
@@ -19,10 +18,8 @@ import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
 import { useMMKVArray } from '@/hooks/useMMKVArray'
 import { useBackgroundTask } from '@/services/background'
-import { TPatient, TRecord } from '@/types/database'
+import { backup } from '@/services/backup'
 import { $df } from '@/utils/dayjs'
-import { fs } from '@/utils/fs'
-import { storage } from '@/utils/storage'
 import { FlashList } from '@shopify/flash-list'
 import { CloudDownloadIcon, CloudUploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
@@ -32,82 +29,17 @@ export default function Screen() {
 	const [uploading, setUploading] = useState(false)
 	const { user, isLoading, error, login, logout, setError } = useAuth()
 
-	const createJsonFiles = useCallback(() => {
-		const base = fs.getDirectory().uri
-		const records: TRecord[] = JSON.parse(storage.getString('records')!)
-		const patients: TPatient[] = JSON.parse(storage.getString('patients')!)
-		const recordsJSON = records.map(v => ({
-			...v,
-			attachments: v.attachments
-				.filter(v => v.uri)
-				.map(v => v.uri!.replace(base, '')),
-		}))
-		const patientsJSON = patients.map(v => ({
-			...v,
-			avatar: (v.avatar?.uri || '').replace(base, ''),
-		}))
-		const recordsFile = fs.createJsonFile(recordsJSON, 'records.json')
-		const patientsFile = fs.createJsonFile(patientsJSON, 'patients.json')
-		return [recordsFile, patientsFile].map(v => ({ ...v, overwrite: true }))
-	}, [])
-
 	const onUpload = useCallback(async () => {
 		setUploading(true)
 
-		const jsonFiles = createJsonFiles()
-		const avatars = fs.getFiles('avatars').map((v: any) => {
-			v.folder = 'avatars'
-			return v
-		})
-		const attachments = fs.getFiles('attachments').map((v: any) => {
-			v.folder = 'attachments'
-			return v
-		})
+		const response = await backup()
+		console.log('onUpload', response)
 
-		const drive = new GoogleDrive()
-
-		const { data: existingFiles } = await drive.find()
-		const extraFiles = (existingFiles || []).filter(v => {
-			return (
-				!['application/json', 'application/vnd.google-apps.folder'].includes(
-					v.mimeType,
-				) &&
-				![...avatars, ...attachments].some(
-					avatar => avatar.uri.split('/').pop() === v.name,
-				)
-			)
-		})
-
-		console.log('extraFiles', extraFiles.length)
-		drive.delete(extraFiles.map(v => v.id)).then(response => {
-			console.log('removeResponse', response)
-		})
-
-		drive.upload([...jsonFiles, ...avatars, ...attachments], {
-			onProgress: async event => {
-				console.log('onProgress', JSON.stringify(event, null, 2))
-			},
-			onError: async event => {
-				console.log('onError', event)
-			},
-			onComplete: async event => {
-				console.log('onComplete', event)
-				setUploading(false)
-			},
-		})
-	}, [createJsonFiles])
+		setUploading(false)
+	}, [])
 
 	const onTest = useCallback(async () => {
-		const drive = new GoogleDrive()
-		const { data } = await drive.find({
-			mimeTypes: ['image/jpeg'],
-			names: [
-				'records.json',
-				'patients.json',
-				'5c5a3be1-a7a3-4dbd-953e-6a06f917cbc3.jpeg',
-			],
-		})
-		console.log('data', JSON.stringify(data, null, 2))
+		//
 	}, [])
 
 	const { status, isRegistered, trigger, unregister } = useBackgroundTask()

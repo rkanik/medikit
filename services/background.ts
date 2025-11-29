@@ -1,4 +1,3 @@
-import { storage } from '@/utils/storage'
 import {
 	BackgroundTaskResult,
 	BackgroundTaskStatus,
@@ -9,70 +8,23 @@ import {
 } from 'expo-background-task'
 import { defineTask, isTaskRegisteredAsync } from 'expo-task-manager'
 import { useCallback, useEffect, useState } from 'react'
-
-import {
-	SchedulableTriggerInputTypes,
-	scheduleNotificationAsync,
-	setNotificationHandler,
-} from 'expo-notifications'
+import { backup } from './backup'
 
 const taskName = 'MediKitBackupBackgroundTask'
 const minimumInterval = 15 // 15 minutes
-
-setNotificationHandler({
-	handleNotification: async () => ({
-		shouldPlaySound: true,
-		shouldSetBadge: false,
-		shouldShowBanner: true,
-		shouldShowList: true,
-	}),
-})
 
 export const initializeBackgroundTask = async (
 	innerAppMountedPromise: Promise<void>,
 ) => {
 	defineTask(taskName, async event => {
 		console.log(`[${taskName}]: 🔃 Background task started`)
-
 		await innerAppMountedPromise
 
-		let items: any[] = JSON.parse(storage.getString('tasks') || '[]')
-		try {
-			// const token: any = {}
-			// try {
-			// 	const tokenResponse = await GoogleSignin.getTokens()
-			// 	token.data = tokenResponse.accessToken
-			// } catch (error) {
-			// 	token.error = error
-			// }
-			items.unshift({
-				date: new Date().toISOString(),
-				// token,
-				event,
-			})
-			if (items.length > 5) {
-				items = items.slice(0, 5)
-			}
-			storage.set('tasks', JSON.stringify(items))
-			await scheduleNotificationAsync({
-				content: {
-					title: 'Backup',
-					body: 'Backup completed',
-				},
-				trigger: {
-					type: SchedulableTriggerInputTypes.TIME_INTERVAL,
-					seconds: 1,
-				},
-			})
-		} catch (error) {
-			items.push({ date: new Date().toISOString(), error })
-			storage.set('tasks', JSON.stringify(items))
+		console.log(`[${taskName}]: ✅ backup started`)
+		await backup()
+		console.log(`[${taskName}]: ✅ backup completed`)
 
-			console.log(`[${taskName}]: ❌ Background task failed`, error)
-			return BackgroundTaskResult.Failed
-		}
-
-		console.log(`[${taskName}]: ✅ Background task done`)
+		console.log(`[${taskName}]: ✅ background task done`)
 		return BackgroundTaskResult.Success
 	})
 
@@ -143,9 +95,9 @@ export const useBackgroundTask = () => {
 	return {
 		status,
 		isRegistered,
-		register,
-		unregister,
 		toggle,
 		trigger,
+		register,
+		unregister,
 	}
 }

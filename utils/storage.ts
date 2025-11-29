@@ -1,24 +1,22 @@
 import { createMMKV } from 'react-native-mmkv'
-import { fs } from './fs'
 
-export const storage = createMMKV()
+const mmkv = createMMKV()
 
-export const createFile = <T = any, R = any>(options: {
-	name: string
-	overwrite?: boolean
-	map?: (item: T, index: number) => R | T
-}) => {
+const getArray = <T = any>(name: string): T[] => {
 	try {
-		const items: T[] = JSON.parse(storage.getString(options.name)!)
-		const file = fs.createJsonFile(
-			items.map(options.map ?? (item => item)),
-			`${options.name}.json`,
-		)
-		return {
-			...file,
-			overwrite: options.overwrite ?? false,
-		}
+		const string = mmkv.getString(name)
+		const parsed = JSON.parse(string || '[]')
+		if (Array.isArray(parsed)) return parsed
+		return []
 	} catch {
-		return null
+		return []
 	}
+}
+
+Object.assign(mmkv, {
+	getArray,
+})
+
+export const storage = mmkv as typeof mmkv & {
+	getArray: typeof getArray
 }
