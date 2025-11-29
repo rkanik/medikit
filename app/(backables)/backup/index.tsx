@@ -19,6 +19,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useMMKVArray } from '@/hooks/useMMKVArray'
 import { useBackgroundTask } from '@/services/background'
 import { backup } from '@/services/backup'
+import { restore } from '@/services/restore'
 import { $df } from '@/utils/dayjs'
 import { FlashList } from '@shopify/flash-list'
 import { CloudDownloadIcon, CloudUploadIcon } from 'lucide-react-native'
@@ -36,6 +37,16 @@ export default function Screen() {
 		console.log('onUpload', response)
 
 		setUploading(false)
+	}, [])
+
+	const [isRestoring, setRestoring] = useState(false)
+	const onRestore = useCallback(async () => {
+		setRestoring(true)
+
+		const response = await restore()
+		console.log('onRestore', response)
+
+		setRestoring(false)
 	}, [])
 
 	const onTest = useCallback(async () => {
@@ -122,11 +133,11 @@ export default function Screen() {
 							</Button>
 							<Button
 								variant="outline"
-								onPress={logout}
-								disabled={isLoading}
+								onPress={onRestore}
+								disabled={isRestoring}
 								className="mt-3"
 							>
-								{isLoading && <ButtonSpinner color="gray" />}
+								{isRestoring && <ButtonSpinner color="gray" />}
 								<ButtonIcon as={CloudDownloadIcon} size="lg" />
 								<ButtonText>Restore from Google Drive</ButtonText>
 							</Button>

@@ -2,6 +2,7 @@ import {
 	GetTokensResponse,
 	GoogleSignin,
 } from '@react-native-google-signin/google-signin'
+import { Directory, File } from 'expo-file-system'
 import mime from 'mime/lite'
 import ReactNativeBlobUtil from 'react-native-blob-util'
 
@@ -89,12 +90,32 @@ const getFolderId = async (
 
 type TFindQuery = {
 	names?: string[]
+	parent?: string
 	mimeTypes?: string[]
 }
 
 export class GoogleDrive {
 	private token: string | null = null
 	private tokenPromise: Promise<GetTokensResponse> | null = null
+
+	constructor(public rootFolder = 'MediKit') {
+		//
+	}
+
+	public async download(id: string, destination: Directory | File) {
+		return this.withToken(async token => {
+			return File.downloadFileAsync(
+				`${GET_API}/files/${id}?alt=media`,
+				destination,
+				{
+					idempotent: true,
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			)
+		})
+	}
 
 	private async getToken() {
 		try {
@@ -145,19 +166,27 @@ export class GoogleDrive {
 						.join(' or ')})`,
 				)
 			}
+
+			const params = new URLSearchParams({
+				q: queries.join(' and '),
+				fields: 'files(id,name,mimeType,parents)',
+			})
+
 			const r = await ReactNativeBlobUtil.fetch(
 				'GET',
-				`${GET_API}/files${
-					queries.length > 0
-						? `?q=${encodeURIComponent(queries.join(' and '))}`
-						: ''
-				}`,
+				`${GET_API}/files?${params.toString()}`,
 				{
 					Authorization: `Bearer ${token}`,
 				},
 			)
 			const data = JSON.parse(r.data)
 			return { data: data.files as any[] }
+		})
+	}
+
+	public async getRootFolder() {
+		return this.withToken(async token => {
+			return this.find({ names: [this.rootFolder] })
 		})
 	}
 
