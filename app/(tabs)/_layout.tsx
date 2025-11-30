@@ -8,6 +8,7 @@ import { CurrentPatientPicker } from '@/components/CurrentPatientPicker'
 import { Text } from '@/components/ui/text'
 import { useScheme } from '@/hooks/useScheme'
 import { cn } from '@/utils/cn'
+import { Image } from 'expo-image'
 import { View } from 'react-native'
 import { green, neutral } from 'tailwindcss/colors'
 
@@ -60,9 +61,17 @@ export default function TabLayout() {
 					}),
 				},
 				headerTitle: () => (
-					<Text size="2xl" bold className="text-green-500">
-						Medi Kit
-					</Text>
+					<View className="flex-row items-center gap-2">
+						<View className="w-12 h-12 bg-white dark:bg-neutral-900 p-3 rounded-full items-center justify-center">
+							<Image
+								source={require('@/assets/images/icon2.png')}
+								style={{ width: '100%', aspectRatio: 1 }}
+							/>
+						</View>
+						<Text size="2xl" className="text-green-600 font-semibold">
+							Medi Kit
+						</Text>
+					</View>
 				),
 				headerRight: () => (
 					<View className="mr-5">

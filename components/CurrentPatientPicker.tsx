@@ -10,11 +10,7 @@ export const CurrentPatientPicker = () => {
 			height={400}
 			onChange={patient => setData(patient?.id)}
 			trigger={({ onPress }) => (
-				<Avatar
-					size="md"
-					onTouchStart={onPress}
-					className="border-2 dark:border-neutral-500"
-				>
+				<Avatar size="md" onTouchStart={onPress}>
 					<AvatarFallbackText>{data?.name}</AvatarFallbackText>
 					<AvatarImage source={{ uri: data?.avatar?.uri }} />
 				</Avatar>
