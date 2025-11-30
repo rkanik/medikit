@@ -16,12 +16,8 @@ import { HStack } from '@/components/ui/hstack'
 import { CloseIcon, Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
-import { useMMKVArray } from '@/hooks/useMMKVArray'
-import { useBackgroundTask } from '@/services/background'
 import { backup } from '@/services/backup'
 import { restore } from '@/services/restore'
-import { $df } from '@/utils/dayjs'
-import { FlashList } from '@shopify/flash-list'
 import { Stack } from 'expo-router'
 import { DownloadIcon, UploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
@@ -76,8 +72,8 @@ export default function Screen() {
 		)
 	}, [])
 
-	const { status, isRegistered, trigger, unregister } = useBackgroundTask()
-	const { data: tasks } = useMMKVArray<any>('tasks')
+	// const { status, isRegistered, trigger, unregister } = useBackgroundTask()
+	// const { data: tasks } = useMMKVArray<any>('tasks')
 
 	return (
 		<ScrollView
@@ -178,7 +174,7 @@ export default function Screen() {
 				</Card>
 			)}
 
-			<Card size="lg" variant="outline" className="mt-3">
+			{/* <Card size="lg" variant="outline" className="mt-3">
 				<Heading size="md">Background Tasks</Heading>
 				<Text size="sm">
 					Background tasks are used to backup and restore your data to Google
@@ -204,11 +200,10 @@ export default function Screen() {
 						<View className="p-4 rounded-lg border border-neutral-200 dark:bg-neutral-900 mb-2">
 							<Text>{$df(item.date, 'DD MMM, YYYY hh:mm:ssA')}</Text>
 							<Text>Token: {item.token?.data ?? item.token?.error}</Text>
-							{/* <BaseJson data={item} /> */}
 						</View>
 					)}
 				/>
-			</Card>
+			</Card> */}
 		</ScrollView>
 	)
 }
