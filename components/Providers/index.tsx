@@ -8,14 +8,14 @@ import { GluestackUIProvider } from '../ui/gluestack-ui-provider'
 export const Providers = ({ children }: { children: React.ReactNode }) => {
 	const { colorScheme } = useColorSchemeStorage()
 	return (
-		<GluestackUIProvider mode={colorScheme}>
-			<GestureHandlerRootView>
+		<GestureHandlerRootView>
+			<GluestackUIProvider mode={colorScheme}>
 				<BottomSheetModalProvider>
 					<AuthProvider>
 						<ImageViewerProvider>{children}</ImageViewerProvider>
 					</AuthProvider>
 				</BottomSheetModalProvider>
-			</GestureHandlerRootView>
-		</GluestackUIProvider>
+			</GluestackUIProvider>
+		</GestureHandlerRootView>
 	)
 }

@@ -10,7 +10,7 @@ import {
 import type { Ref } from 'react'
 import { forwardRef, useCallback } from 'react'
 import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form'
-import { Pressable, View } from 'react-native'
+import { Keyboard, Pressable, View } from 'react-native'
 import { BaseController, TBaseControllerProps } from '../controller'
 
 import { Grid, GridItem } from '@/components/ui/grid'
@@ -20,6 +20,7 @@ import { getDocumentAsync } from 'expo-document-picker'
 import { File } from 'expo-file-system'
 import {
 	ImagePickerOptions,
+	launchCameraAsync,
 	launchImageLibraryAsync,
 	useMediaLibraryPermissions,
 } from 'expo-image-picker'
@@ -96,9 +97,10 @@ const BaseImagePickerInner = <T extends FieldValues>(
 				const { outputFiles } = await convertPdfToImage(asset.uri)
 				if (outputFiles?.length) {
 					for (const outputFile of outputFiles) {
-						const file = new File(`file://${outputFile}`)
-						if (file.exists) {
-							images.push(file.info())
+						const file = new File(outputFile)
+						const fileInfo = file.info()
+						if (fileInfo.exists) {
+							images.push(fileInfo)
 						}
 					}
 				}
@@ -110,8 +112,21 @@ const BaseImagePickerInner = <T extends FieldValues>(
 	)
 
 	const onPressCamera = useCallback(
-		(field: ControllerRenderProps<T, Path<T>>) => {
-			console.log('onPressCamera', field)
+		async (field: ControllerRenderProps<T, Path<T>>) => {
+			// First, capture the image without editing
+			const result = await launchCameraAsync({
+				allowsEditing: false,
+				mediaTypes: ['images'],
+				allowsMultipleSelection: false,
+				quality: 1,
+			})
+			if (result.canceled) {
+				return
+			}
+
+			const capturedImage = result.assets[0]
+
+			console.log('capturedImage', capturedImage)
 		},
 		[],
 	)
@@ -173,11 +188,14 @@ const BaseImagePickerInner = <T extends FieldValues>(
 								>
 									<BaseDialog
 										height={180}
-										trigger={props => (
+										trigger={({ onPress }) => (
 											<Button
-												{...props}
 												variant="outline"
 												className="border-background-300 h-full"
+												onPress={() => {
+													Keyboard.dismiss()
+													onPress()
+												}}
 											>
 												<ButtonIcon as={PlusIcon} size="lg" />
 											</Button>

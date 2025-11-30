@@ -11,7 +11,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { backup } from './backup'
 
 const taskName = 'MediKitBackupBackgroundTask'
-const minimumInterval = 15 // 15 minutes
+const minimumInterval: number | undefined = undefined //15 // 15 minutes
 
 export const initializeBackgroundTask = async (
 	innerAppMountedPromise: Promise<void>,
