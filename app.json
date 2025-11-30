@@ -32,6 +32,8 @@
     },
     "plugins": [
       "expo-router",
+      "expo-document-picker",
+      "expo-background-task",
       "@react-native-google-signin/google-signin",
       [
         "expo-splash-screen",
@@ -59,8 +61,8 @@
           "color": "#E6F4FE",
           "sounds": []
         }
-      ],
-      "expo-background-task"
+      ]
+      
     ],
     "experiments": {
       "typedRoutes": true,

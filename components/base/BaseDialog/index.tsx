@@ -71,6 +71,7 @@ export const BaseDialog = (props: TBaseDialogProps) => {
 					nestedScrollEnabled
 					keyboardShouldPersistTaps="always"
 					automaticallyAdjustKeyboardInsets={true}
+					contentContainerStyle={{ flexGrow: 1 }}
 				>
 					{children}
 				</BottomSheetScrollView>

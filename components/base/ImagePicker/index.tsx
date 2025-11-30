@@ -1,6 +1,12 @@
 import { Button, ButtonIcon } from '@/components/ui/button'
 import { Image } from 'expo-image'
-import { PlusIcon, XIcon } from 'lucide-react-native'
+import {
+	CameraIcon,
+	FolderIcon,
+	ImageIcon,
+	PlusIcon,
+	XIcon,
+} from 'lucide-react-native'
 import type { Ref } from 'react'
 import { forwardRef, useCallback } from 'react'
 import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form'
@@ -8,12 +14,17 @@ import { Pressable, View } from 'react-native'
 import { BaseController, TBaseControllerProps } from '../controller'
 
 import { Grid, GridItem } from '@/components/ui/grid'
+import { Icon } from '@/components/ui/icon'
 import { useImageViewer } from '@/context/ImageViewerProvider'
+import { getDocumentAsync } from 'expo-document-picker'
+import { File } from 'expo-file-system'
 import {
 	ImagePickerOptions,
 	launchImageLibraryAsync,
 	useMediaLibraryPermissions,
 } from 'expo-image-picker'
+import { convert as convertPdfToImage } from 'react-native-pdf-to-image'
+import { BaseDialog } from '../BaseDialog'
 
 type TProps<T extends FieldValues> = TBaseControllerProps<T> & {
 	options?: ImagePickerOptions
@@ -37,7 +48,7 @@ const BaseImagePickerInner = <T extends FieldValues>(
 		return [value]
 	}, [])
 
-	const onPress = useCallback(
+	const onPressImage = useCallback(
 		async (field: ControllerRenderProps<T, Path<T>>) => {
 			if (permission?.status !== 'granted') {
 				const permissionResponse = await request()
@@ -71,6 +82,40 @@ const BaseImagePickerInner = <T extends FieldValues>(
 		[permission, request, props.options, allowsMultipleSelection, toAssetArray],
 	)
 
+	const onPressFolder = useCallback(
+		async (field: ControllerRenderProps<T, Path<T>>) => {
+			const result = await getDocumentAsync({
+				type: 'application/pdf',
+				multiple: true,
+			})
+			if (result.canceled) {
+				return
+			}
+			const images: any[] = []
+			for (const asset of result.assets) {
+				const { outputFiles } = await convertPdfToImage(asset.uri)
+				if (outputFiles?.length) {
+					for (const outputFile of outputFiles) {
+						const file = new File(`file://${outputFile}`)
+						if (file.exists) {
+							images.push(file.info())
+						}
+					}
+				}
+			}
+			const assets = toAssetArray(field.value)
+			field.onChange(assets.concat(images))
+		},
+		[toAssetArray],
+	)
+
+	const onPressCamera = useCallback(
+		(field: ControllerRenderProps<T, Path<T>>) => {
+			console.log('onPressCamera', field)
+		},
+		[],
+	)
+
 	const handleRemove = useCallback(
 		(field: ControllerRenderProps<T, Path<T>>, index: number) => {
 			if (allowsMultipleSelection) {
@@ -101,7 +146,7 @@ const BaseImagePickerInner = <T extends FieldValues>(
 												openImageViewer(assets, index)
 												return
 											}
-											onPress(v.field)
+											onPressImage(v.field)
 										}}
 									>
 										<Image
@@ -123,16 +168,45 @@ const BaseImagePickerInner = <T extends FieldValues>(
 							{(allowsMultipleSelection ||
 								(!allowsMultipleSelection && !assets.length)) && (
 								<GridItem
-									className="aspect-square"
 									_extra={{ className: 'col-span-1' }}
+									className="aspect-square"
 								>
-									<Button
-										variant="outline"
-										className="border-background-300 h-full"
-										onPress={() => onPress(v.field)}
+									<BaseDialog
+										height={180}
+										trigger={props => (
+											<Button
+												{...props}
+												variant="outline"
+												className="border-background-300 h-full"
+											>
+												<ButtonIcon as={PlusIcon} size="lg" />
+											</Button>
+										)}
 									>
-										<ButtonIcon as={PlusIcon} size="lg" />
-									</Button>
+										<View className="flex-1 items-center flex-row gap-4 justify-center px-4 pb-4">
+											<Button
+												variant="outline"
+												className="h-20 w-20 rounded-full"
+												onPress={() => onPressFolder(v.field)}
+											>
+												<Icon as={FolderIcon} size="2xl" />
+											</Button>
+											<Button
+												variant="outline"
+												className="h-20 w-20 rounded-full"
+												onPress={() => onPressImage(v.field)}
+											>
+												<Icon as={ImageIcon} size="2xl" />
+											</Button>
+											<Button
+												variant="outline"
+												className="h-20 w-20 rounded-full"
+												onPress={() => onPressCamera(v.field)}
+											>
+												<Icon as={CameraIcon} size="2xl" />
+											</Button>
+										</View>
+									</BaseDialog>
 								</GridItem>
 							)}
 						</Grid>
