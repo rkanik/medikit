@@ -16,11 +16,12 @@ import { BaseController, TBaseControllerProps } from '../controller'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Icon } from '@/components/ui/icon'
 import { useImageViewer } from '@/context/ImageViewerProvider'
+import { launchScanner } from '@dariyd/react-native-document-scanner'
 import { getDocumentAsync } from 'expo-document-picker'
 import { File } from 'expo-file-system'
+
 import {
 	ImagePickerOptions,
-	launchCameraAsync,
 	launchImageLibraryAsync,
 	useMediaLibraryPermissions,
 } from 'expo-image-picker'
@@ -113,22 +114,15 @@ const BaseImagePickerInner = <T extends FieldValues>(
 
 	const onPressCamera = useCallback(
 		async (field: ControllerRenderProps<T, Path<T>>) => {
-			// First, capture the image without editing
-			const result = await launchCameraAsync({
-				allowsEditing: false,
-				mediaTypes: ['images'],
-				allowsMultipleSelection: false,
+			const result = await launchScanner({
 				quality: 1,
+				includeBase64: false,
 			})
-			if (result.canceled) {
-				return
+			if (result.images?.length) {
+				field.onChange([...toAssetArray(field.value), ...result.images])
 			}
-
-			const capturedImage = result.assets[0]
-
-			console.log('capturedImage', capturedImage)
 		},
-		[],
+		[toAssetArray],
 	)
 
 	const handleRemove = useCallback(
