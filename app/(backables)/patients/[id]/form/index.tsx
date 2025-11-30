@@ -78,11 +78,8 @@ export default function Screen() {
 							name="avatar"
 							label="Avatar"
 							control={form.control}
-							options={{
-								aspect: [1, 1],
-								mediaTypes: 'images',
-								allowsEditing: true,
-							}}
+							aspect={[1, 1]}
+							multiple={false}
 						/>
 						<BaseInput
 							name="name"

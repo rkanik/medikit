@@ -79,10 +79,8 @@ export default function Screen() {
 								name="attachments"
 								label="Attachments"
 								control={form.control}
-								options={{
-									mediaTypes: 'images',
-									allowsMultipleSelection: true,
-								}}
+								scanner={true}
+								multiple={true}
 							/>
 						</GridItem>
 						<GridItem _extra={{ className: 'col-span-2' }}>
