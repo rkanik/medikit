@@ -1,10 +1,26 @@
 import { GoogleDrive } from '@/api/drive'
 import { TPatient, TRecord } from '@/types/database'
+import { $df } from '@/utils/dayjs'
 import { fs } from '@/utils/fs'
+import { sleep } from '@/utils/sleep'
 import { storage } from '@/utils/storage'
+import { createNotification } from './notification'
 
 export const backup = async () => {
 	try {
+		const n = createNotification({
+			identifier: 'backup',
+			trigger: {
+				channelId: 'backup',
+			},
+			content: {
+				title: 'Backup',
+				body: 'Preparing to backup data...',
+				sound: false,
+			},
+		})
+		await n.schedule()
+
 		console.log(`[backup]: starting backup...`)
 		const records = storage.getArray<TRecord>('records')
 		console.log(`[backup]: ${records.length} records`)
@@ -91,34 +107,50 @@ export const backup = async () => {
 		console.log(`[backup]: uploading all files...`)
 		const drive = new GoogleDrive()
 		await drive.upload([...jsonFiles, ...avatars, ...attachments], {
-			onProgress: async event => {
-				console.log(`[backup]: onProgress`, event.progress)
+			onProgress(event) {
+				n.update({
+					body: `${Math.round(event.progress)}% - ${
+						event.file.uri.split('/').pop() || 'Unknown file'
+					}`,
+				})
 			},
-			onError: async event => {
-				console.log(`[backup]: onError`, event.error)
+			onError(event) {
+				n.update({
+					body: `Failed to backup. ${event.error.message}`,
+				})
 			},
-			onComplete: async event => {
-				console.log(`[backup]: onComplete`, event.successCount)
+			onComplete() {
+				sleep(500).then(() => {
+					n.update({
+						body: `Backup completed at ${$df(
+							new Date(),
+							'DD MMM, YYYY hh:mma',
+						)}.`,
+					})
+				})
 			},
 		})
 
-		console.log(`[backup]: finding extra files...`)
-		const driveFiles = await drive.find()
-		const extraDriveFiles = (driveFiles.data || []).filter(v => {
-			return (
-				!['application/json', 'application/vnd.google-apps.folder'].includes(
-					v.mimeType,
-				) &&
-				![...avatars, ...attachments].some(
-					x => x.uri.split('/').pop() === v.name,
+		// If might delete previous backup on a new device
+		if (patients.length && records.length) {
+			console.log(`[backup]: finding extra files...`)
+			const driveFiles = await drive.find()
+			const extraDriveFiles = (driveFiles.data || []).filter(v => {
+				return (
+					!['application/json', 'application/vnd.google-apps.folder'].includes(
+						v.mimeType,
+					) &&
+					![...avatars, ...attachments].some(
+						x => x.uri.split('/').pop() === v.name,
+					)
 				)
-			)
-		})
+			})
 
-		console.log(`[backup]: ${extraDriveFiles.length} extra files`)
-		console.log(`[backup]: deleting extra files...`)
-		await drive.delete(extraDriveFiles.map(v => v.id))
-		console.log(`[backup]: extra files deleted`)
+			console.log(`[backup]: ${extraDriveFiles.length} extra files`)
+			console.log(`[backup]: deleting extra files...`)
+			await drive.delete(extraDriveFiles.map(v => v.id))
+			console.log(`[backup]: extra files deleted`)
+		}
 
 		console.log(`[backup]: backup completed`)
 		storage.set('lastBackupTime', Date.now())

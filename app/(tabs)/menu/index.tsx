@@ -5,6 +5,7 @@ import { router } from 'expo-router'
 import {
 	CloudUploadIcon,
 	FolderSyncIcon,
+	HistoryIcon,
 	PaletteIcon,
 } from 'lucide-react-native'
 import { ScrollView } from 'react-native'
@@ -16,6 +17,14 @@ export default function Screen() {
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Grid className="gap-4" _extra={{ className: 'grid-cols-3' }}>
+				<GridItem _extra={{ className: 'col-span-1' }}>
+					<IconCard
+						icon={HistoryIcon}
+						title="Temp"
+						iconClassName="text-blue-500"
+						onTouchStart={() => router.push('/temp')}
+					/>
+				</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
 					<IconCard
 						icon={CloudUploadIcon}
