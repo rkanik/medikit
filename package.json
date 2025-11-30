@@ -11,6 +11,7 @@
 		"prebuild": "expo prebuild",
 		"lint": "expo lint",
 		"build": "eas build",
+		"build:apk": "eas build -p android --profile apk",
 		"jobs": "adb shell dumpsys jobscheduler | grep -A 40 -m 1 -E \"JOB #.* com.rkanik.medikit\"",
 		"job": "adb shell cmd jobscheduler run -f com.rkanik.medikit"
 	},
@@ -81,6 +82,7 @@
 	},
 	"devDependencies": {
 		"@types/react": "~19.1.0",
+		"eas-cli": "^16.28.0",
 		"eslint": "^9.25.0",
 		"eslint-config-expo": "~10.0.0",
 		"typescript": "~5.9.2"
