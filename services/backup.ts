@@ -121,6 +121,7 @@ export const backup = async () => {
 		console.log(`[backup]: extra files deleted`)
 
 		console.log(`[backup]: backup completed`)
+		storage.set('lastBackupTime', Date.now())
 		return {
 			success: true,
 			message: 'Backup completed successfully',

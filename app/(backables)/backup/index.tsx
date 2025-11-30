@@ -18,9 +18,11 @@ import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
 import { backup } from '@/services/backup'
 import { restore } from '@/services/restore'
+import { $df } from '@/utils/dayjs'
 import { Stack } from 'expo-router'
 import { DownloadIcon, UploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
+import { useMMKVNumber } from 'react-native-mmkv'
 
 export default function Screen() {
 	//
@@ -74,6 +76,8 @@ export default function Screen() {
 
 	// const { status, isRegistered, trigger, unregister } = useBackgroundTask()
 	// const { data: tasks } = useMMKVArray<any>('tasks')
+
+	const [lastBackupTime] = useMMKVNumber('lastBackupTime')
 
 	return (
 		<ScrollView
@@ -142,6 +146,13 @@ export default function Screen() {
 					<Card size="lg" variant="outline">
 						<Heading size="md">Backup & Restore</Heading>
 						<Text size="sm">Backup and restore your data to Google Drive.</Text>
+						<Divider className="my-3" />
+						<Text size="sm">
+							Last backup:{' '}
+							{lastBackupTime
+								? $df(lastBackupTime, 'DD MMM, YYYY hh:mmA')
+								: 'Never'}
+						</Text>
 						<View className="gap-2 mt-4">
 							<Button size="2xl" disabled={isUploading} onPress={onUpload}>
 								{isUploading && <ButtonSpinner color="gray" />}
