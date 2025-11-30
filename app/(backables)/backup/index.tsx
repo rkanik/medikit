@@ -150,7 +150,7 @@ export default function Screen() {
 						<Text size="sm">
 							Last backup:{' '}
 							{lastBackupTime
-								? $df(lastBackupTime, 'DD MMM, YYYY hh:mmA')
+								? $df(lastBackupTime, 'DD MMM, YYYY hh:mm A')
 								: 'Never'}
 						</Text>
 						<View className="gap-2 mt-4">

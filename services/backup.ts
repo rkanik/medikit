@@ -109,22 +109,23 @@ export const backup = async () => {
 		await drive.upload([...jsonFiles, ...avatars, ...attachments], {
 			onProgress(event) {
 				n.update({
-					body: `${Math.round(event.progress)}% - ${
-						event.file.uri.split('/').pop() || 'Unknown file'
-					}`,
+					title: `Backup (${Math.round(event.progress)}%)`,
+					body: `${event.file.uri.split('/').pop() || 'Unknown file'}`,
 				})
 			},
 			onError(event) {
 				n.update({
-					body: `Failed to backup. ${event.error.message}`,
+					title: `Failed!`,
+					body: event.error?.message || 'Error while backing up data.',
 				})
 			},
 			onComplete() {
 				sleep(500).then(() => {
 					n.update({
+						title: `Success!`,
 						body: `Backup completed at ${$df(
 							new Date(),
-							'DD MMM, YYYY hh:mma',
+							'DD MMM, YYYY hh:mm A',
 						)}.`,
 					})
 				})
