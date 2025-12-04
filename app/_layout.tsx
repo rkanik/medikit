@@ -8,7 +8,7 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useRef } from 'react'
 import { AppState, AppStateStatus } from 'react-native'
-import { neutral } from 'tailwindcss/colors'
+import { green, neutral } from 'tailwindcss/colors'
 
 export const unstable_settings = {
 	anchor: '(tabs)',
@@ -73,14 +73,14 @@ export default function RootLayout() {
 				screenOptions={{
 					contentStyle: {
 						backgroundColor: scheme({
-							dark: neutral[800],
-							light: neutral[50],
+							dark: neutral[900],
+							light: green[50],
 						}),
 					},
 					headerStyle: {
 						backgroundColor: scheme({
 							dark: neutral[800],
-							light: neutral[50],
+							light: green[50],
 						}),
 					},
 				}}

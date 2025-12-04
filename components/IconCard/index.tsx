@@ -1,10 +1,10 @@
 import { cn } from '@/utils/cn'
-import { ViewProps } from 'react-native'
-import { Card } from '../ui/card'
+import { PressableProps } from 'react-native'
+import { BaseCard } from '../base/card'
 import { Icon } from '../ui/icon'
 import { Text } from '../ui/text'
 
-type TIconCardProps = ViewProps & {
+type TIconCardProps = PressableProps & {
 	title: string
 	className?: string
 	iconClassName?: string
@@ -19,14 +19,11 @@ export const IconCard = ({
 	className,
 	iconClassName,
 	titleClassName,
-	iconSize = 'xl',
+	iconSize = '2xl',
 	...props
 }: TIconCardProps) => {
 	return (
-		<Card
-			{...props}
-			className={cn('rounded-lg relative overflow-hidden', className)}
-		>
+		<BaseCard {...props} className={cn('p-4', className)}>
 			<Icon as={icon} size={iconSize} className={iconClassName} />
 			<Text size="lg" className={cn('mt-2', titleClassName)}>
 				{title}
@@ -36,6 +33,6 @@ export const IconCard = ({
 				size="10xl"
 				className={cn('absolute -bottom-4 -right-4 opacity-40', iconClassName)}
 			/>
-		</Card>
+		</BaseCard>
 	)
 }

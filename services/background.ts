@@ -63,8 +63,9 @@ export const useBackgroundTask = () => {
 		await registerTaskAsync(taskName, {
 			minimumInterval,
 		})
+		await update()
 		console.log(`[${taskName}]: ✅ Task registered!`)
-	}, [])
+	}, [update])
 
 	const unregister = useCallback(async () => {
 		console.log(`[${taskName}]: 🔃 Unregistering task...`)
@@ -73,8 +74,9 @@ export const useBackgroundTask = () => {
 			return
 		}
 		await unregisterTaskAsync(taskName)
+		await update()
 		console.log(`[${taskName}]: ✅ Task unregistered!`)
-	}, [])
+	}, [update])
 
 	const toggle = useCallback(async () => {
 		if (!isRegistered) await register()

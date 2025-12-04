@@ -16,7 +16,7 @@ const PatientItems = ({ value, onChange }: TPatientPickerProps) => {
 	return (
 		<FlashList
 			data={data}
-			contentContainerStyle={{ paddingHorizontal: 20 }}
+			contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 4 }}
 			keyExtractor={item => item.id.toString()}
 			renderItem={({ item }) => (
 				<PatientCard

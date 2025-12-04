@@ -49,9 +49,10 @@ export const ColorSchemePicker = ({ trigger }: TColorSchemePickerProps) => {
 			height={400}
 			trigger={trigger}
 			visible={visible}
+			scrollable={false}
 			setVisible={setVisible}
 		>
-			<View className="px-4 gap-4">
+			<View className="px-4 gap-4 pt-4">
 				{COLOR_SCHEMES.map(v => (
 					<IconCard
 						key={v.value}
@@ -59,7 +60,7 @@ export const ColorSchemePicker = ({ trigger }: TColorSchemePickerProps) => {
 						title={v.label}
 						iconSize="4xl"
 						iconClassName={v.iconClassName}
-						onTouchStart={() => onPress(v.value)}
+						onPress={() => onPress(v.value)}
 						className={cn({
 							'border dark:border-green-500': colorScheme === v.value,
 						})}

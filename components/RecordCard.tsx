@@ -5,6 +5,7 @@ import { $df } from '@/utils/dayjs'
 import { Image } from 'expo-image'
 import { useCallback, useMemo } from 'react'
 import { GestureResponderEvent, Pressable, View } from 'react-native'
+import { BaseCard } from './base/card'
 import { Grid, GridItem } from './ui/grid'
 import { Text } from './ui/text'
 
@@ -31,13 +32,7 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 	)
 
 	return (
-		<Pressable
-			className={cn(
-				'dark:bg-neutral-900 rounded-lg overflow-hidden p-4',
-				className,
-			)}
-			onPress={onPress}
-		>
+		<BaseCard className={cn('p-4', className)} onPress={onPress}>
 			<View className="flex-row justify-between">
 				<View className="flex-1 gap-1">
 					<Text className="uppercase text-sm opacity-75">
@@ -81,6 +76,6 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 					))}
 				</Grid>
 			)}
-		</Pressable>
+		</BaseCard>
 	)
 }

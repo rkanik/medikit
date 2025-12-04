@@ -53,16 +53,16 @@ export default function TabLayout() {
 					paddingTop: 8,
 					borderColor: scheme({
 						dark: neutral[600],
-						light: neutral[200],
+						light: green[200],
 					}),
 					backgroundColor: scheme({
 						dark: neutral[800],
-						light: neutral[50],
+						light: green[50],
 					}),
 				},
 				headerTitle: () => (
 					<View className="flex-row items-center gap-2">
-						<View className="w-12 h-12 bg-white dark:bg-neutral-900 p-3 rounded-full items-center justify-center">
+						<View className="w-12 h-12 bg-white dark:bg-neutral-800 p-3 rounded-full items-center justify-center border border-green-200 dark:border-neutral-700">
 							<Image
 								source={require('@/assets/images/icon2.png')}
 								style={{ width: '100%', aspectRatio: 1 }}

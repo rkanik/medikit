@@ -3,9 +3,8 @@ import {
 	BottomSheetModal,
 	BottomSheetScrollView,
 } from '@/components/ui/bottomsheet'
-import { useScheme } from '@/hooks/useScheme'
+import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { createRef, Fragment, useCallback, useEffect } from 'react'
-import { neutral } from 'tailwindcss/colors'
 
 export type TBaseDialogTriggerProps = {
 	onPress: () => void
@@ -18,13 +17,21 @@ export type TBaseDialogTrigger = (
 export type TBaseDialogProps = React.PropsWithChildren<{
 	height?: number | string
 	visible?: boolean
+	scrollable?: boolean
 	trigger?: TBaseDialogTrigger
 	setVisible?: (visible: boolean) => void
 }>
 
 export const BaseDialog = (props: TBaseDialogProps) => {
-	const { children, visible, height = '60%', trigger, setVisible } = props
-	const { scheme } = useScheme()
+	const {
+		visible,
+		children,
+		height = '60%',
+		scrollable = true,
+		trigger,
+		setVisible,
+	} = props
+	const { backgroundColor, borderColor } = useSchemeColors()
 
 	const ref = createRef<BottomSheetModal>()
 
@@ -55,26 +62,24 @@ export const BaseDialog = (props: TBaseDialogProps) => {
 					setVisible?.(v > -1)
 				}}
 				backgroundStyle={{
-					backgroundColor: scheme({
-						dark: neutral[800],
-						light: 'white',
-					}),
+					backgroundColor,
 				}}
 				handleIndicatorStyle={{
-					backgroundColor: scheme({
-						dark: neutral[600],
-						light: '',
-					}),
+					backgroundColor: borderColor,
 				}}
 			>
-				<BottomSheetScrollView
-					nestedScrollEnabled
-					keyboardShouldPersistTaps="always"
-					automaticallyAdjustKeyboardInsets={true}
-					contentContainerStyle={{ flexGrow: 1 }}
-				>
-					{children}
-				</BottomSheetScrollView>
+				{scrollable ? (
+					<BottomSheetScrollView
+						nestedScrollEnabled
+						keyboardShouldPersistTaps="always"
+						automaticallyAdjustKeyboardInsets={true}
+						contentContainerStyle={{ flexGrow: 1 }}
+					>
+						{children}
+					</BottomSheetScrollView>
+				) : (
+					children
+				)}
 			</BottomSheetModal>
 		</Fragment>
 	)

@@ -16,9 +16,11 @@ import { HStack } from '@/components/ui/hstack'
 import { CloseIcon, Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
+import { useBackgroundTask } from '@/services/background'
 import { backup } from '@/services/backup'
 import { restore } from '@/services/restore'
 import { $df } from '@/utils/dayjs'
+import { BackgroundTaskStatus } from 'expo-background-task'
 import { Stack } from 'expo-router'
 import { DownloadIcon, UploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
@@ -74,14 +76,15 @@ export default function Screen() {
 		)
 	}, [])
 
-	// const { status, isRegistered, trigger, unregister } = useBackgroundTask()
+	const { status, isRegistered, trigger, unregister, register, toggle } =
+		useBackgroundTask()
 	// const { data: tasks } = useMMKVArray<any>('tasks')
 
 	const [lastBackupTime] = useMMKVNumber('lastBackupTime')
 
 	return (
 		<ScrollView
-			contentContainerClassName="px-4"
+			contentContainerClassName="px-4 pb-8"
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Stack.Screen options={{ title: 'Backup & Restore' }} />
@@ -185,36 +188,37 @@ export default function Screen() {
 				</Card>
 			)}
 
-			{/* <Card size="lg" variant="outline" className="mt-3">
+			<Card size="lg" variant="outline" className="mt-3">
 				<Heading size="md">Background Tasks</Heading>
 				<Text size="sm">
 					Background tasks are used to backup and restore your data to Google
 					Drive.
 				</Text>
-				<Button onPress={trigger} className="mt-3">
-					<ButtonText>Trigger</ButtonText>
-				</Button>
-				<Button onPress={unregister} className="mt-3">
-					<ButtonText>Unregister</ButtonText>
-				</Button>
+				<View className="flex-row gap-2 mt-4">
+					<Button size="xs" onPress={trigger}>
+						<ButtonText>Trigger</ButtonText>
+					</Button>
+					<Button size="xs" onPress={register}>
+						<ButtonText>Register</ButtonText>
+					</Button>
+					<Button size="xs" onPress={unregister}>
+						<ButtonText>Unregister</ButtonText>
+					</Button>
+					<Button size="xs" onPress={toggle}>
+						<ButtonText>Toggle</ButtonText>
+					</Button>
+				</View>
 				<Divider className="my-3" />
 				<View>
-					<Text>Status: {status}</Text>
-					<Text>Is Registered: {isRegistered ? 'Yes' : 'No'}</Text>
+					<Text>
+						Status:{' '}
+						{status === BackgroundTaskStatus.Available
+							? 'Available'
+							: 'Restricted'}
+					</Text>
+					<Text>Registered: {isRegistered ? 'Yes' : 'No'}</Text>
 				</View>
-				<Text>Tasks: {tasks?.length}</Text>
-				<FlashList
-					data={tasks}
-					scrollEnabled={false}
-					keyExtractor={item => item.date}
-					renderItem={({ item }) => (
-						<View className="p-4 rounded-lg border border-neutral-200 dark:bg-neutral-900 mb-2">
-							<Text>{$df(item.date, 'DD MMM, YYYY hh:mm:ssA')}</Text>
-							<Text>Token: {item.token?.data ?? item.token?.error}</Text>
-						</View>
-					)}
-				/>
-			</Card> */}
+			</Card>
 		</ScrollView>
 	)
 }
