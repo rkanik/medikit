@@ -20,6 +20,7 @@ import { useBackgroundTask } from '@/services/background'
 import { backup } from '@/services/backup'
 import { restore } from '@/services/restore'
 import { $df } from '@/utils/dayjs'
+import { log } from '@/utils/logs'
 import { BackgroundTaskStatus } from 'expo-background-task'
 import { Stack } from 'expo-router'
 import { DownloadIcon, UploadIcon } from 'lucide-react-native'
@@ -45,7 +46,7 @@ export default function Screen() {
 					onPress: async () => {
 						setUploading(true)
 						const response = await backup()
-						console.log('onUpload', response)
+						log('onUpload', response)
 						setUploading(false)
 					},
 				},
@@ -68,7 +69,7 @@ export default function Screen() {
 					onPress: async () => {
 						setRestoring(true)
 						const response = await restore()
-						console.log('onRestore', response)
+						log('onRestore', response)
 						setRestoring(false)
 					},
 				},
@@ -78,7 +79,6 @@ export default function Screen() {
 
 	const { status, isRegistered, trigger, unregister, register, toggle } =
 		useBackgroundTask()
-	// const { data: tasks } = useMMKVArray<any>('tasks')
 
 	const [lastBackupTime] = useMMKVNumber('lastBackupTime')
 

@@ -1,3 +1,4 @@
+import { log } from '@/utils/logs'
 import {
 	Directory,
 	DirectoryCreateOptions,
@@ -31,7 +32,7 @@ const list = (path?: string | string[]): (File | Directory)[] => {
 		}
 		return directory.list()
 	} catch (error) {
-		console.error('Error listing directory:', error)
+		log('Error listing directory:', error)
 		return []
 	}
 }
@@ -62,7 +63,7 @@ const getInfo = async (
 			exists: info.exists,
 		}
 	} catch (error) {
-		console.error('Error getting info:', error)
+		log('Error getting info:', error)
 		return {
 			name: item.name,
 			isDirectory: item instanceof Directory,
@@ -133,7 +134,7 @@ const deleteItem = (item: File | Directory): void => {
 	try {
 		item.delete()
 	} catch (error) {
-		console.error('Error deleting item:', error)
+		log('Error deleting item:', error)
 		throw error
 	}
 }

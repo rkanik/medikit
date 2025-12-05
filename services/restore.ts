@@ -1,4 +1,5 @@
 import { GoogleDrive } from '@/api/drive'
+import { log } from '@/utils/logs'
 import { storage } from '@/utils/storage'
 import { Directory, File, Paths } from 'expo-file-system'
 
@@ -12,7 +13,7 @@ const getFolderId = (data: any[] | null, folder: string) => {
 
 export const restore = async () => {
 	try {
-		console.log('[restore]: starting restore...')
+		log('[restore]: starting restore...')
 
 		const drive = new GoogleDrive()
 		const files = await drive.find()
@@ -38,7 +39,7 @@ export const restore = async () => {
 		new Directory(Paths.document, 'attachments').create(options)
 
 		for (const file of avatars) {
-			console.log('[restore]: downloading avatar', file.name)
+			log('[restore]: downloading avatar', file.name)
 			await drive.download(
 				file.id,
 				new File(Paths.document, 'avatars', file.name),
@@ -46,7 +47,7 @@ export const restore = async () => {
 		}
 
 		for (const file of attachments) {
-			console.log('[restore]: downloading attachment', file.name)
+			log('[restore]: downloading attachment', file.name)
 			await drive.download(
 				file.id,
 				new File(Paths.document, 'attachments', file.name),
@@ -59,10 +60,10 @@ export const restore = async () => {
 		const patientsFile = new File(Paths.cache, 'patients.json')
 		const recordsFile = new File(Paths.cache, 'records.json')
 
-		console.log('[restore]: downloading patients.json')
+		log('[restore]: downloading patients.json')
 		await drive.download(patients.id, patientsFile)
 
-		console.log('[restore]: downloading records.json')
+		log('[restore]: downloading records.json')
 		await drive.download(records.id, recordsFile)
 
 		const patientsData = await patientsFile.text()
@@ -104,7 +105,7 @@ export const restore = async () => {
 			message: 'Data restored successfully',
 		}
 	} catch (error) {
-		console.error('[restore]: error', error)
+		log('[restore]: error', error)
 		return {
 			success: false,
 			message: 'Error restoring data',

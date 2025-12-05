@@ -6,7 +6,7 @@ export const BaseCard = ({ className, ...props }: PressableProps) => {
 		<Pressable
 			{...props}
 			className={cn(
-				'bg-white dark:bg-neutral-800 rounded-lg overflow-hidden border border-green-200 dark:border-neutral-700',
+				'bg-white dark:bg-neutral-800 p-4 rounded-lg overflow-hidden border border-green-200 dark:border-neutral-700',
 				className,
 			)}
 		/>

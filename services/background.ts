@@ -1,3 +1,4 @@
+import { log } from '@/utils/logs'
 import {
 	BackgroundTaskResult,
 	BackgroundTaskStatus,
@@ -16,26 +17,31 @@ const minimumInterval: number | undefined = undefined //15 // 15 minutes
 export const initializeBackgroundTask = async (
 	innerAppMountedPromise: Promise<void>,
 ) => {
-	defineTask(taskName, async event => {
-		console.log(`[${taskName}]: 🔃 Background task started`)
-		await innerAppMountedPromise
+	defineTask(taskName, async () => {
+		try {
+			log(`[${taskName}]: 🔃 Background task started`)
+			await innerAppMountedPromise
 
-		console.log(`[${taskName}]: ✅ backup started`)
-		await backup()
-		console.log(`[${taskName}]: ✅ backup completed`)
+			log(`[${taskName}]: ✅ backup started`)
+			await backup()
+			log(`[${taskName}]: ✅ backup completed`)
 
-		console.log(`[${taskName}]: ✅ background task done`)
-		return BackgroundTaskResult.Success
+			log(`[${taskName}]: ✅ background task done`)
+			return BackgroundTaskResult.Success
+		} catch (error) {
+			log(`[${taskName}]: ❌ Background task failed`, error)
+			return BackgroundTaskResult.Failed
+		}
 	})
 
 	// Register the task
 	if (!(await isTaskRegisteredAsync(taskName))) {
-		console.log(`[${taskName}]: 🔃 Registering task...`)
+		log(`[${taskName}]: 🔃 Registering task...`)
 		try {
 			await registerTaskAsync(taskName, { minimumInterval })
-			console.log(`[${taskName}]: ✅ Task registered!`)
+			log(`[${taskName}]: ✅ Task registered!`)
 		} catch (error) {
-			console.log(`[${taskName}]: ❌ Task registration failed`, error)
+			log(`[${taskName}]: ❌ Task registration failed`, error)
 		}
 	}
 }
@@ -47,35 +53,35 @@ export const useBackgroundTask = () => {
 	const update = useCallback(async () => {
 		const status = await getStatusAsync()
 		const isRegistered = await isTaskRegisteredAsync(taskName)
-		console.log(`[${taskName}]: 🔃 Updating task status...`)
-		console.log(`[${taskName}]: Status: ${status}`)
-		console.log(`[${taskName}]: Is Registered: ${isRegistered}`)
+		log(`[${taskName}]: 🔃 Updating task status...`)
+		log(`[${taskName}]: Status: ${status}`)
+		log(`[${taskName}]: Is Registered: ${isRegistered}`)
 		setStatus(status)
 		setIsRegistered(isRegistered)
 	}, [])
 
 	const register = useCallback(async () => {
-		console.log(`[${taskName}]: 🔃 Registering task...`)
+		log(`[${taskName}]: 🔃 Registering task...`)
 		if (await isTaskRegisteredAsync(taskName)) {
-			console.log(`[${taskName}]: ❌ Task already registered!`)
+			log(`[${taskName}]: ❌ Task already registered!`)
 			return
 		}
 		await registerTaskAsync(taskName, {
 			minimumInterval,
 		})
 		await update()
-		console.log(`[${taskName}]: ✅ Task registered!`)
+		log(`[${taskName}]: ✅ Task registered!`)
 	}, [update])
 
 	const unregister = useCallback(async () => {
-		console.log(`[${taskName}]: 🔃 Unregistering task...`)
+		log(`[${taskName}]: 🔃 Unregistering task...`)
 		if (!(await isTaskRegisteredAsync(taskName))) {
-			console.log(`[${taskName}]: ❌ Task not registered!`)
+			log(`[${taskName}]: ❌ Task not registered!`)
 			return
 		}
 		await unregisterTaskAsync(taskName)
 		await update()
-		console.log(`[${taskName}]: ✅ Task unregistered!`)
+		log(`[${taskName}]: ✅ Task unregistered!`)
 	}, [update])
 
 	const toggle = useCallback(async () => {
@@ -85,9 +91,9 @@ export const useBackgroundTask = () => {
 	}, [isRegistered, register, unregister, update])
 
 	const trigger = useCallback(async () => {
-		console.log(`[${taskName}]: 🔃 Triggering task...`)
+		log(`[${taskName}]: 🔃 Triggering task...`)
 		const result = await triggerTaskWorkerForTestingAsync()
-		console.log(`[${taskName}]: ✅ Task triggered!`, result)
+		log(`[${taskName}]: ✅ Task triggered!`, result)
 	}, [])
 
 	useEffect(() => {

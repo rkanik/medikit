@@ -2,6 +2,7 @@ import { Box } from '@/components/ui/box'
 import { Button, ButtonIcon } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
 import { fs } from '@/utils/fs'
+import { log } from '@/utils/logs'
 import { Directory, File } from 'expo-file-system'
 import {
 	ArrowLeftIcon,
@@ -56,7 +57,7 @@ export const FileManager = ({
 			})
 			setItems(sorted)
 		} catch (error) {
-			console.error('Error loading directory:', error)
+			log('Error loading directory:', error)
 			setItems([])
 		} finally {
 			setLoading(false)

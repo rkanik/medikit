@@ -1,3 +1,4 @@
+import { log } from '@/utils/logs'
 import {
 	GetTokensResponse,
 	GoogleSignin,
@@ -128,7 +129,8 @@ export class GoogleDrive {
 			this.tokenPromise = null
 
 			return this.token
-		} catch {
+		} catch (error) {
+			log('Error getting google access token:', error)
 			this.token = null
 			this.tokenPromise = null
 			return null
@@ -353,6 +355,7 @@ export class GoogleDrive {
 				})
 				return {
 					results,
+					error: null,
 				}
 			},
 			error => {

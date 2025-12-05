@@ -1,9 +1,11 @@
 import '@/global.css'
 import 'react-native-reanimated'
 
+import { Logs } from '@/components/Logs'
 import { Providers } from '@/components/Providers'
 import { useScheme } from '@/hooks/useScheme'
 import { initializeBackgroundTask } from '@/services/background'
+import { log } from '@/utils/logs'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useRef } from 'react'
@@ -34,7 +36,7 @@ export default function RootLayout() {
 		// Resolve the promise to indicate that the inner app has mounted
 		if (resolver) {
 			resolver()
-			console.log('Resolver called')
+			log('Resolver called')
 		}
 
 		// Subscribe to app state changes
@@ -46,10 +48,10 @@ export default function RootLayout() {
 					nextAppState === 'active'
 				) {
 					// App has come to the foreground
-					console.log('App has come to the foreground!')
+					log('App has come to the foreground!')
 				}
 				if (appState.current.match(/active/) && nextAppState === 'background') {
-					console.log('App has gone to the background!')
+					log('App has gone to the background!')
 				}
 				appState.current = nextAppState
 			},
@@ -63,6 +65,7 @@ export default function RootLayout() {
 
 	return (
 		<Providers>
+			<Logs />
 			<StatusBar
 				style={scheme({
 					dark: 'light',

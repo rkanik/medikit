@@ -1,5 +1,6 @@
 import { Button, ButtonText } from '@/components/ui/button'
 import { useNotification } from '@/services/notification'
+import { log } from '@/utils/logs'
 import { sleep } from '@/utils/sleep'
 import { Stack } from 'expo-router'
 import { useState } from 'react'
@@ -23,7 +24,7 @@ export default function Screen() {
 		if (running) return
 		setRunning(true)
 		const v = await schedule()
-		console.log('schedule', v)
+		log('schedule', v)
 		for (let i = 1; i < 100; i++) {
 			await update({
 				body: `Progress: ${Math.round((i / 100) * 100)}%`,
