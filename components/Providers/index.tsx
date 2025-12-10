@@ -1,6 +1,7 @@
 import { AuthProvider } from '@/context/AuthContext'
 import { ImageViewerProvider } from '@/context/ImageViewerProvider'
 import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
+import { Downloader } from '@/hooks/useDownloader'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { setNotificationHandler } from 'expo-notifications'
 import { GestureHandlerRootView } from '../GestureHandlerRootView'
@@ -22,7 +23,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
 			<GluestackUIProvider mode={colorScheme}>
 				<BottomSheetModalProvider>
 					<AuthProvider>
-						<ImageViewerProvider>{children}</ImageViewerProvider>
+						<ImageViewerProvider>
+							<Downloader>{children}</Downloader>
+						</ImageViewerProvider>
 					</AuthProvider>
 				</BottomSheetModalProvider>
 			</GluestackUIProvider>

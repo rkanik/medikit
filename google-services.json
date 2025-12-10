@@ -1,47 +1,84 @@
 {
-  "project_info": {
-    "project_number": "347750963306",
-    "project_id": "medi-kit-72fb9",
-    "storage_bucket": "medi-kit-72fb9.firebasestorage.app"
-  },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:347750963306:android:1a9f90e7a1d827451e9213",
-        "android_client_info": {
-          "package_name": "com.rkanik.medikit"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "347750963306-7gdo2es66tao4j18qfgjl4tiq906jjce.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.rkanik.medikit",
-            "certificate_hash": "db3f8d297ad4031904f8cf29d734b07d83fc6879"
-          }
-        },
-        {
-          "client_id": "347750963306-3fqg901f5ec483onvjkn5a0iu77gk25t.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBdBIX4dEuND33XMRFlmGh4P7Rgbcfq2g4"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "347750963306-3fqg901f5ec483onvjkn5a0iu77gk25t.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "configuration_version": "1"
+	"project_info": {
+		"project_number": "347750963306",
+		"project_id": "medi-kit-72fb9",
+		"storage_bucket": "medi-kit-72fb9.firebasestorage.app"
+	},
+	"client": [
+		{
+			"client_info": {
+				"mobilesdk_app_id": "1:347750963306:android:1a9f90e7a1d827451e9213",
+				"android_client_info": {
+					"package_name": "com.rkanik.medikit"
+				}
+			},
+			"oauth_client": [
+				{
+					"client_id": "347750963306-tm8ehfhfg5rfna39jmvdngqcjk1fd41v.apps.googleusercontent.com",
+					"client_type": 1,
+					"android_info": {
+						"package_name": "com.rkanik.medikit",
+						"certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+					}
+				},
+				{
+					"client_id": "347750963306-3fqg901f5ec483onvjkn5a0iu77gk25t.apps.googleusercontent.com",
+					"client_type": 3
+				}
+			],
+			"api_key": [
+				{
+					"current_key": "AIzaSyBdBIX4dEuND33XMRFlmGh4P7Rgbcfq2g4"
+				}
+			],
+			"services": {
+				"appinvite_service": {
+					"other_platform_oauth_client": [
+						{
+							"client_id": "347750963306-3fqg901f5ec483onvjkn5a0iu77gk25t.apps.googleusercontent.com",
+							"client_type": 3
+						}
+					]
+				}
+			}
+		},
+		{
+			"client_info": {
+				"mobilesdk_app_id": "1:347750963306:android:be2de2f9f615db091e9213",
+				"android_client_info": {
+					"package_name": "com.rkanik.medikit.dev"
+				}
+			},
+			"oauth_client": [
+				{
+					"client_id": "347750963306-hf3k8d70phhu4s04mspoodug874qkj5m.apps.googleusercontent.com",
+					"client_type": 1,
+					"android_info": {
+						"package_name": "com.rkanik.medikit.dev",
+						"certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+					}
+				},
+				{
+					"client_id": "347750963306-3fqg901f5ec483onvjkn5a0iu77gk25t.apps.googleusercontent.com",
+					"client_type": 3
+				}
+			],
+			"api_key": [
+				{
+					"current_key": "AIzaSyBdBIX4dEuND33XMRFlmGh4P7Rgbcfq2g4"
+				}
+			],
+			"services": {
+				"appinvite_service": {
+					"other_platform_oauth_client": [
+						{
+							"client_id": "347750963306-3fqg901f5ec483onvjkn5a0iu77gk25t.apps.googleusercontent.com",
+							"client_type": 3
+						}
+					]
+				}
+			}
+		}
+	],
+	"configuration_version": "1"
 }

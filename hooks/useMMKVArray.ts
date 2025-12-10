@@ -25,6 +25,15 @@ export const useMMKVArray = <T, K = any>(
 		[setData],
 	)
 
+	const unshift = useCallback(
+		(item: T) => {
+			setData((data = []) => {
+				return [item, ...data]
+			})
+		},
+		[setData],
+	)
+
 	const update = useCallback(
 		(item: Partial<T>) => {
 			setData((data = []) => {
@@ -65,6 +74,7 @@ export const useMMKVArray = <T, K = any>(
 	return {
 		data,
 		push,
+		unshift,
 		update,
 		remove,
 		getByKey,

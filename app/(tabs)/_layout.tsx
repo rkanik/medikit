@@ -6,6 +6,7 @@ import { HomeIcon, MenuIcon, UsersIcon } from 'lucide-react-native'
 
 import { CurrentPatientPicker } from '@/components/CurrentPatientPicker'
 import { Text } from '@/components/ui/text'
+import { appName } from '@/const'
 import { useScheme } from '@/hooks/useScheme'
 import { cn } from '@/utils/cn'
 import { Image } from 'expo-image'
@@ -69,7 +70,7 @@ export default function TabLayout() {
 							/>
 						</View>
 						<Text size="2xl" className="text-green-600 font-semibold">
-							Medi Kit
+							{appName}
 						</Text>
 					</View>
 				),

@@ -20,6 +20,14 @@ export default function Screen() {
 				<GridItem _extra={{ className: 'col-span-1' }}>
 					<IconCard
 						icon={HistoryIcon}
+						title="Updates"
+						iconClassName="text-blue-500"
+						onTouchStart={() => router.push('/updates')}
+					/>
+				</GridItem>
+				<GridItem _extra={{ className: 'col-span-1' }}>
+					<IconCard
+						icon={HistoryIcon}
 						title="Temp"
 						iconClassName="text-blue-500"
 						onTouchStart={() => router.push('/temp')}

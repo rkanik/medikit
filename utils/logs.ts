@@ -7,9 +7,11 @@ type TLog = {
 }
 
 export const log = (...data: any[]) => {
-	const logs = storage.getArray<TLog>('logs')
+	let logs = storage.getArray<TLog>('logs')
 	logs.unshift({ time: Date.now(), data })
-	if (logs.length > 250) logs.pop()
+	if (logs.length > 50) {
+		logs = logs.slice(0, 50)
+	}
 	storage.set('logs', JSON.stringify(logs))
 }
 

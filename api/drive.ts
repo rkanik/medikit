@@ -1,3 +1,4 @@
+import { appName } from '@/const'
 import { log } from '@/utils/logs'
 import {
 	GetTokensResponse,
@@ -9,7 +10,6 @@ import ReactNativeBlobUtil from 'react-native-blob-util'
 
 const GET_API = 'https://www.googleapis.com/drive/v3'
 const POST_API = 'https://www.googleapis.com/upload/drive/v3'
-const ROOT_FOLDER = 'MediKit'
 
 type TFile = {
 	uri: string
@@ -99,7 +99,7 @@ export class GoogleDrive {
 	private token: string | null = null
 	private tokenPromise: Promise<GetTokensResponse> | null = null
 
-	constructor(public rootFolder = 'MediKit') {
+	constructor(public rootFolder = appName) {
 		//
 	}
 
@@ -247,7 +247,7 @@ export class GoogleDrive {
 				const rootFolderId = await getFolderId(
 					{
 						token,
-						name: ROOT_FOLDER,
+						name: this.rootFolder,
 						parent: 'root',
 					},
 					folderIds,
