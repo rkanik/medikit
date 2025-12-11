@@ -11,19 +11,21 @@ import { Text } from '@/components/ui/text'
 import { useDownloader } from '@/hooks/useDownloader'
 import { useUpdater } from '@/hooks/useUpdater'
 import { $df } from '@/utils/dayjs'
+import { open } from '@/utils/open'
 import { FlashList } from '@shopify/flash-list'
-import { Paths } from 'expo-file-system'
 import { Stack } from 'expo-router'
-import { RefreshCcwIcon } from 'lucide-react-native'
+import {
+	ExternalLinkIcon,
+	PauseIcon,
+	PlayIcon,
+	RefreshCcwIcon,
+	TrashIcon,
+} from 'lucide-react-native'
 import { ScrollView, View } from 'react-native'
 
 export default function Screen() {
 	const { checkForUpdates, loading, lastChecked } = useUpdater()
-
-	const { data: downloads, download, pause, resume, remove } = useDownloader()
-
-	const source = 'http://ipv4.download.thinkbroadband.com/100MB.zip'
-	const destination = Paths.join(Paths.document, '100MB.bin')
+	const { data: downloads, pause, resume, remove } = useDownloader()
 
 	return (
 		<ScrollView
@@ -37,32 +39,6 @@ export default function Screen() {
 				{loading && <ButtonSpinner color="gray" />}
 				<ButtonIcon as={RefreshCcwIcon} size="lg" />
 				<ButtonText>Check for Updates</ButtonText>
-			</Button>
-			<Button
-				className="mt-4"
-				onPress={() => {
-					download(source, destination)
-				}}
-			>
-				<ButtonText>Download 100MB</ButtonText>
-			</Button>
-
-			<Button
-				className="mt-4"
-				onPress={() => {
-					pause(source, destination)
-				}}
-			>
-				<ButtonText>Pause</ButtonText>
-			</Button>
-
-			<Button
-				className="mt-4"
-				onPress={() => {
-					resume(source, destination)
-				}}
-			>
-				<ButtonText>Resume</ButtonText>
 			</Button>
 
 			<FlashList
@@ -122,6 +98,12 @@ export default function Screen() {
 							{new URL(item.source).hostname}
 						</Text>
 						<View className="flex-row gap-2 mt-2">
+							{item.status === 'completed' && (
+								<Button size="xs" onPress={() => open(item.destination)}>
+									<ButtonIcon as={ExternalLinkIcon} />
+									<ButtonText>Open</ButtonText>
+								</Button>
+							)}
 							{item.status === 'paused' && (
 								<Button
 									size="xs"
@@ -129,6 +111,7 @@ export default function Screen() {
 										resume(item.source, item.destination)
 									}}
 								>
+									<ButtonIcon as={PlayIcon} />
 									<ButtonText>Resume</ButtonText>
 								</Button>
 							)}
@@ -139,10 +122,12 @@ export default function Screen() {
 										pause(item.source, item.destination)
 									}}
 								>
+									<ButtonIcon as={PauseIcon} />
 									<ButtonText>Pause</ButtonText>
 								</Button>
 							)}
 							<Button size="xs" onPress={() => remove(item)}>
+								<ButtonIcon as={TrashIcon} />
 								<ButtonText>Delete</ButtonText>
 							</Button>
 						</View>
@@ -154,8 +139,6 @@ export default function Screen() {
 					</BaseCard>
 				)}
 			/>
-
-			{/* <BaseJson data={downloads2} className="mt-4" /> */}
 		</ScrollView>
 	)
 }

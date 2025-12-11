@@ -5,11 +5,9 @@ import { Logs } from '@/components/Logs'
 import { Providers } from '@/components/Providers'
 import { useScheme } from '@/hooks/useScheme'
 import { initializeBackgroundTask } from '@/services/background'
-import { log } from '@/utils/logs'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { useEffect, useRef } from 'react'
-import { AppState, AppStateStatus } from 'react-native'
+import { useEffect } from 'react'
 import { green, neutral } from 'tailwindcss/colors'
 
 export const unstable_settings = {
@@ -30,37 +28,8 @@ initializeBackgroundTask(promise)
 export default function RootLayout() {
 	const { scheme } = useScheme()
 
-	const appState = useRef(AppState.currentState)
-
 	useEffect(() => {
-		// Resolve the promise to indicate that the inner app has mounted
-		if (resolver) {
-			resolver()
-			log('Resolver called')
-		}
-
-		// Subscribe to app state changes
-		const appStateSubscription = AppState.addEventListener(
-			'change',
-			(nextAppState: AppStateStatus) => {
-				if (
-					appState.current.match(/inactive|background/) &&
-					nextAppState === 'active'
-				) {
-					// App has come to the foreground
-					log('App has come to the foreground!')
-				}
-				if (appState.current.match(/active/) && nextAppState === 'background') {
-					log('App has gone to the background!')
-				}
-				appState.current = nextAppState
-			},
-		)
-
-		// Cleanup subscription on unmount
-		return () => {
-			appStateSubscription.remove()
-		}
+		if (resolver) resolver()
 	}, [])
 
 	return (

@@ -26,6 +26,9 @@
       "package": "com.rkanik.medikit.dev",
       "googleServicesFile": "./google-services.json",
       "permissions": [
+        "WAKE_LOCK",
+        "POST_NOTIFICATIONS",
+        "FOREGROUND_SERVICE",
         "REQUEST_INSTALL_PACKAGES"
       ]
     },

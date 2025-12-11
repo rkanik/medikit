@@ -86,7 +86,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 	const pause = useCallback(
 		(source: string, destination: string) => {
 			const id = `${source}-${destination}`
-			console.log(`[Downloader]: Pausing ${id}`)
+			log(`[Downloader]: Pausing ${id}`)
 			const resumable = resumables.current[id]
 			if (!resumable) return
 			resumable
@@ -123,7 +123,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 
 			// Already downloading or something
 			if (resumables.current[id]) {
-				console.log('[Downloader]: Already downloading or something')
+				log('[Downloader]: Already downloading or something')
 				resume(source, destination)
 				return
 			}
@@ -132,7 +132,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 
 			// Already completed downloads are not downloaded again
 			if (existing?.status === 'completed') {
-				console.log(
+				log(
 					'[Downloader]: Already completed downloads are not downloaded again',
 				)
 				return
@@ -157,7 +157,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 
 			// Manually paused downloads are not resumed
 			if (existing?.status === 'paused') {
-				console.log('[Downloader]: Manually paused downloads are not resumed')
+				log('[Downloader]: Manually paused downloads are not resumed')
 				return
 			}
 
@@ -172,7 +172,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 				return
 			}
 
-			console.log(`[Downloader]: Unshifting ${id}`)
+			log(`[Downloader]: Unshifting ${id}`)
 			unshift({
 				id,
 				source,
@@ -181,7 +181,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 			})
 
 			try {
-				console.log(`[Downloader]: downloadAsync ${id}`)
+				log(`[Downloader]: downloadAsync ${id}`)
 				const result = await resumables.current[id].downloadAsync()
 				if (result) {
 					update({
@@ -258,14 +258,6 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 
 		return () => {
 			subscription.remove()
-		}
-	}, [pauseAllDownloads])
-
-	// Cleanup: pause all downloads on unmount
-	useEffect(() => {
-		return () => {
-			log(`[Downloader]: Component unmounting, pausing downloads`)
-			// pauseAllDownloads()
 		}
 	}, [pauseAllDownloads])
 
