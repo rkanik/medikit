@@ -1,3 +1,4 @@
+import { fs } from '@/utils/fs'
 import { log } from '@/utils/logs'
 import {
 	createDownloadResumable,
@@ -12,6 +13,7 @@ import {
 	useEffect,
 	useRef,
 } from 'react'
+import { Alert, AppState, AppStateStatus } from 'react-native'
 import { useMMKVArray } from '../useMMKVArray'
 
 const KEY = 'useDownloader:downloads'
@@ -36,20 +38,55 @@ type TContext = {
 	) => Promise<any>
 	pause: (source: string, destination: string) => void
 	resume: (source: string, destination: string) => void
+	remove: (item: TDownloadItem) => void
 }
 
 const Context = createContext<TContext>(null!)
 
 export const Downloader = ({ children }: PropsWithChildren) => {
-	const { data, update, unshift, getByKey } = useMMKVArray<TDownloadItem>(KEY, {
+	const {
+		data,
+		update,
+		unshift,
+		getByKey,
+		remove: arrayRemove,
+	} = useMMKVArray<TDownloadItem>(KEY, {
 		getKey: item => item.id,
 	})
 
 	const resumables = useRef<Record<string, DownloadResumable>>({})
+	const appState = useRef(AppState.currentState)
+
+	const pauseAllDownloads = useCallback(async () => {
+		log(`[Downloader]: Pausing all downloads`)
+		const pausePromises = Object.entries(resumables.current).map(
+			async ([id, resumable]) => {
+				if (typeof resumable.pauseAsync !== 'function') return
+				try {
+					const result = await resumable.pauseAsync()
+					log(`[Downloader]: Paused download ${id}`)
+					update({
+						id,
+						status: 'auto-paused',
+						resumeData: result.resumeData,
+					})
+				} catch (error: any) {
+					log(`[Downloader]: Error pausing download ${id}:`, error)
+					update({
+						id,
+						status: 'failed',
+						error: error.message,
+					})
+				}
+			},
+		)
+		await Promise.allSettled(pausePromises)
+	}, [update])
 
 	const pause = useCallback(
 		(source: string, destination: string) => {
 			const id = `${source}-${destination}`
+			console.log(`[Downloader]: Pausing ${id}`)
 			const resumable = resumables.current[id]
 			if (!resumable) return
 			resumable
@@ -115,9 +152,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 								: 'downloading',
 					})
 				},
-				existing?.resumeData ||
-					String(existing?.progress?.totalBytesWritten) ||
-					undefined,
+				existing?.resumeData,
 			)
 
 			// Manually paused downloads are not resumed
@@ -137,6 +172,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 				return
 			}
 
+			console.log(`[Downloader]: Unshifting ${id}`)
 			unshift({
 				id,
 				source,
@@ -145,6 +181,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 			})
 
 			try {
+				console.log(`[Downloader]: downloadAsync ${id}`)
 				const result = await resumables.current[id].downloadAsync()
 				if (result) {
 					update({
@@ -167,25 +204,70 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 		[resume, update, unshift, getByKey],
 	)
 
+	const remove = useCallback(
+		async (item: TDownloadItem) => {
+			Alert.alert(
+				'Remove download',
+				'Are you sure you want to remove this download?',
+				[
+					{ text: 'Cancel', style: 'cancel' },
+					{
+						text: 'Remove',
+						onPress: async () => {
+							const resumable = resumables.current[item.id]
+							if (resumable) {
+								await resumable.cancelAsync()
+								delete resumables.current[item.id]
+							}
+							fs.remove(item.destination)
+							arrayRemove(item.id)
+						},
+					},
+				],
+			)
+		},
+		[arrayRemove],
+	)
+
+	// Resume downloads on mount
 	useEffect(() => {
 		for (const v of data) {
 			download(v.source, v.destination, v.resumeData)
 		}
-		return () => {
-			log(`[Downloader]: Pausing downloads`)
-			Object.entries(resumables.current).forEach(([id, resumable]) => {
-				resumable.pauseAsync().then(result => {
-					log(`[Downloader]: Paused download ${id}`)
-					update({
-						id,
-						status: 'auto-paused',
-						resumeData: result.resumeData,
-					})
-				})
-			})
-		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
+
+	// Handle app state changes (background/foreground)
+	useEffect(() => {
+		const subscription = AppState.addEventListener(
+			'change',
+			(nextAppState: AppStateStatus) => {
+				// Pause downloads when app goes to background or becomes inactive
+				if (
+					appState.current.match(/active/) &&
+					(nextAppState === 'background' || nextAppState === 'inactive')
+				) {
+					log(
+						`[Downloader]: App going to background/inactive, pausing downloads`,
+					)
+					pauseAllDownloads()
+				}
+				appState.current = nextAppState
+			},
+		)
+
+		return () => {
+			subscription.remove()
+		}
+	}, [pauseAllDownloads])
+
+	// Cleanup: pause all downloads on unmount
+	useEffect(() => {
+		return () => {
+			log(`[Downloader]: Component unmounting, pausing downloads`)
+			// pauseAllDownloads()
+		}
+	}, [pauseAllDownloads])
 
 	return (
 		<Context.Provider
@@ -194,6 +276,7 @@ export const Downloader = ({ children }: PropsWithChildren) => {
 				download,
 				pause,
 				resume,
+				remove,
 			}}
 		>
 			{children}

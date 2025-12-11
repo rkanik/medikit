@@ -1,10 +1,11 @@
 import { useScheme } from '@/hooks/useScheme'
+import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { Stack } from 'expo-router'
 import { Fragment } from 'react'
-import { neutral } from 'tailwindcss/colors'
 
 export default function Layout() {
 	const { scheme } = useScheme()
+	const { backgroundColor } = useSchemeColors()
 	return (
 		<Fragment>
 			<Stack.Screen
@@ -15,16 +16,10 @@ export default function Layout() {
 			<Stack
 				screenOptions={{
 					contentStyle: {
-						backgroundColor: scheme({
-							dark: neutral[800],
-							light: neutral[50],
-						}),
+						backgroundColor,
 					},
 					headerStyle: {
-						backgroundColor: scheme({
-							dark: neutral[800],
-							light: neutral[50],
-						}),
+						backgroundColor,
 					},
 					headerShadowVisible: false,
 					headerTintColor: scheme({
