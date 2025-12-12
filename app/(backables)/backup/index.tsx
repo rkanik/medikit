@@ -1,5 +1,7 @@
 import { Pressable, Alert as RNAlert, ScrollView, View } from 'react-native'
 
+import { BaseDialog } from '@/components/base/BaseDialog'
+import { BaseCard } from '@/components/base/card'
 import { Alert, AlertText } from '@/components/ui/alert'
 import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
 import { Box } from '@/components/ui/box'
@@ -16,14 +18,14 @@ import { HStack } from '@/components/ui/hstack'
 import { CloseIcon, Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
-import { useBackgroundTask } from '@/services/background'
+import { minimumIntervals, useBackgroundTask } from '@/services/background'
 import { backup, useBackup } from '@/services/backup'
 import { restore } from '@/services/restore'
+import { cn } from '@/utils/cn'
 import { $df } from '@/utils/dayjs'
-import { log } from '@/utils/logs'
-import { BackgroundTaskStatus } from 'expo-background-task'
+import { FlashList } from '@shopify/flash-list'
 import { Stack } from 'expo-router'
-import { DownloadIcon, UploadIcon } from 'lucide-react-native'
+import { ClockIcon, DownloadIcon, UploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
 
 export default function Screen() {
@@ -31,22 +33,22 @@ export default function Screen() {
 	const { user, isLoading, error, login, logout, setError } = useAuth()
 
 	const [isUploading, setUploading] = useState(false)
-	const onUpload = useCallback(async () => {
+	const onBackup = useCallback(async () => {
 		RNAlert.alert(
-			'Upload to Google Drive',
-			'Are you sure you want to upload your data to Google Drive? This will overwrite your backup data.',
+			'Backup to Google Drive',
+			'Are you sure you want to backup your data to Google Drive? This will overwrite your existing backup data.',
 			[
 				{
 					text: 'Cancel',
 					style: 'cancel',
 				},
 				{
-					text: 'Upload',
-					onPress: async () => {
+					text: 'Backup',
+					onPress() {
 						setUploading(true)
-						const response = await backup()
-						log('onUpload', response)
-						setUploading(false)
+						backup().finally(() => {
+							setUploading(false)
+						})
 					},
 				},
 			],
@@ -57,7 +59,7 @@ export default function Screen() {
 	const onRestore = useCallback(async () => {
 		RNAlert.alert(
 			'Restore from Google Drive',
-			'Are you sure you want to restore your data from Google Drive? This will overwrite your current data.',
+			'Are you sure you want to restore your data from Google Drive? This will overwrite your existing data.',
 			[
 				{
 					text: 'Cancel',
@@ -65,21 +67,20 @@ export default function Screen() {
 				},
 				{
 					text: 'Restore',
-					onPress: async () => {
+					onPress() {
 						setRestoring(true)
-						const response = await restore()
-						log('onRestore', response)
-						setRestoring(false)
+						restore().finally(() => {
+							setRestoring(false)
+						})
 					},
 				},
 			],
 		)
 	}, [])
 
-	const { status, isRegistered, trigger, unregister, register, toggle } =
-		useBackgroundTask()
-
 	const { lastBackupTime, lastBackupSize } = useBackup()
+	const { minimumInterval, setMinimumInterval } = useBackgroundTask()
+	const [minimumIntervalDialog, setMinimumIntervalDialog] = useState(false)
 
 	return (
 		<ScrollView
@@ -149,29 +150,65 @@ export default function Screen() {
 						<Heading size="md">Backup & Restore</Heading>
 						<Text size="sm">Backup and restore your data to Google Drive.</Text>
 						<Divider className="my-3" />
-						<Text size="sm">
-							Last backup:{' '}
-							{lastBackupTime
-								? $df(lastBackupTime, 'DD MMM, YYYY hh:mm A')
-								: 'Never'}
-						</Text>
-						<Text size="sm">
-							Size:{' '}
-							{lastBackupSize
-								? `${Math.round(lastBackupSize / 1024 / 1024)} MB`
-								: 'None'}
-						</Text>
-						<View className="gap-2 mt-4">
-							<Button size="2xl" disabled={isUploading} onPress={onUpload}>
+						<View>
+							<Text size="sm">
+								Size:{' '}
+								{lastBackupSize
+									? `${Math.round(lastBackupSize / 1024 / 1024)} MB`
+									: 'None'}
+							</Text>
+							<Text size="sm">
+								Frequency:{' '}
+								{minimumIntervals.find(v => v.value === minimumInterval)
+									?.title || 'Default'}
+							</Text>
+							<Text size="sm">
+								Last backup:{' '}
+								{lastBackupTime
+									? $df(lastBackupTime, 'hh:mm A - DD MMMM YYYY')
+									: 'Never'}
+							</Text>
+						</View>
+						<View className="gap-2 mt-4 flex-row">
+							<Button disabled={isUploading} onPress={onBackup}>
 								{isUploading && <ButtonSpinner color="gray" />}
 								<ButtonIcon as={UploadIcon} size="lg" />
-								<ButtonText>Upload to Google Drive</ButtonText>
+								<ButtonText>Backup</ButtonText>
 							</Button>
-							<Button size="2xl" disabled={isRestoring} onPress={onRestore}>
+							<Button disabled={isRestoring} onPress={onRestore}>
 								{isRestoring && <ButtonSpinner color="gray" />}
 								<ButtonIcon as={DownloadIcon} size="lg" />
-								<ButtonText>Restore from Google Drive</ButtonText>
+								<ButtonText>Restore</ButtonText>
 							</Button>
+							<BaseDialog
+								visible={minimumIntervalDialog}
+								setVisible={setMinimumIntervalDialog}
+								trigger={v => (
+									<Button {...v} className="aspect-square">
+										<ButtonIcon as={ClockIcon} size="lg" />
+									</Button>
+								)}
+							>
+								<FlashList
+									contentContainerClassName="px-4 pt-4 pb-16"
+									contentContainerStyle={{ flexGrow: 1 }}
+									data={minimumIntervals}
+									renderItem={({ item }) => (
+										<BaseCard
+											className={cn('mb-2', {
+												'border-green-500 dark:border-green-500':
+													item.value === minimumInterval,
+											})}
+											onPress={() => {
+												setMinimumInterval(item.value)
+												setMinimumIntervalDialog(false)
+											}}
+										>
+											<Text>{item.title}</Text>
+										</BaseCard>
+									)}
+								/>
+							</BaseDialog>
 						</View>
 					</Card>
 				</View>
@@ -193,7 +230,7 @@ export default function Screen() {
 				</Card>
 			)}
 
-			<Card size="lg" variant="outline" className="mt-3">
+			{/* <Card size="lg" variant="outline" className="mt-3">
 				<Heading size="md">Background Tasks</Heading>
 				<Text size="sm">
 					Background tasks are used to backup and restore your data to Google
@@ -223,7 +260,7 @@ export default function Screen() {
 					</Text>
 					<Text>Registered: {isRegistered ? 'Yes' : 'No'}</Text>
 				</View>
-			</Card>
+			</Card> */}
 		</ScrollView>
 	)
 }

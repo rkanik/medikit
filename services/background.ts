@@ -1,4 +1,5 @@
 import { log } from '@/utils/logs'
+import { storage } from '@/utils/storage'
 import {
 	BackgroundTaskResult,
 	BackgroundTaskStatus,
@@ -9,10 +10,20 @@ import {
 } from 'expo-background-task'
 import { defineTask, isTaskRegisteredAsync } from 'expo-task-manager'
 import { useCallback, useEffect, useState } from 'react'
+import { useMMKVNumber } from 'react-native-mmkv'
 import { backup } from './backup'
 
 const taskName = 'MediKitBackupBackgroundTask'
-const minimumInterval: number | undefined = 120 // 2 hours / 120 minutes
+
+export const minimumIntervals = [
+	{ title: '15 Minutes', value: 15 },
+	{ title: '30 Minutes', value: 30 },
+	{ title: '1 Hour', value: 60 },
+	{ title: '6 Hours', value: 360 },
+	{ title: '12 Hours', value: 720 },
+	{ title: '18 Hours', value: 1080 },
+	{ title: '24 Hours', value: 1440 },
+]
 
 export const initializeBackgroundTask = async (
 	innerAppMountedPromise: Promise<void>,
@@ -38,7 +49,9 @@ export const initializeBackgroundTask = async (
 	if (!(await isTaskRegisteredAsync(taskName))) {
 		log(`[${taskName}]: 🔃 Registering task...`)
 		try {
-			await registerTaskAsync(taskName, { minimumInterval })
+			await registerTaskAsync(taskName, {
+				minimumInterval: storage.minimumInterval.get(),
+			})
 			log(`[${taskName}]: ✅ Task registered!`)
 		} catch (error) {
 			log(`[${taskName}]: ❌ Task registration failed`, error)
@@ -49,6 +62,7 @@ export const initializeBackgroundTask = async (
 export const useBackgroundTask = () => {
 	const [status, setStatus] = useState<BackgroundTaskStatus | null>(null)
 	const [isRegistered, setIsRegistered] = useState<boolean>(false)
+	const [minimumInterval] = useMMKVNumber(storage.minimumInterval.key)
 
 	const update = useCallback(async () => {
 		const status = await getStatusAsync()
@@ -60,18 +74,21 @@ export const useBackgroundTask = () => {
 		setIsRegistered(isRegistered)
 	}, [])
 
-	const register = useCallback(async () => {
-		log(`[${taskName}]: 🔃 Registering task...`)
-		if (await isTaskRegisteredAsync(taskName)) {
-			log(`[${taskName}]: ❌ Task already registered!`)
-			return
-		}
-		await registerTaskAsync(taskName, {
-			minimumInterval,
-		})
-		await update()
-		log(`[${taskName}]: ✅ Task registered!`)
-	}, [update])
+	const register = useCallback(
+		async (minimumInterval?: number) => {
+			log(`[${taskName}]: 🔃 Registering task...`)
+			if (await isTaskRegisteredAsync(taskName)) {
+				log(`[${taskName}]: ❌ Task already registered!`)
+				return
+			}
+			await registerTaskAsync(taskName, {
+				minimumInterval: minimumInterval || storage.minimumInterval.get(),
+			})
+			await update()
+			log(`[${taskName}]: ✅ Task registered!`)
+		},
+		[update],
+	)
 
 	const unregister = useCallback(async () => {
 		log(`[${taskName}]: 🔃 Unregistering task...`)
@@ -96,6 +113,14 @@ export const useBackgroundTask = () => {
 		log(`[${taskName}]: ✅ Task triggered!`, result)
 	}, [])
 
+	const setMinimumInterval = useCallback(async (value: number) => {
+		storage.minimumInterval.set(value)
+		await unregisterTaskAsync(taskName)
+		await registerTaskAsync(taskName, {
+			minimumInterval: value || storage.minimumInterval.get(),
+		})
+	}, [])
+
 	useEffect(() => {
 		update()
 	}, [update])
@@ -103,9 +128,11 @@ export const useBackgroundTask = () => {
 	return {
 		status,
 		isRegistered,
+		minimumInterval,
 		toggle,
 		trigger,
 		register,
 		unregister,
+		setMinimumInterval,
 	}
 }

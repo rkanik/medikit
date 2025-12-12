@@ -9,8 +9,8 @@ import { useMMKVNumber } from 'react-native-mmkv'
 import { createNotification } from './notification'
 
 export const useBackup = () => {
-	const [lastBackupTime] = useMMKVNumber(storage.keys.lastBackupTime)
-	const [lastBackupSize] = useMMKVNumber(storage.keys.lastBackupSize)
+	const [lastBackupTime] = useMMKVNumber(storage.lastBackupTime.key)
+	const [lastBackupSize] = useMMKVNumber(storage.lastBackupSize.key)
 	return {
 		lastBackupTime,
 		lastBackupSize,
@@ -41,12 +41,15 @@ export const backup = async () => {
 		const drive = new GoogleDrive()
 		const driveFiles = await drive.find()
 
-		const filteredFiles = files.filter(v => {
+		const relatedFiles = files.filter(v => {
 			return (
-				(patients.some(p => p.avatar?.uri === v.uri) ||
-					records.some(r => r.attachments?.some(a => a.uri === v.uri))) &&
-				!driveFiles.data?.some(x => x.name === v.uri.split('/').pop())
+				patients.some(p => p.avatar?.uri === v.uri) ||
+				records.some(r => r.attachments?.some(a => a.uri === v.uri))
 			)
+		})
+
+		const filteredFiles = relatedFiles.filter(v => {
+			return !driveFiles.data?.some(x => x.name === v.uri.split('/').pop())
 		})
 
 		const jsonFiles = [
@@ -75,8 +78,8 @@ export const backup = async () => {
 
 		const uploadFiles = [...jsonFiles, ...filteredFiles]
 
-		const totalSize = uploadFiles.reduce((a, f) => a + (f.size || 0), 0)
-		storage.set(storage.keys.lastBackupSize, totalSize)
+		const totalSize = relatedFiles.reduce((a, f) => a + (f.size || 0), 0)
+		storage.lastBackupSize.set(totalSize)
 
 		await drive.upload(uploadFiles, {
 			onProgress(event) {
@@ -130,7 +133,7 @@ export const backup = async () => {
 			await drive.delete(extraDriveFiles.map(v => v.id))
 		}
 
-		storage.set(storage.keys.lastBackupTime, Date.now())
+		storage.lastBackupTime.set(Date.now())
 		return {
 			success: true,
 			message: 'Backup completed successfully',

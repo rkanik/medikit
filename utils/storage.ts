@@ -13,17 +13,31 @@ const getArray = <T = any>(name: string): T[] => {
 	}
 }
 
-const keys = {
-	lastBackupTime: 'lastBackupTime',
-	lastBackupSize: 'lastBackupSize',
+const createNumberStorage = (name: string, defaultValue?: number) => {
+	if (defaultValue && !mmkv.contains(name)) {
+		mmkv.set(name, defaultValue)
+	}
+	return {
+		key: name,
+		get: () => mmkv.getNumber(name) || defaultValue,
+		set: (value: number) => mmkv.set(name, value),
+	}
 }
 
+const lastBackupTime = createNumberStorage('lastBackupTime')
+const lastBackupSize = createNumberStorage('lastBackupSize')
+const minimumInterval = createNumberStorage('minimumInterval', 1440) // 24 hours
+
 Object.assign(mmkv, {
-	keys,
 	getArray,
+	lastBackupTime,
+	lastBackupSize,
+	minimumInterval,
 })
 
 export const storage = mmkv as typeof mmkv & {
-	keys: typeof keys
 	getArray: typeof getArray
+	lastBackupTime: typeof lastBackupTime
+	lastBackupSize: typeof lastBackupSize
+	minimumInterval: typeof minimumInterval
 }
