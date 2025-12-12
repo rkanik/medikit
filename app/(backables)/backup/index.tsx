@@ -17,7 +17,7 @@ import { CloseIcon, Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
 import { useBackgroundTask } from '@/services/background'
-import { backup } from '@/services/backup'
+import { backup, useBackup } from '@/services/backup'
 import { restore } from '@/services/restore'
 import { $df } from '@/utils/dayjs'
 import { log } from '@/utils/logs'
@@ -25,7 +25,6 @@ import { BackgroundTaskStatus } from 'expo-background-task'
 import { Stack } from 'expo-router'
 import { DownloadIcon, UploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
-import { useMMKVNumber } from 'react-native-mmkv'
 
 export default function Screen() {
 	//
@@ -80,7 +79,7 @@ export default function Screen() {
 	const { status, isRegistered, trigger, unregister, register, toggle } =
 		useBackgroundTask()
 
-	const [lastBackupTime] = useMMKVNumber('lastBackupTime')
+	const { lastBackupTime, lastBackupSize } = useBackup()
 
 	return (
 		<ScrollView
@@ -155,6 +154,12 @@ export default function Screen() {
 							{lastBackupTime
 								? $df(lastBackupTime, 'DD MMM, YYYY hh:mm A')
 								: 'Never'}
+						</Text>
+						<Text size="sm">
+							Size:{' '}
+							{lastBackupSize
+								? `${Math.round(lastBackupSize / 1024 / 1024)} MB`
+								: 'None'}
 						</Text>
 						<View className="gap-2 mt-4">
 							<Button size="2xl" disabled={isUploading} onPress={onUpload}>

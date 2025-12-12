@@ -51,19 +51,14 @@ const usePatientsActions = () => {
 	const submit = useCallback(
 		async (id: TMaybe<number>, item: TZPatient) => {
 			if (id) {
-				const ePatient = getByKey(id)
-				if (
-					ePatient?.avatar?.uri &&
-					ePatient?.avatar?.uri !== item.avatar?.uri
-				) {
-					fs.remove(ePatient.avatar.uri)
+				const e = getByKey(id)
+				if (e?.avatar?.uri && e?.avatar?.uri !== item.avatar?.uri) {
+					fs.remove(e.avatar.uri)
 				}
 			}
 			if (item.avatar?.uri) {
-				const { data } = fs.copyAssetTo('avatars', item.avatar)
-				if (data) {
-					item.avatar = data
-				}
+				const { data } = fs.copyAssetTo('files', item.avatar)
+				if (data) item.avatar = data
 			}
 			if (id) {
 				update({

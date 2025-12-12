@@ -4,6 +4,7 @@ import { Grid, GridItem } from '@/components/ui/grid'
 import { router } from 'expo-router'
 import {
 	CloudUploadIcon,
+	DownloadIcon,
 	FolderSyncIcon,
 	HistoryIcon,
 	PaletteIcon,
@@ -17,11 +18,12 @@ export default function Screen() {
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Grid className="gap-4" _extra={{ className: 'grid-cols-3' }}>
+				<GridItem _extra={{ className: 'col-span-1' }}>{/*  */}</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
 					<IconCard
-						icon={HistoryIcon}
+						icon={DownloadIcon}
 						title="Updates"
-						iconClassName="text-blue-500"
+						iconClassName="text-teal-500"
 						onTouchStart={() => router.push('/updates')}
 					/>
 				</GridItem>
@@ -29,7 +31,7 @@ export default function Screen() {
 					<IconCard
 						icon={HistoryIcon}
 						title="Temp"
-						iconClassName="text-blue-500"
+						iconClassName="text-red-500"
 						onTouchStart={() => router.push('/temp')}
 					/>
 				</GridItem>

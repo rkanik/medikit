@@ -5,7 +5,17 @@ import { fs } from '@/utils/fs'
 import { log } from '@/utils/logs'
 import { sleep } from '@/utils/sleep'
 import { storage } from '@/utils/storage'
+import { useMMKVNumber } from 'react-native-mmkv'
 import { createNotification } from './notification'
+
+export const useBackup = () => {
+	const [lastBackupTime] = useMMKVNumber(storage.keys.lastBackupTime)
+	const [lastBackupSize] = useMMKVNumber(storage.keys.lastBackupSize)
+	return {
+		lastBackupTime,
+		lastBackupSize,
+	}
+}
 
 export const backup = async () => {
 	try {
@@ -22,143 +32,105 @@ export const backup = async () => {
 		})
 		await n.schedule()
 
-		log(`[backup]: starting backup...`)
 		const records = storage.getArray<TRecord>('records')
-		log(`[backup]: ${records.length} records`)
-
 		const patients = storage.getArray<TPatient>('patients')
-		log(`[backup]: ${patients.length} patients`)
 
-		const allAvatarFiles = fs.getFiles('avatars')
-		log(`[backup]: ${allAvatarFiles.length} all avatars`)
-
-		const allAttachmentFiles = fs.getFiles('attachments')
-		log(`[backup]: ${allAttachmentFiles.length} all attachments`)
-
-		const avatars = allAvatarFiles
-			.filter(v => !!v.uri)
-			.filter(v => {
-				return patients.some(patient => {
-					return patient.avatar?.uri === v.uri
-				})
-			})
-			.map(v => ({
-				uri: v.uri!,
-				folder: 'avatars',
-			}))
-		log(`[backup]: ${avatars.length} avatars`)
-
-		const attachments = allAttachmentFiles
-			.filter(v => !!v.uri)
-			.filter(v => {
-				return records.some(record => {
-					return record.attachments?.some(attachment => {
-						return attachment.uri === v.uri
-					})
-				})
-			})
-			.map(v => ({
-				uri: v.uri!,
-				folder: 'attachments',
-			}))
-		log(`[backup]: ${attachments.length} attachments`)
-
-		const extraAvatarFiles = allAvatarFiles.filter(x => {
-			return !avatars.some(y => x.uri === y.uri)
-		})
-		log(`[backup]: ${extraAvatarFiles.length} extra avatars`)
-
-		const extraAttachmentFiles = allAttachmentFiles.filter(x => {
-			return !attachments.some(y => x.uri === y.uri)
-		})
-		log(`[backup]: ${extraAttachmentFiles.length} extra attachments`)
-
-		log(`[backup]: removing extra avatars...`)
-		fs.removeMany(extraAvatarFiles.map(v => v.uri))
-		log(`[backup]: removing extra attachments...`)
-		fs.removeMany(extraAttachmentFiles.map(v => v.uri))
+		const files = fs.getFiles('files')
 
 		const base = fs.getDirectory().uri
+		const drive = new GoogleDrive()
+		const driveFiles = await drive.find()
 
-		log(`[backup]: creating patients.json file...`)
-		const patientsFile = fs.createJsonFile(
-			patients.map(v => ({
-				...v,
-				avatar: (v.avatar?.uri || '').replace(base, ''),
-			})),
-			'patients.json',
-		)
+		const filteredFiles = files.filter(v => {
+			return (
+				(patients.some(p => p.avatar?.uri === v.uri) ||
+					records.some(r => r.attachments?.some(a => a.uri === v.uri))) &&
+				!driveFiles.data?.some(x => x.name === v.uri.split('/').pop())
+			)
+		})
 
-		log(`[backup]: creating records.json file...`)
-		const recordsFile = fs.createJsonFile(
-			records.map(v => ({
-				...v,
-				attachments: v.attachments
-					.filter(v => v.uri)
-					.map(v => v.uri!.replace(base, '')),
-			})),
-			'records.json',
-		)
-
-		const jsonFiles = [recordsFile, patientsFile].map(v => ({
+		const jsonFiles = [
+			fs.createJsonFile(
+				records.map(v => ({
+					...v,
+					attachments: v.attachments
+						.filter(v => v.uri)
+						.map(v => v.uri!.replace(base, '')),
+				})),
+				'records.json',
+			),
+			fs.createJsonFile(
+				patients.map(v => ({
+					...v,
+					avatar: (v.avatar?.uri || '').replace(base, ''),
+				})),
+				'patients.json',
+			),
+		].map(v => ({
 			uri: v.uri!,
-			overwrite: true,
+			size: v.size,
+			fileId: driveFiles.data?.find(x => x.name === v.uri!.split('/').pop())
+				?.id,
 		}))
 
-		log(`[backup]: uploading all files...`)
-		const drive = new GoogleDrive()
-		const { error } = await drive.upload(
-			[...jsonFiles, ...avatars, ...attachments],
-			{
-				onProgress(event) {
-					n.update({
-						title: `Backup (${Math.round(event.progress)}%)`,
-						body: `${event.file.uri.split('/').pop() || 'Unknown file'}`,
-					})
-				},
-				onError(event) {
-					n.update({
-						title: `Failed!`,
-						body: event.error?.message || 'Error while backing up data.',
-					})
-				},
-				onComplete() {
-					sleep(500).then(() => {
-						n.update({
-							title: `Success!`,
-							body: `Backup completed at ${$df(
-								new Date(),
-								'DD MMM, YYYY hh:mm A',
-							)}.`,
-						})
-					})
-				},
-			},
-		)
+		const uploadFiles = [...jsonFiles, ...filteredFiles]
 
-		// If might delete previous backup on a new device
+		const totalSize = uploadFiles.reduce((a, f) => a + (f.size || 0), 0)
+		storage.set(storage.keys.lastBackupSize, totalSize)
+
+		await drive.upload(uploadFiles, {
+			onProgress(event) {
+				n.update({
+					title: `Backup (${Math.round(event.progress)}%)`,
+					body: `${event.file.uri.split('/').pop() || 'Unknown file'}`,
+				})
+			},
+			onError(event) {
+				n.update({
+					title: `Failed!`,
+					body: event.error?.message || 'Error while backing up data.',
+				})
+			},
+			onComplete() {
+				sleep(500).then(() => {
+					n.update({
+						title: `Success!`,
+						body: `Backup completed at ${$df(
+							new Date(),
+							'DD MMM, YYYY hh:mm A',
+						)}.`,
+					})
+				})
+			},
+		})
+
 		if (patients.length && records.length) {
-			log(`[backup]: finding extra files...`)
-			const driveFiles = await drive.find()
+			const extraFiles = files.filter(v => {
+				return (
+					!patients.some(p => p.avatar?.uri === v.uri) &&
+					!records.some(r => r.attachments?.some(a => a.uri === v.uri))
+				)
+			})
 			const extraDriveFiles = (driveFiles.data || []).filter(v => {
 				return (
 					!['application/json', 'application/vnd.google-apps.folder'].includes(
 						v.mimeType,
 					) &&
-					![...avatars, ...attachments].some(
-						x => x.uri.split('/').pop() === v.name,
-					)
+					!patients.some(patient => {
+						return patient.avatar?.uri?.split('/').pop() === v.name
+					}) &&
+					!records.some(record => {
+						return record.attachments?.some(attachment => {
+							return attachment.uri?.split('/').pop() === v.name
+						})
+					})
 				)
 			})
-
-			log(`[backup]: ${extraDriveFiles.length} extra files`)
-			log(`[backup]: deleting extra files...`)
+			fs.removeMany(extraFiles.map(v => v.uri))
 			await drive.delete(extraDriveFiles.map(v => v.id))
-			log(`[backup]: extra files deleted`)
 		}
 
-		log(`[backup]: backup completed`)
-		storage.set('lastBackupTime', Date.now())
+		storage.set(storage.keys.lastBackupTime, Date.now())
 		return {
 			success: true,
 			message: 'Backup completed successfully',

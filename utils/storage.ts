@@ -13,10 +13,17 @@ const getArray = <T = any>(name: string): T[] => {
 	}
 }
 
+const keys = {
+	lastBackupTime: 'lastBackupTime',
+	lastBackupSize: 'lastBackupSize',
+}
+
 Object.assign(mmkv, {
+	keys,
 	getArray,
 })
 
 export const storage = mmkv as typeof mmkv & {
+	keys: typeof keys
 	getArray: typeof getArray
 }

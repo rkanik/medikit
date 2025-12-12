@@ -1,4 +1,5 @@
 import { appName } from '@/const'
+import { TMaybe } from '@/types'
 import { log } from '@/utils/logs'
 import {
 	GetTokensResponse,
@@ -13,109 +14,40 @@ const POST_API = 'https://www.googleapis.com/upload/drive/v3'
 
 type TFile = {
 	uri: string
-	folder?: string
-	overwrite?: boolean
+	fileId?: string
 }
 
-type TFolderOptions = {
+type TDriveFile = {
+	id: string
 	name: string
-	parent: string
-	token: string
+	mimeType: string
+	parents: string[]
 }
 
-const findId = async (token: string, q: string) => {
-	try {
-		const r = await ReactNativeBlobUtil.fetch(
-			'GET',
-			`${GET_API}/files?q=${encodeURIComponent(q)}`,
-			{
-				Authorization: `Bearer ${token}`,
-			},
-		)
-		const data = JSON.parse(r.data)
-		return data.files?.[0]?.id || null
-	} catch {
-		return null
-	}
+type TSuccessResponse<T = any> = {
+	data: T
+	error: null
 }
 
-const findFile = (v: TFolderOptions) => {
-	return findId(
-		v.token,
-		`name='${v.name}' and '${v.parent}' in parents and trashed=false`,
-	)
+type TErrorResponse = {
+	data: null
+	error: Error
 }
 
-const findFolder = (v: TFolderOptions) => {
-	return findId(
-		v.token,
-		`mimeType='application/vnd.google-apps.folder' and name='${v.name}' and '${v.parent}' in parents and trashed=false`,
-	)
-}
-
-const createFolder = async (v: TFolderOptions) => {
-	try {
-		const r = await ReactNativeBlobUtil.fetch(
-			'POST',
-			`${GET_API}/files`,
-			{
-				Authorization: `Bearer ${v.token}`,
-				'Content-Type': 'application/json',
-			},
-			JSON.stringify({
-				name: v.name,
-				mimeType: 'application/vnd.google-apps.folder',
-				parents: [v.parent],
-			}),
-		)
-		const json = JSON.parse(r.data)
-		return json.id
-	} catch {
-		return null
-	}
-}
-
-const getFolderId = async (
-	v: TFolderOptions,
-	folderIds: Map<string, string>,
-) => {
-	const key = JSON.stringify({
-		name: v.name,
-		parent: v.parent,
-	})
-	if (folderIds.has(key)) return folderIds.get(key)
-	const id = (await findFolder(v)) || (await createFolder(v))
-	if (id) folderIds.set(key, id)
-	return id
-}
+type TResponse<T = any> = Promise<TSuccessResponse<T> | TErrorResponse>
 
 type TFindQuery = {
 	names?: string[]
-	parent?: string
 	mimeTypes?: string[]
 }
 
 export class GoogleDrive {
 	private token: string | null = null
+	private folderIds = new Map<string, string>()
 	private tokenPromise: Promise<GetTokensResponse> | null = null
 
 	constructor(public rootFolder = appName) {
 		//
-	}
-
-	public async download(id: string, destination: Directory | File) {
-		return this.withToken(async token => {
-			return File.downloadFileAsync(
-				`${GET_API}/files/${id}?alt=media`,
-				destination,
-				{
-					idempotent: true,
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				},
-			)
-		})
 	}
 
 	private async getToken() {
@@ -153,14 +85,133 @@ export class GoogleDrive {
 		return callback(token)
 	}
 
-	public async find(query?: TFindQuery) {
+	private async findFolderId(
+		name: string,
+		parent?: TMaybe<string>,
+	): TResponse<string> {
 		return this.withToken(async token => {
-			const queries: string[] = []
+			try {
+				const r = await ReactNativeBlobUtil.fetch(
+					'GET',
+					`${GET_API}/files?q=${encodeURIComponent(
+						[
+							`mimeType='application/vnd.google-apps.folder'`,
+							`name='${name}'`,
+							parent ? `'${parent}' in parents` : false,
+							`trashed=false`,
+						]
+							.filter(Boolean)
+							.join(' and '),
+					)}`,
+					{
+						Authorization: `Bearer ${token}`,
+					},
+				)
+				const data = JSON.parse(r.data)
+				if (data.files?.[0]?.id) {
+					return {
+						data: data.files?.[0]?.id,
+						error: null,
+					}
+				}
+				throw new Error('Failed to find folder')
+			} catch (error) {
+				return {
+					data: null,
+					error: error as Error,
+				}
+			}
+		})
+	}
+
+	private async createFolder(
+		name: string,
+		parents: string[],
+	): TResponse<string> {
+		return this.withToken(async token => {
+			try {
+				const r = await ReactNativeBlobUtil.fetch(
+					'POST',
+					`${GET_API}/files`,
+					{
+						[`Content-Type`]: 'application/json',
+						[`Authorization`]: `Bearer ${token}`,
+					},
+					JSON.stringify({
+						name,
+						parents,
+						mimeType: 'application/vnd.google-apps.folder',
+					}),
+				)
+				const json = JSON.parse(r.data)
+				return {
+					data: json.id,
+					error: null,
+				}
+			} catch (error) {
+				return {
+					data: null,
+					error: error as Error,
+				}
+			}
+		})
+	}
+
+	private async getFolderId(
+		name: string,
+		parent?: TMaybe<string>,
+	): TResponse<string> {
+		const key = JSON.stringify({ name, parent })
+		if (this.folderIds.has(key)) {
+			return {
+				data: this.folderIds.get(key)!,
+				error: null,
+			}
+		}
+		const { data, error } =
+			(await this.findFolderId(name, parent)) ||
+			(await this.createFolder(name, parent ? [parent] : []))
+		if (data) {
+			this.folderIds.set(key, data)
+			return {
+				data,
+				error: null,
+			}
+		}
+		return {
+			data: null,
+			error: error as Error,
+		}
+	}
+
+	private async getRootFolderId() {
+		return this.getFolderId(this.rootFolder, 'root').then(v => v.data as string)
+	}
+
+	public async download(id: string, destination: Directory | File) {
+		return this.withToken(async token => {
+			return File.downloadFileAsync(
+				`${GET_API}/files/${id}?alt=media`,
+				destination,
+				{
+					idempotent: true,
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			)
+		})
+	}
+
+	public async find(query?: TFindQuery): TResponse<TDriveFile[]> {
+		return this.withToken(async token => {
+			const queries: string[] = ['trashed=false']
 			if (query?.names) {
 				queries.push(
 					`(${query.names.map(name => `name='${name}'`).join(' or ')})`,
 				)
 			}
+
 			if (query?.mimeTypes) {
 				queries.push(
 					`(${query.mimeTypes
@@ -169,26 +220,33 @@ export class GoogleDrive {
 				)
 			}
 
+			const id = await this.getRootFolderId()
+			if (id) queries.push(`'${id}' in parents`)
+
 			const params = new URLSearchParams({
 				q: queries.join(' and '),
-				fields: 'files(id,name,mimeType,parents)',
+				fields: 'files(id,name,mimeType)',
 			})
 
-			const r = await ReactNativeBlobUtil.fetch(
-				'GET',
-				`${GET_API}/files?${params.toString()}`,
-				{
-					Authorization: `Bearer ${token}`,
-				},
-			)
-			const data = JSON.parse(r.data)
-			return { data: data.files as any[] }
-		})
-	}
-
-	public async getRootFolder() {
-		return this.withToken(async token => {
-			return this.find({ names: [this.rootFolder] })
+			try {
+				const r = await ReactNativeBlobUtil.fetch(
+					'GET',
+					`${GET_API}/files?${params.toString()}`,
+					{
+						Authorization: `Bearer ${token}`,
+					},
+				)
+				const data = JSON.parse(r.data)
+				return {
+					data: (data.files ?? []) as TDriveFile[],
+					error: null,
+				}
+			} catch (error) {
+				return {
+					data: null,
+					error: error as Error,
+				}
+			}
 		})
 	}
 
@@ -243,17 +301,8 @@ export class GoogleDrive {
 	) {
 		return this.withToken(
 			async token => {
-				const folderIds = new Map<string, string>()
-				const rootFolderId = await getFolderId(
-					{
-						token,
-						name: this.rootFolder,
-						parent: 'root',
-					},
-					folderIds,
-				)
-
 				const results: any = []
+				const rootFolderId = await this.getRootFolderId()
 
 				let errorCount = 0
 				let successCount = 0
@@ -261,46 +310,17 @@ export class GoogleDrive {
 				for (let index = 0; index < files.length; index++) {
 					const file = files[index]
 					try {
-						const parent = file.folder
-							? await getFolderId(
-									{
-										token,
-										name: file.folder,
-										parent: rootFolderId,
-									},
-									folderIds,
-							  )
-							: rootFolderId
-						const name = file.uri?.split('/').pop()!
-						const fileId = await findFile({ name, token, parent })
-						if (fileId && !file.overwrite) {
-							successCount++
-							options?.onProgress?.({
-								file,
-								data: null,
-								error: null,
-								total: files.length,
-								index,
-								successCount,
-								errorCount,
-								progress: ((index + 1) / files.length) * 100,
-							})
-							results.push({
-								data: {
-									id: fileId,
-								},
-							})
-							continue
-						}
 						const metadata = {
-							...(fileId ? {} : { parents: [parent] }),
-							name: file.uri?.split('/').pop(),
+							...(file.fileId ? {} : { parents: [rootFolderId] }),
+							name: file.uri.split('/').pop(),
 							mimeType: mime.getType(file.uri!),
 						}
-						const url = fileId
-							? `${POST_API}/files/${fileId}?uploadType=multipart`
+
+						const url = file.fileId
+							? `${POST_API}/files/${file.fileId}?uploadType=multipart`
 							: `${POST_API}/files?uploadType=multipart`
-						const method = fileId ? 'PATCH' : 'POST'
+
+						const method = file.fileId ? 'PATCH' : 'POST'
 						const response = await ReactNativeBlobUtil.fetch(
 							method,
 							url,
@@ -367,13 +387,5 @@ export class GoogleDrive {
 				})
 			},
 		)
-	}
-
-	public async findAndDelete(query: TFindQuery) {
-		const { data } = await this.find(query)
-		if (data && data.length > 0) {
-			return this.delete(data.map(v => v.id))
-		}
-		return { data: [] }
 	}
 }

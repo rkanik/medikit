@@ -8,6 +8,7 @@ import { CurrentPatientPicker } from '@/components/CurrentPatientPicker'
 import { Text } from '@/components/ui/text'
 import { appName } from '@/const'
 import { useScheme } from '@/hooks/useScheme'
+import { useUpdater } from '@/hooks/useUpdater'
 import { cn } from '@/utils/cn'
 import { Image } from 'expo-image'
 import { View } from 'react-native'
@@ -33,7 +34,7 @@ const items = [
 
 export default function TabLayout() {
 	const { scheme } = useScheme()
-
+	useUpdater()
 	return (
 		<Tabs
 			screenOptions={{

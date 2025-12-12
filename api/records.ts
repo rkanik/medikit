@@ -109,7 +109,7 @@ const useRecordsActions = () => {
 			}
 			item.attachments = item.attachments?.map(attachment => {
 				if (attachment?.uri) {
-					const { data } = fs.copyAssetTo('attachments', attachment)
+					const { data } = fs.copyAssetTo('files', attachment)
 					if (data) attachment.uri = data.uri
 					return attachment
 				}

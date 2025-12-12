@@ -4,11 +4,14 @@ import { Text } from '@/components/ui/text'
 import { fs } from '@/utils/fs'
 import { log } from '@/utils/logs'
 import { Directory, File } from 'expo-file-system'
+import { Image } from 'expo-image'
 import {
 	ArrowLeftIcon,
 	ChevronRightIcon,
 	FileIcon,
+	FileJsonIcon,
 	FolderIcon,
+	PackageIcon,
 } from 'lucide-react-native'
 import { useCallback, useEffect, useState } from 'react'
 import { Pressable, ScrollView } from 'react-native'
@@ -134,6 +137,17 @@ export const FileManager = ({
 								<Box className="items-center justify-center w-10 h-10">
 									{item.isDirectory ? (
 										<FolderIcon size={24} color="#6B7280" fill="#E5E7EB" />
+									) : item.uri.endsWith('.json') ? (
+										<FileJsonIcon size={24} color="#6B7280" />
+									) : item.uri.endsWith('.apk') ? (
+										<PackageIcon size={24} color="#6B7280" />
+									) : ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(
+											item.uri.split('.').pop() ?? '',
+									  ) ? (
+										<Image
+											source={{ uri: item.uri }}
+											style={{ width: 24, height: 24 }}
+										/>
 									) : (
 										<FileIcon size={24} color="#6B7280" />
 									)}

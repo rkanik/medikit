@@ -4,6 +4,7 @@ import { log } from '@/utils/logs'
 import { open } from '@/utils/open'
 import { File, Paths } from 'expo-file-system'
 import { useCallback, useEffect, useState } from 'react'
+import { Alert } from 'react-native'
 import { useMMKVNumber } from 'react-native-mmkv'
 
 const versionToNumber = (version: string) => {
@@ -16,6 +17,22 @@ export const useUpdater = () => {
 	const { data: downloads, download } = useDownloader()
 	const [loading, setLoading] = useState(false)
 	const [lastChecked, setLastChecked] = useMMKVNumber(`useUpdater:lastChecked`)
+
+	const promptToUpdate = useCallback((url: string) => {
+		Alert.alert(
+			'Update Available',
+			'A new version of the app is available. Please update to the latest version.',
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{
+					text: 'Update',
+					onPress: () => {
+						open(url)
+					},
+				},
+			],
+		)
+	}, [])
 
 	const checkForUpdates = useCallback(async () => {
 		setLoading(true)
@@ -37,7 +54,7 @@ export const useUpdater = () => {
 		const currentVersion = versionToNumber(appVersion)
 
 		//
-		if (version >= currentVersion) {
+		if (version !== currentVersion) {
 			const apkName = apkUrl.split('/').pop()
 			const destinationFile = new File(Paths.document, apkName!)
 
@@ -45,17 +62,18 @@ export const useUpdater = () => {
 			const existing = downloads.find(download => download.id === id)
 
 			if (destinationFile.exists && existing?.status === 'completed') {
-				open(destinationFile.uri)
+				promptToUpdate(destinationFile.uri)
 				return setLoading(false)
 			}
 			//
 			log(`[Updater]: Have to download the apk`)
 			await download(apkUrl, destinationFile.uri)
+			promptToUpdate(destinationFile.uri)
 		} else {
 			log(`[Updater]: No update available`)
 		}
 		setLoading(false)
-	}, [downloads, download])
+	}, [downloads, download, promptToUpdate])
 
 	useEffect(() => {
 		// check for updates every 24 hours
