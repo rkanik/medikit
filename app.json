@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Medi Kit Dev",
-    "slug": "medikit-dev",
-    "version": "1.0.0",
+    "name": "MediKit",
+    "slug": "medikit",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "medikit-dev",
+    "scheme": "medikit",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.rkanik.medikit.dev",
+      "package": "com.rkanik.medikit",
       "googleServicesFile": "./google-services.json",
       "permissions": [
         "WAKE_LOCK",
