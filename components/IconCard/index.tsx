@@ -1,15 +1,15 @@
-import { cn } from '@/utils/cn'
+import { BaseCard } from '@/components/base/card'
+import { Icon } from '@/components/ui/icon'
+import { Text } from '@/components/ui/text'
 import { PressableProps } from 'react-native'
-import { BaseCard } from '../base/card'
-import { Icon } from '../ui/icon'
-import { Text } from '../ui/text'
+import { cn } from 'tailwind-variants'
 
 type TIconCardProps = PressableProps & {
 	title: string
 	className?: string
 	iconClassName?: string
 	titleClassName?: string
-	icon: React.ElementType
+	icon: string
 	iconSize?: any
 }
 
@@ -24,12 +24,12 @@ export const IconCard = ({
 }: TIconCardProps) => {
 	return (
 		<BaseCard {...props} className={cn('p-4', className)}>
-			<Icon as={icon} size={iconSize} className={iconClassName} />
+			<Icon name={icon} size={iconSize} className={iconClassName} />
 			<Text size="lg" className={cn('mt-2', titleClassName)}>
 				{title}
 			</Text>
 			<Icon
-				as={icon}
+				name={icon}
 				size="10xl"
 				className={cn('absolute -bottom-4 -right-4 opacity-40', iconClassName)}
 			/>

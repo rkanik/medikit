@@ -2,13 +2,6 @@ import { ColorSchemePicker } from '@/components/ColorSchemePicker'
 import { IconCard } from '@/components/IconCard'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { router } from 'expo-router'
-import {
-	CloudUploadIcon,
-	DownloadIcon,
-	FolderSyncIcon,
-	HistoryIcon,
-	PaletteIcon,
-} from 'lucide-react-native'
 import { ScrollView } from 'react-native'
 
 export default function Screen() {
@@ -21,7 +14,7 @@ export default function Screen() {
 				<GridItem _extra={{ className: 'col-span-1' }}>{/*  */}</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
 					<IconCard
-						icon={DownloadIcon}
+						icon="download"
 						title="Updates"
 						iconClassName="text-teal-500"
 						onTouchStart={() => router.push('/updates')}
@@ -29,7 +22,7 @@ export default function Screen() {
 				</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
 					<IconCard
-						icon={HistoryIcon}
+						icon="history"
 						title="Temp"
 						iconClassName="text-red-500"
 						onTouchStart={() => router.push('/temp')}
@@ -37,7 +30,7 @@ export default function Screen() {
 				</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
 					<IconCard
-						icon={CloudUploadIcon}
+						icon="cloud-upload"
 						title="Backup"
 						iconClassName="text-blue-500"
 						onTouchStart={() => router.push('/backup')}
@@ -45,7 +38,7 @@ export default function Screen() {
 				</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
 					<IconCard
-						icon={FolderSyncIcon}
+						icon="folder-sync"
 						title="Files"
 						iconClassName="text-orange-500"
 						onTouchStart={() => router.push('/files')}
@@ -55,7 +48,7 @@ export default function Screen() {
 					<ColorSchemePicker
 						trigger={v => (
 							<IconCard
-								icon={PaletteIcon}
+								icon="palette"
 								title="Theme"
 								iconClassName="text-green-500"
 								onTouchStart={v.onPress}

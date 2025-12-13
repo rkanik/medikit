@@ -1,6 +1,6 @@
 import { Text } from '@/components/ui/text'
-import { cn } from '@/utils/cn'
 import { View } from 'react-native'
+import { cn } from 'tailwind-variants'
 
 export const BaseJson = (props: { data: any; className?: string }) => {
 	return (

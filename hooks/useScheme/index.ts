@@ -1,11 +1,10 @@
-import { TColorScheme } from '@/types'
-import { useColorScheme } from 'nativewind'
 import { useCallback } from 'react'
+import { useColorScheme } from 'react-native'
 
 export const useScheme = () => {
-	const { colorScheme = 'light' } = useColorScheme()
+	const colorScheme = useColorScheme() || 'dark'
 	const scheme = useCallback(
-		<T>(object: Partial<Record<TColorScheme, T>>) => {
+		<T>(object: Partial<Record<'light' | 'dark', T>>) => {
 			return object[colorScheme]
 		},
 		[colorScheme],

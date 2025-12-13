@@ -9,7 +9,6 @@ import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { CheckCircleIcon, XIcon } from 'lucide-react-native'
 import { useCallback, useEffect } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -101,11 +100,11 @@ export default function Screen() {
 							className="relative justify-end px-0"
 							data={[
 								{
-									icon: XIcon,
+									icon: 'x',
 									onPress: () => router.back(),
 								},
 								{
-									icon: CheckCircleIcon,
+									icon: 'check-circle',
 									text: 'Submit',
 									onPress(e) {
 										form.handleSubmit(onSubmit)(e)

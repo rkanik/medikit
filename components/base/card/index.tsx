@@ -1,5 +1,5 @@
-import { cn } from '@/utils/cn'
 import { Pressable, PressableProps } from 'react-native'
+import { cn } from 'tailwind-variants'
 
 export const BaseCard = ({ className, ...props }: PressableProps) => {
 	return (
@@ -12,12 +12,12 @@ export const BaseCard = ({ className, ...props }: PressableProps) => {
 			style={{
 				boxShadow: '0 0 4px rgba(0, 0, 0, 0.1)',
 			}}
-			// android_ripple={{
-			// 	color: 'rgba(0, 0, 0, 0.2)',
-			// 	foreground: true,
-			// 	borderless: true,
-			// 	radius: 100,
-			// }}
+			android_ripple={{
+				color: 'rgba(0, 0, 0, 0.2)',
+				foreground: true,
+				borderless: true,
+				radius: 100,
+			}}
 		/>
 	)
 }

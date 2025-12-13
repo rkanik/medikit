@@ -1,34 +1,30 @@
-import { Tabs } from 'expo-router'
-import React from 'react'
-
-import { Icon } from '@/components/ui/icon'
-import { HomeIcon, MenuIcon, UsersIcon } from 'lucide-react-native'
-
 import { CurrentPatientPicker } from '@/components/CurrentPatientPicker'
+import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { appName } from '@/const'
+import { colors } from '@/const/colors'
 import { useScheme } from '@/hooks/useScheme'
 import { useUpdater } from '@/hooks/useUpdater'
-import { cn } from '@/utils/cn'
 import { Image } from 'expo-image'
+import { Tabs } from 'expo-router'
 import { View } from 'react-native'
-import { green, neutral } from 'tailwindcss/colors'
+import { cn } from 'tailwind-variants'
 
 const items = [
 	{
 		title: 'Home',
 		name: 'index',
-		icon: HomeIcon,
+		icon: 'home',
 	},
 	{
 		title: 'Patients',
 		name: 'patients/index',
-		icon: UsersIcon,
+		icon: 'users',
 	},
 	{
 		title: 'Menu',
 		name: 'menu/index',
-		icon: MenuIcon,
+		icon: 'menu',
 	},
 ]
 
@@ -47,19 +43,19 @@ export default function TabLayout() {
 					backgroundColor: 'transparent',
 				},
 				tabBarActiveTintColor: scheme({
-					dark: green[500],
-					light: green[500],
+					dark: colors.green[500],
+					light: colors.green[500],
 				}),
 				tabBarStyle: {
 					height: 96,
 					paddingTop: 8,
 					borderColor: scheme({
-						dark: neutral[600],
-						light: green[200],
+						dark: colors.neutral[600],
+						light: colors.green[200],
 					}),
 					backgroundColor: scheme({
-						dark: neutral[800],
-						light: green[50],
+						dark: colors.neutral[800],
+						light: colors.green[50],
 					}),
 				},
 				headerTitle: () => (
@@ -94,7 +90,7 @@ export default function TabLayout() {
 									'dark:bg-neutral-900': v.focused,
 								})}
 							>
-								<Icon size="xl" as={item.icon} color={v.color} />
+								<Icon size="xl" name={item.icon} color={v.color} />
 							</View>
 						),
 						tabBarLabel: v => (

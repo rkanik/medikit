@@ -1,19 +1,11 @@
 import { api } from '@/api'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
-import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
-import { Box } from '@/components/ui/box'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Divider } from '@/components/ui/divider'
-import { Heading } from '@/components/ui/heading'
 import { Text } from '@/components/ui/text'
 import { $d, $df } from '@/utils/dayjs'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import {
-	CalendarIcon,
-	EditIcon,
-	Trash2Icon,
-	UserIcon,
-} from 'lucide-react-native'
 import { Fragment, useCallback } from 'react'
 import { Alert, ScrollView, View } from 'react-native'
 
@@ -54,12 +46,12 @@ export default function Screen() {
 			>
 				<View className="items-center">
 					<Avatar size="2xl">
-						<AvatarFallbackText>{data.name}</AvatarFallbackText>
+						<Avatar.Text>{data.name}</Avatar.Text>
 						<AvatarImage source={{ uri: data.avatar?.uri }} />
 					</Avatar>
-					<Heading size="xl" className="mt-5">
+					<Text size="xl" className="mt-5">
 						{data.name}
-					</Heading>
+					</Text>
 					{data.dob && (
 						<Text>
 							{$df(data.dob, 'DD MMMM, YYYY')} ({$d().diff(data.dob, 'years')}
@@ -72,13 +64,13 @@ export default function Screen() {
 						Basic Information
 					</Text>
 					<View className="dark:bg-neutral-900 rounded-lg mt-2">
-						<BaseListItem text={data.name} icon={UserIcon} label="Name" />
+						<BaseListItem text={data.name} icon="user" label="Name" />
 						{data.dob && (
 							<Fragment>
 								<Divider className="dark:bg-neutral-700" />
 								<BaseListItem
 									text={$df(data.dob, 'DD MMMM, YYYY')}
-									icon={CalendarIcon}
+									icon="calendar"
 									label="Date of Birth"
 								/>
 							</Fragment>
@@ -90,11 +82,11 @@ export default function Screen() {
 				className="bottom-12"
 				data={[
 					{
-						icon: Trash2Icon,
+						icon: 'trash',
 						onPress: onDelete,
 					},
 					{
-						icon: EditIcon,
+						icon: 'edit',
 						text: 'Update',
 						onPress: () => router.push(`/patients/${id}/form`),
 					},

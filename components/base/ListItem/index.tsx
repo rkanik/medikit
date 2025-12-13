@@ -1,7 +1,7 @@
-import { ChevronRightIcon, Icon } from '@/components/ui/icon'
+import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
-import { cn } from '@/utils/cn'
 import { GestureResponderEvent, TouchableOpacity, View } from 'react-native'
+import { cn } from 'tailwind-variants'
 
 export type TBaseListItemProps = {
 	className?: string
@@ -29,7 +29,7 @@ export const BaseListItem = (props: TBaseListItemProps) => {
 			<View className="h-7 w-7 flex items-center justify-center flex-none">
 				{props.icon && (
 					<Icon
-						as={props.icon}
+						name={props.icon}
 						size={props.iconSize || 'xl'}
 						className={cn('dark:text-neutral-400', props.iconClassName)}
 					/>
@@ -46,7 +46,7 @@ export const BaseListItem = (props: TBaseListItemProps) => {
 			{(props.rightIcon || props.showRightIcon) && (
 				<View className="flex-none">
 					<Icon
-						as={props.rightIcon || ChevronRightIcon}
+						name={props.rightIcon || 'chevron-right'}
 						size={props.rightIconSize || 'xl'}
 						className={cn('dark:text-neutral-400', props.rightIconClassName)}
 					/>

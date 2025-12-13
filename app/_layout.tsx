@@ -3,12 +3,12 @@ import 'react-native-reanimated'
 
 import { Logs } from '@/components/Logs'
 import { Providers } from '@/components/Providers'
+import { colors } from '@/const/colors'
 import { useScheme } from '@/hooks/useScheme'
 import { initializeBackgroundTask } from '@/services/background'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
-import { green, neutral } from 'tailwindcss/colors'
 
 export const unstable_settings = {
 	anchor: '(tabs)',
@@ -45,14 +45,14 @@ export default function RootLayout() {
 				screenOptions={{
 					contentStyle: {
 						backgroundColor: scheme({
-							dark: neutral[900],
-							light: green[50],
+							dark: colors.neutral[900],
+							light: colors.neutral[100],
 						}),
 					},
 					headerStyle: {
 						backgroundColor: scheme({
-							dark: neutral[800],
-							light: green[50],
+							dark: colors.neutral[800],
+							light: colors.neutral[100],
 						}),
 					},
 				}}

@@ -1,10 +1,9 @@
 import { Pressable, Alert as RNAlert, ScrollView, View } from 'react-native'
 
-import { BaseDialog } from '@/components/base/BaseDialog'
 import { BaseCard } from '@/components/base/card'
-import { Alert, AlertText } from '@/components/ui/alert'
-import { Avatar, AvatarFallbackText, AvatarImage } from '@/components/ui/avatar'
-import { Box } from '@/components/ui/box'
+import { BaseDialog } from '@/components/base/dialog'
+import { Alert } from '@/components/ui/alert'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import {
 	Button,
 	ButtonIcon,
@@ -12,20 +11,17 @@ import {
 	ButtonText,
 } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'
-import { Heading } from '@/components/ui/heading'
-import { HStack } from '@/components/ui/hstack'
-import { CloseIcon, Icon } from '@/components/ui/icon'
+import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
 import { minimumIntervals, useBackgroundTask } from '@/services/background'
 import { backup, useBackup } from '@/services/backup'
 import { restore } from '@/services/restore'
-import { cn } from '@/utils/cn'
 import { $df } from '@/utils/dayjs'
 import { FlashList } from '@shopify/flash-list'
 import { Stack } from 'expo-router'
-import { ClockIcon, DownloadIcon, UploadIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
+import { cn } from 'tailwind-variants'
 
 export default function Screen() {
 	//
@@ -99,40 +95,38 @@ export default function Screen() {
 			</BaseCard>
 			{error && (
 				<Alert action="error" className="gap-3 mt-3">
-					<AlertText className="text-typography-900" size="sm">
+					<Text className="text-typography-900" size="sm">
 						<Text className="mr-2 font-semibold text-typography-900">
 							Error:
 						</Text>
 						{error}
-					</AlertText>
+					</Text>
 					<Pressable className="ml-auto" onPress={() => setError(null)}>
-						<Icon as={CloseIcon} size="lg" />
+						<Icon name="close" size="lg" />
 					</Pressable>
 				</Alert>
 			)}
 			{user ? (
 				<View className="mt-4 gap-4">
 					<BaseCard>
-						<Heading size="md">Google Account</Heading>
+						<Text size="md">Google Account</Text>
 						<Text size="sm">
 							This account will be used to backup and restore your data to
 							Google Drive.
 						</Text>
 						<Divider className="my-3" />
-						<HStack space="lg" className="items-center">
+						<View className="items-center gap-2">
 							<Avatar size="lg">
-								<AvatarFallbackText>
+								<Avatar.Text>
 									{user.name?.charAt(0) || user.email.split('@')[0].charAt(0)}
-								</AvatarFallbackText>
+								</Avatar.Text>
 								<AvatarImage source={{ uri: user.photo ?? '' }} />
 							</Avatar>
-							<Box>
-								<Heading size="sm">
-									{user.name || user.email.split('@')[0]}
-								</Heading>
+							<View>
+								<Text size="sm">{user.name || user.email.split('@')[0]}</Text>
 								<Text size="sm">{user.email}</Text>
-							</Box>
-						</HStack>
+							</View>
+						</View>
 						<View className="flex-row">
 							<Button
 								variant="outline"
@@ -141,12 +135,12 @@ export default function Screen() {
 								onPress={logout}
 							>
 								{isLoading && <ButtonSpinner color="gray" />}
-								<ButtonText>Disconnect</ButtonText>
+								<Button.Text>Disconnect</Button.Text>
 							</Button>
 						</View>
 					</BaseCard>
 					<BaseCard>
-						<Heading size="md">Backup & Restore</Heading>
+						<Text size="md">Backup & Restore</Text>
 						<Text size="sm">Backup and restore your data to Google Drive.</Text>
 						<Divider className="my-3" />
 						<View>
@@ -171,12 +165,12 @@ export default function Screen() {
 						<View className="gap-2 mt-4 flex-row">
 							<Button disabled={isUploading} onPress={onBackup}>
 								{isUploading && <ButtonSpinner color="gray" />}
-								<ButtonIcon as={UploadIcon} size="lg" />
+								<ButtonIcon name="upload" size="lg" />
 								<ButtonText>Backup</ButtonText>
 							</Button>
 							<Button disabled={isRestoring} onPress={onRestore}>
 								{isRestoring && <ButtonSpinner color="gray" />}
-								<ButtonIcon as={DownloadIcon} size="lg" />
+								<ButtonIcon name="download" size="lg" />
 								<ButtonText>Restore</ButtonText>
 							</Button>
 							<BaseDialog
@@ -184,7 +178,7 @@ export default function Screen() {
 								setVisible={setMinimumIntervalDialog}
 								trigger={v => (
 									<Button {...v} className="aspect-square">
-										<ButtonIcon as={ClockIcon} size="lg" />
+										<ButtonIcon name="clock" size="lg" />
 									</Button>
 								)}
 							>
@@ -220,19 +214,19 @@ export default function Screen() {
 				</View>
 			) : (
 				<BaseCard className="mt-3">
-					<Heading size="md">Google Drive Backup</Heading>
+					<Text size="md">Google Drive Backup</Text>
 					<Text size="sm">
 						Connect your google account to backup and restore your data to
 						Google Drive. Make sure to grant the necessary permissions to the
 						app.
 					</Text>
 					<Divider className="my-3" />
-					<HStack>
+					<View>
 						<Button onPress={login} disabled={isLoading} className="mt-3">
 							{isLoading && <ButtonSpinner color="gray" />}
 							<ButtonText>Connect Google</ButtonText>
 						</Button>
-					</HStack>
+					</View>
 				</BaseCard>
 			)}
 

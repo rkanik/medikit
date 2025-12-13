@@ -1,6 +1,5 @@
 import { BaseActions } from '@/components/base/actions'
 import { Image } from 'expo-image'
-import { ChevronDownIcon } from 'lucide-react-native'
 import {
 	createContext,
 	PropsWithChildren,
@@ -71,7 +70,7 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 									className="bottom-12"
 									data={[
 										{
-											icon: ChevronDownIcon,
+											icon: 'chevron-down',
 											text: 'Close',
 											onPress: dismiss,
 										},

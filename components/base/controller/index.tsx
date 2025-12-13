@@ -1,78 +1,43 @@
-import {
-	FormControl,
-	FormControlError,
-	FormControlErrorIcon,
-	FormControlErrorText,
-	FormControlHelper,
-	FormControlHelperText,
-	FormControlLabel,
-	FormControlLabelText,
-} from '@/components/ui/form-control'
-import { AlertCircleIcon } from 'lucide-react-native'
-import type {
-	Control,
-	ControllerFieldState,
-	ControllerRenderProps,
-	FieldValues,
-	Path,
-	UseFormStateReturn,
-} from 'react-hook-form'
+import { Text } from '@/components/ui/text'
+import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
+import { View } from 'react-native'
+import { cn } from 'tailwind-variants'
 
-export type TBaseControllerProps<T extends FieldValues> = React.ComponentProps<
-	typeof FormControl
-> & {
+export type TBaseControllerProps<
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = ControllerProps<TFieldValues, TName> & {
+	size?: string
 	label?: string
+	className?: string
 	helperText?: string
-	name: Path<T>
-	control: Control<T>
+	isRequired?: boolean
 }
 
-type TProps<T extends FieldValues> = TBaseControllerProps<T> & {
-	render: (v: {
-		field: ControllerRenderProps<T, Path<T>>
-		fieldState: ControllerFieldState
-		formState: UseFormStateReturn<T>
-	}) => React.ReactNode
-}
-
-export const BaseController = <T extends FieldValues>(props: TProps<T>) => {
+export const BaseController = <
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+	name,
+	control,
+	className,
+	label,
+	helperText,
+	render,
+	...props
+}: TBaseControllerProps<TFieldValues, TName>) => {
 	return (
 		<Controller
-			name={props.name}
-			control={props.control}
+			name={name}
+			control={control}
 			render={v => (
-				<FormControl
-					size={props.size || 'lg'}
-					className={props.className}
-					isInvalid={!!v.fieldState.error}
-					isDisabled={props.isDisabled}
-					isReadOnly={props.isReadOnly}
-					isRequired={props.isRequired}
-				>
-					{props.label && (
-						<FormControlLabel>
-							<FormControlLabelText>{props.label}</FormControlLabelText>
-						</FormControlLabel>
-					)}
-					{props.render(v)}
-					{props.helperText && (
-						<FormControlHelper>
-							<FormControlHelperText>{props.helperText}</FormControlHelperText>
-						</FormControlHelper>
-					)}
-					{v.fieldState.error && (
-						<FormControlError>
-							<FormControlErrorIcon
-								as={AlertCircleIcon}
-								className="text-red-500"
-							/>
-							<FormControlErrorText className="text-red-500">
-								{v.fieldState.error?.message}
-							</FormControlErrorText>
-						</FormControlError>
-					)}
-				</FormControl>
+				<View className={cn(className)}>
+					{label && <Text>{label}</Text>}
+					{render(v)}
+					{helperText && <Text>{helperText}</Text>}
+					{v.fieldState.error && <Text>{v.fieldState.error?.message}</Text>}
+				</View>
 			)}
 		/>
 	)

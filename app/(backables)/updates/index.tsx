@@ -14,13 +14,6 @@ import { $df } from '@/utils/dayjs'
 import { open } from '@/utils/open'
 import { FlashList } from '@shopify/flash-list'
 import { Stack } from 'expo-router'
-import {
-	ExternalLinkIcon,
-	PauseIcon,
-	PlayIcon,
-	RefreshCcwIcon,
-	TrashIcon,
-} from 'lucide-react-native'
 import { ScrollView, View } from 'react-native'
 
 export default function Screen() {
@@ -37,7 +30,7 @@ export default function Screen() {
 
 			<Button className="mt-4" onPress={() => checkForUpdates()}>
 				{loading && <ButtonSpinner color="gray" />}
-				<ButtonIcon as={RefreshCcwIcon} size="lg" />
+				<ButtonIcon name="refresh-ccw" size="lg" />
 				<ButtonText>Check for Updates</ButtonText>
 			</Button>
 
@@ -100,7 +93,7 @@ export default function Screen() {
 						<View className="flex-row gap-2 mt-2">
 							{item.status === 'completed' && (
 								<Button size="xs" onPress={() => open(item.destination)}>
-									<ButtonIcon as={ExternalLinkIcon} />
+									<ButtonIcon name="external-link" />
 									<ButtonText>Open</ButtonText>
 								</Button>
 							)}
@@ -111,7 +104,7 @@ export default function Screen() {
 										resume(item.source, item.destination)
 									}}
 								>
-									<ButtonIcon as={PlayIcon} />
+									<ButtonIcon name="play" />
 									<ButtonText>Resume</ButtonText>
 								</Button>
 							)}
@@ -122,12 +115,12 @@ export default function Screen() {
 										pause(item.source, item.destination)
 									}}
 								>
-									<ButtonIcon as={PauseIcon} />
+									<ButtonIcon name="pause" />
 									<ButtonText>Pause</ButtonText>
 								</Button>
 							)}
 							<Button size="xs" onPress={() => remove(item)}>
-								<ButtonIcon as={TrashIcon} />
+								<ButtonIcon name="trash" />
 								<ButtonText>Delete</ButtonText>
 							</Button>
 						</View>

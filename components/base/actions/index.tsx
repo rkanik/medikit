@@ -1,6 +1,6 @@
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
-import { cn } from '@/utils/cn'
 import { GestureResponderEvent, View } from 'react-native'
+import { cn } from 'tailwind-variants'
 
 type TAction = {
 	icon: any
@@ -31,7 +31,7 @@ export const BaseActions = ({ data, className }: TBaseActionsProps) => {
 					})}
 					onPress={item.onPress}
 				>
-					<ButtonIcon as={item.icon} />
+					<ButtonIcon name={item.icon} />
 					{item.text && <ButtonText size="md">{item.text}</ButtonText>}
 				</Button>
 			))}

@@ -1,6 +1,5 @@
-import { CloseIcon, Icon } from '@/components/ui/icon'
-import { InputField } from '@/components/ui/input'
-import { cn } from '@/utils/cn'
+import { Icon } from '@/components/ui/icon'
+import { TInputProps } from '@/components/ui/input'
 import { $df } from '@/utils/dayjs'
 import { isAndroid } from '@/utils/is'
 import {
@@ -9,24 +8,35 @@ import {
 } from '@react-native-community/datetimepicker'
 import type { Ref } from 'react'
 import { forwardRef, useCallback } from 'react'
-import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form'
+import type {
+	ControllerRenderProps,
+	FieldPath,
+	FieldValues,
+} from 'react-hook-form'
 import { Pressable, Text, TextInput, TouchableOpacity } from 'react-native'
+import { cn } from 'tailwind-variants'
 import { BaseController, TBaseControllerProps } from '../controller'
 
-type TProps<T extends FieldValues> = TBaseControllerProps<T> &
-	React.ComponentProps<typeof InputField> &
+type TBaseDatePickerProps<
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = Omit<TBaseControllerProps<TFieldValues, TName>, 'render'> &
+	TInputProps &
 	Omit<AndroidNativeProps, 'value' | 'onChange'> & {
 		initialValue?: Date
 		inputFormat?: string
 		outputFormat?: string
 	}
 
-const BaseDatePickerInner = <T extends FieldValues>(
-	{ size = 'lg', ...props }: TProps<T>,
+const BaseDatePickerInner = <
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>(
+	{ size = 'lg', ...props }: TBaseDatePickerProps<TFieldValues, TName>,
 	ref: Ref<TextInput>,
 ) => {
 	const onPress = useCallback(
-		(field: ControllerRenderProps<T, Path<T>>) => {
+		(field: ControllerRenderProps<TFieldValues, TName>) => {
 			if (isAndroid) {
 				DateTimePickerAndroid.open({
 					mode: props.mode,
@@ -70,7 +80,7 @@ const BaseDatePickerInner = <T extends FieldValues>(
 					{v.field.value && (
 						<Pressable onPress={() => v.field.onChange(null)}>
 							<Icon
-								as={CloseIcon}
+								name="x"
 								size="lg"
 								className="text-background-300 ml-auto"
 							/>
@@ -83,7 +93,8 @@ const BaseDatePickerInner = <T extends FieldValues>(
 }
 
 export const BaseDatePicker = forwardRef(BaseDatePickerInner) as <
-	T extends FieldValues,
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(
-	props: TProps<T> & { ref?: Ref<TextInput> },
+	props: TBaseDatePickerProps<TFieldValues, TName> & { ref?: Ref<TextInput> },
 ) => ReturnType<typeof BaseDatePickerInner>

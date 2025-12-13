@@ -1,6 +1,6 @@
-import type { TFormProps, TFormRef, TFormSubmitProps } from './types'
 import { forwardRef, useImperativeHandle } from 'react'
-import { cn } from '@/utils/cn'
+import { cn } from 'tailwind-variants'
+import type { TFormProps, TFormRef, TFormSubmitProps } from './types'
 
 const Form = forwardRef<TFormRef, TFormProps>(function Form(
 	{ children, className, touchable: _, onSubmit, ...props }: TFormProps,
@@ -13,7 +13,7 @@ const Form = forwardRef<TFormRef, TFormProps>(function Form(
 		<form
 			{...(props as any)}
 			className={cn('flex flex-col', className)}
-			onSubmit={(e) => {
+			onSubmit={e => {
 				e.preventDefault()
 				onSubmit?.(e)
 			}}

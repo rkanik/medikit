@@ -1,20 +1,12 @@
-import { Box } from '@/components/ui/box'
 import { Button, ButtonIcon } from '@/components/ui/button'
+import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { fs } from '@/utils/fs'
 import { log } from '@/utils/logs'
 import { Directory, File } from 'expo-file-system'
 import { Image } from 'expo-image'
-import {
-	ArrowLeftIcon,
-	ChevronRightIcon,
-	FileIcon,
-	FileJsonIcon,
-	FolderIcon,
-	PackageIcon,
-} from 'lucide-react-native'
 import { useCallback, useEffect, useState } from 'react'
-import { Pressable, ScrollView } from 'react-native'
+import { Pressable, ScrollView, View } from 'react-native'
 
 type FileItem = {
 	name: string
@@ -101,46 +93,58 @@ export const FileManager = ({
 		currentPath.length === 0 ? 'Documents' : currentPath.join(' / ')
 
 	return (
-		<Box className="flex-1">
+		<View className="flex-1">
 			{/* Header with back button and path */}
-			<Box className="flex-row items-center gap-2 px-4 py-3 border-b border-outline-200">
+			<View className="flex-row items-center gap-2 px-4 py-3 border-b border-outline-200">
 				{canGoBack && (
 					<Button variant="link" size="sm" onPress={handleBack} className="p-2">
-						<ButtonIcon as={ArrowLeftIcon} size="sm" />
+						<ButtonIcon name="chevron-left" size="sm" />
 					</Button>
 				)}
-				<Text size="sm" className="flex-1" isTruncated numberOfLines={1}>
+				<Text size="sm" className="flex-1">
 					{pathDisplay}
 				</Text>
-			</Box>
+			</View>
 
 			{/* File list */}
 			<ScrollView className="flex-1">
 				{loading ? (
-					<Box className="p-4 items-center">
+					<View className="p-4 items-center">
 						<Text>Loading...</Text>
-					</Box>
+					</View>
 				) : items.length === 0 ? (
-					<Box className="p-4 items-center">
+					<View className="p-4 items-center">
 						<Text size="sm" className="text-typography-500">
 							No files or directories
 						</Text>
-					</Box>
+					</View>
 				) : (
-					<Box className="p-2">
+					<View className="p-2">
 						{items.map((item, index) => (
 							<Pressable
 								key={`${item.uri}-${index}`}
 								onPress={() => handleItemPress(item)}
 								className="flex-row items-center gap-3 p-3 rounded-lg active:bg-background-100 border-b border-outline-100"
 							>
-								<Box className="items-center justify-center w-10 h-10">
+								<View className="items-center justify-center w-10 h-10">
 									{item.isDirectory ? (
-										<FolderIcon size={24} color="#6B7280" fill="#E5E7EB" />
+										<Icon
+											name="folder"
+											size="lg"
+											className="text-background-300"
+										/>
 									) : item.uri.endsWith('.json') ? (
-										<FileJsonIcon size={24} color="#6B7280" />
+										<Icon
+											name="file-json"
+											size="lg"
+											className="text-background-300"
+										/>
 									) : item.uri.endsWith('.apk') ? (
-										<PackageIcon size={24} color="#6B7280" />
+										<Icon
+											name="package"
+											size="lg"
+											className="text-background-300"
+										/>
 									) : ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(
 											item.uri.split('.').pop() ?? '',
 									  ) ? (
@@ -149,16 +153,15 @@ export const FileManager = ({
 											style={{ width: 24, height: 24 }}
 										/>
 									) : (
-										<FileIcon size={24} color="#6B7280" />
+										<Icon
+											name="file"
+											size="lg"
+											className="text-background-300"
+										/>
 									)}
-								</Box>
-								<Box className="flex-1 min-w-0">
-									<Text
-										size="sm"
-										bold={item.isDirectory}
-										isTruncated
-										numberOfLines={1}
-									>
+								</View>
+								<View className="flex-1 min-w-0">
+									<Text size="sm" bold={item.isDirectory}>
 										{item.name}
 									</Text>
 									{!item.isDirectory && item.size !== null && (
@@ -166,15 +169,19 @@ export const FileManager = ({
 											{fs.formatSize(item.size)}
 										</Text>
 									)}
-								</Box>
+								</View>
 								{item.isDirectory && (
-									<ChevronRightIcon size={20} color="#9CA3AF" />
+									<Icon
+										name="chevron-right"
+										size="lg"
+										className="text-background-300"
+									/>
 								)}
 							</Pressable>
 						))}
-					</Box>
+					</View>
 				)}
 			</ScrollView>
-		</Box>
+		</View>
 	)
 }

@@ -1,5 +1,4 @@
 import { Text } from '@/components/ui/text'
-import { cn } from '@/utils/cn'
 import type { Ref } from 'react'
 import { forwardRef, Fragment, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
@@ -10,10 +9,11 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native'
-import { BaseDialog } from '../BaseDialog'
+import { cn } from 'tailwind-variants'
 import { BaseController, TBaseControllerProps } from '../controller'
+import { BaseDialog } from '../dialog'
 
-import { ChevronDownIcon, CloseIcon, Icon } from '@/components/ui/icon'
+import { Icon } from '@/components/ui/icon'
 import { FlashList } from '@shopify/flash-list'
 
 type TProps<T extends FieldValues> = TBaseControllerProps<T> & {
@@ -73,14 +73,14 @@ const BaseSelectInner = <T extends FieldValues>(
 										{v.field.value && (
 											<Pressable onPress={() => v.field.onChange(null)}>
 												<Icon
-													as={CloseIcon}
+													name="x"
 													size="lg"
 													className="text-background-300"
 												/>
 											</Pressable>
 										)}
 										<Icon
-											as={ChevronDownIcon}
+											name="chevron-down"
 											size="lg"
 											className="text-background-300"
 										/>

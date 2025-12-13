@@ -3,7 +3,6 @@ import { BaseActions } from '@/components/base/actions'
 import { PatientCard } from '@/components/PatientCard'
 import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
-import { PlusIcon } from 'lucide-react-native'
 import { View } from 'react-native'
 
 export default function PatientsScreen() {
@@ -27,7 +26,7 @@ export default function PatientsScreen() {
 				className="bottom-8"
 				data={[
 					{
-						icon: PlusIcon,
+						icon: 'plus',
 						text: 'Patient',
 						onPress: () => router.push('/patients/new/form'),
 					},

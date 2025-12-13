@@ -1,11 +1,9 @@
 import { TPatient } from '@/types/database'
-import { cn } from '@/utils/cn'
 import { $d, $df } from '@/utils/dayjs'
 import { GestureResponderEvent, View } from 'react-native'
+import { cn } from 'tailwind-variants'
 import { BaseCard } from './base/card'
-import { Avatar, AvatarFallbackText, AvatarImage } from './ui/avatar'
-import { Heading } from './ui/heading'
-import { HStack } from './ui/hstack'
+import { Avatar } from './ui/avatar'
 import { Text } from './ui/text'
 
 type TPatientCardProps = {
@@ -28,13 +26,13 @@ export const PatientCard = ({
 				'border-green-500 dark:border-green-500': selected,
 			})}
 		>
-			<HStack space="lg" className="items-center">
+			<View className="items-center gap-2">
 				<Avatar>
-					<AvatarFallbackText>{data.name}</AvatarFallbackText>
-					<AvatarImage source={{ uri: data.avatar?.uri }} />
+					<Avatar.Text>{data.name}</Avatar.Text>
+					<Avatar.Image source={{ uri: data.avatar?.uri }} />
 				</Avatar>
 				<View>
-					<Heading size="md">{data.name}</Heading>
+					<Text size="md">{data.name}</Text>
 					{data.dob && (
 						<Text>
 							{$df(data.dob, 'DD MMMM, YYYY')}({$d().diff(data.dob, 'years')}{' '}
@@ -42,7 +40,7 @@ export const PatientCard = ({
 						</Text>
 					)}
 				</View>
-			</HStack>
+			</View>
 		</BaseCard>
 	)
 }

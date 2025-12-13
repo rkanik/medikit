@@ -1,48 +1,26 @@
-import React from 'react';
+import { createContext, PropsWithChildren, useContext } from 'react'
+import { Text as RNText, TextProps } from 'react-native'
+import { cn } from 'tailwind-variants'
 
-import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
-import { Text as RNText } from 'react-native';
-import { textStyle } from './styles';
+const Context = createContext<{
+	className?: string
+}>(null!)
 
-type ITextProps = React.ComponentProps<typeof RNText> &
-  VariantProps<typeof textStyle>;
+export type TTextProviderProps = PropsWithChildren<{
+	className?: string
+}>
+export const TextProvider = ({ className, ...props }: TTextProviderProps) => {
+	return <Context.Provider {...props} value={{ className }} />
+}
 
-const Text = React.forwardRef<React.ComponentRef<typeof RNText>, ITextProps>(
-  function Text(
-    {
-      className,
-      isTruncated,
-      bold,
-      underline,
-      strikeThrough,
-      size = 'md',
-      sub,
-      italic,
-      highlight,
-      ...props
-    },
-    ref
-  ) {
-    return (
-      <RNText
-        className={textStyle({
-          isTruncated: isTruncated as boolean,
-          bold: bold as boolean,
-          underline: underline as boolean,
-          strikeThrough: strikeThrough as boolean,
-          size,
-          sub: sub as boolean,
-          italic: italic as boolean,
-          highlight: highlight as boolean,
-          class: className,
-        })}
-        {...props}
-        ref={ref}
-      />
-    );
-  }
-);
+export type TTextProps = TextProps & {
+	size?: string
+	bold?: boolean
+}
 
-Text.displayName = 'Text';
+export const Text = ({ className, ...props }: TTextProps) => {
+	const context = useContext(Context)
+	return <RNText {...props} className={cn('', context?.className, className)} />
+}
 
-export { Text };
+Text.Provider = TextProvider

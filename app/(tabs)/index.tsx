@@ -3,14 +3,12 @@ import { BaseActions } from '@/components/base/actions'
 import { BaseCard } from '@/components/base/card'
 import { RecordCard } from '@/components/RecordCard'
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Heading } from '@/components/ui/heading'
+import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
-import { cn } from '@/utils/cn'
 import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
-import { ListTodoIcon, PlusIcon } from 'lucide-react-native'
 import { View } from 'react-native'
+import { cn } from 'tailwind-variants'
 
 export default function Screen() {
 	const { data, summary } = api.records.useRecords()
@@ -27,11 +25,11 @@ export default function Screen() {
 				ListFooterComponent={() => {
 					if (data.length === 0)
 						return (
-							<Card className="items-center py-12">
-								<ListTodoIcon size={32} color="white" />
-								<Heading size="lg" className="mt-2">
+							<BaseCard className="items-center py-12">
+								<Icon name="list-todo" size="32" color="white" />
+								<Text size="lg" className="mt-2">
 									No records found!
-								</Heading>
+								</Text>
 								<Text className="text-center">
 									Add a new record to get started
 								</Text>
@@ -41,15 +39,15 @@ export default function Screen() {
 									className="rounded-full mt-4"
 									onPress={() => router.push('/records/new/form')}
 								>
-									<ButtonIcon as={PlusIcon} size="lg" />
+									<ButtonIcon name="plus" size="lg" />
 									<ButtonText size="md">Add Record</ButtonText>
 								</Button>
-							</Card>
+							</BaseCard>
 						)
 					return (
 						<View className="mb-4">
 							<BaseCard>
-								<Heading>Costs</Heading>
+								<Text>Costs</Text>
 								<View className="gap-4 mt-4">
 									<View className="flex-row gap-8 flex-wrap">
 										<View>
@@ -91,7 +89,7 @@ export default function Screen() {
 					className="bottom-8"
 					data={[
 						{
-							icon: PlusIcon,
+							icon: 'plus',
 							text: 'Record',
 							onPress: () => router.push('/records/new/form'),
 						},

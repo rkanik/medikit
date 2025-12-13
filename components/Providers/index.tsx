@@ -1,11 +1,11 @@
 import { AuthProvider } from '@/context/AuthContext'
 import { ImageViewerProvider } from '@/context/ImageViewerProvider'
-import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
 import { Downloader } from '@/hooks/useDownloader'
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { setNotificationHandler } from 'expo-notifications'
 import { GestureHandlerRootView } from '../GestureHandlerRootView'
-import { GluestackUIProvider } from '../ui/gluestack-ui-provider'
+import { ThemeProvider } from '../ThemeProvider'
+import { Text } from '../ui/text'
 
 setNotificationHandler({
 	handleNotification: async () => ({
@@ -17,18 +17,19 @@ setNotificationHandler({
 })
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
-	const { colorScheme } = useColorSchemeStorage()
 	return (
 		<GestureHandlerRootView>
-			<GluestackUIProvider mode={colorScheme}>
-				<BottomSheetModalProvider>
-					<AuthProvider>
-						<ImageViewerProvider>
-							<Downloader>{children}</Downloader>
-						</ImageViewerProvider>
-					</AuthProvider>
-				</BottomSheetModalProvider>
-			</GluestackUIProvider>
+			<ThemeProvider>
+				<Text.Provider className="text-black dark:text-white">
+					<BottomSheetModalProvider>
+						<AuthProvider>
+							<ImageViewerProvider>
+								<Downloader>{children}</Downloader>
+							</ImageViewerProvider>
+						</AuthProvider>
+					</BottomSheetModalProvider>
+				</Text.Provider>
+			</ThemeProvider>
 		</GestureHandlerRootView>
 	)
 }

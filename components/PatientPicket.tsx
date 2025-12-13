@@ -3,7 +3,7 @@ import { TMaybe } from '@/types'
 import { TPatient } from '@/types/database'
 import { FlashList } from '@shopify/flash-list'
 import { useState } from 'react'
-import { BaseDialog, TBaseDialogProps } from './base/BaseDialog'
+import { BaseDialog, TBaseDialogProps } from './base/dialog'
 import { PatientCard } from './PatientCard'
 
 export type TPatientPickerProps = TBaseDialogProps & {

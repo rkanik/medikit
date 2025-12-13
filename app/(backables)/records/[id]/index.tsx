@@ -7,7 +7,6 @@ import { useImageViewer } from '@/context/ImageViewerProvider'
 import { $df } from '@/utils/dayjs'
 // import { Image } from 'expo-image'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { EditIcon, Trash2Icon } from 'lucide-react-native'
 import { Fragment, useCallback, useMemo } from 'react'
 import { Alert, GestureResponderEvent, ScrollView, View } from 'react-native'
 
@@ -90,9 +89,9 @@ export default function Screen() {
 			<BaseActions
 				className="bottom-12"
 				data={[
-					{ icon: Trash2Icon, onPress: onDelete },
+					{ icon: 'trash', onPress: onDelete },
 					{
-						icon: EditIcon,
+						icon: 'edit',
 						text: 'Update',
 						onPress: () => router.push(`/records/${id}/form`),
 					},

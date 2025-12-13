@@ -1,29 +1,28 @@
 import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
 import { TColorScheme } from '@/types'
-import { cn } from '@/utils/cn'
-import { MoonIcon, PaletteIcon, SunIcon } from 'lucide-react-native'
 import { useCallback, useState } from 'react'
 import { View } from 'react-native'
-import { BaseDialog, TBaseDialogTrigger } from '../base/BaseDialog'
+import { cn } from 'tailwind-variants'
+import { TBaseDialogTrigger } from '../base/dialog'
 import { IconCard } from '../IconCard'
 
 const COLOR_SCHEMES = [
 	{
 		value: 'light' as TColorScheme,
 		label: 'Light Mode',
-		icon: SunIcon,
+		icon: 'sun',
 		iconClassName: 'text-yellow-500',
 	},
 	{
 		value: 'dark' as TColorScheme,
 		label: 'Dark Mode',
-		icon: MoonIcon,
+		icon: 'moon',
 		iconClassName: 'text-blue-500',
 	},
 	{
 		value: 'system' as TColorScheme,
 		label: 'System Mode',
-		icon: PaletteIcon,
+		icon: 'palette',
 		iconClassName: 'text-green-500',
 	},
 ]
@@ -45,28 +44,46 @@ export const ColorSchemePicker = ({ trigger }: TColorSchemePickerProps) => {
 	)
 
 	return (
-		<BaseDialog
-			height={400}
-			trigger={trigger}
-			visible={visible}
-			scrollable={false}
-			setVisible={setVisible}
-		>
-			<View className="px-4 gap-4 pt-4">
-				{COLOR_SCHEMES.map(v => (
-					<IconCard
-						key={v.value}
-						icon={v.icon}
-						title={v.label}
-						iconSize="4xl"
-						iconClassName={v.iconClassName}
-						onPress={() => onPress(v.value)}
-						className={cn({
-							'border dark:border-green-500': colorScheme === v.value,
-						})}
-					/>
-				))}
-			</View>
-		</BaseDialog>
+		<View className="px-4 gap-4 pt-4">
+			{COLOR_SCHEMES.map(v => (
+				<IconCard
+					key={v.value}
+					icon={v.icon}
+					title={v.label}
+					iconSize="4xl"
+					iconClassName={v.iconClassName}
+					onPress={() => onPress(v.value)}
+					className={cn({
+						'border dark:border-green-500': colorScheme === v.value,
+					})}
+				/>
+			))}
+		</View>
 	)
+
+	// return (
+	// 	<BaseDialog
+	// 		height={400}
+	// 		trigger={trigger}
+	// 		visible={visible}
+	// 		scrollable={false}
+	// 		setVisible={setVisible}
+	// 	>
+	// 		<View className="px-4 gap-4 pt-4">
+	// 			{COLOR_SCHEMES.map(v => (
+	// 				<IconCard
+	// 					key={v.value}
+	// 					icon={v.icon}
+	// 					title={v.label}
+	// 					iconSize="4xl"
+	// 					iconClassName={v.iconClassName}
+	// 					onPress={() => onPress(v.value)}
+	// 					className={cn({
+	// 						'border dark:border-green-500': colorScheme === v.value,
+	// 					})}
+	// 				/>
+	// 			))}
+	// 		</View>
+	// 	</BaseDialog>
+	// )
 }

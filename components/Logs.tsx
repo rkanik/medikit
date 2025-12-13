@@ -1,10 +1,10 @@
 import { $df } from '@/utils/dayjs'
 import { useLogs } from '@/utils/logs'
 import { FlashList } from '@shopify/flash-list'
-import { BaseDialog } from './base/BaseDialog'
 import { BaseCard } from './base/card'
-import { Fab } from './ui/fab'
-import { Icon, InfoIcon } from './ui/icon'
+import { BaseDialog } from './base/dialog'
+import { Button } from './ui/button'
+import { Icon } from './ui/icon'
 import { Text } from './ui/text'
 
 export const Logs = () => {
@@ -13,9 +13,9 @@ export const Logs = () => {
 		<BaseDialog
 			scrollable={true}
 			trigger={v => (
-				<Fab {...v} size="lg">
-					<Icon as={InfoIcon} size="md" color="white" />
-				</Fab>
+				<Button {...v} size="lg">
+					<Icon name="info" size="md" color="white" />
+				</Button>
 			)}
 		>
 			<FlashList

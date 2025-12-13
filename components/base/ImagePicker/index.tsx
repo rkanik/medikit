@@ -1,12 +1,5 @@
 import { Button, ButtonIcon } from '@/components/ui/button'
 import { Image } from 'expo-image'
-import {
-	CameraIcon,
-	FolderIcon,
-	ImageIcon,
-	PlusIcon,
-	XIcon,
-} from 'lucide-react-native'
 import type { Ref } from 'react'
 import {
 	forwardRef,
@@ -16,26 +9,34 @@ import {
 	useRef,
 	useState,
 } from 'react'
-import type { ControllerRenderProps, FieldValues, Path } from 'react-hook-form'
+import type {
+	ControllerRenderProps,
+	FieldPath,
+	FieldValues,
+	Path,
+} from 'react-hook-form'
 import { Keyboard, Pressable, View } from 'react-native'
 import { BaseController, TBaseControllerProps } from '../controller'
 
 import { Grid, GridItem } from '@/components/ui/grid'
-import { Icon } from '@/components/ui/icon'
 import { useImageViewer } from '@/context/ImageViewerProvider'
 import { launchScanner } from '@dariyd/react-native-document-scanner'
 import { getDocumentAsync } from 'expo-document-picker'
 import { File } from 'expo-file-system'
 
+import { Icon } from '@/components/ui/icon'
 import {
 	ImagePickerOptions,
 	launchCameraAsync,
 	launchImageLibraryAsync,
 } from 'expo-image-picker'
 import { convert as convertPdfToImage } from 'react-native-pdf-to-image'
-import { BaseDialog } from '../BaseDialog'
+import { BaseDialog } from '../dialog'
 
-type TProps<T extends FieldValues> = TBaseControllerProps<T> & {
+type TBaseImagePickerProps<
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = Omit<TBaseControllerProps<TFieldValues, TName>, 'render'> & {
 	options?: ImagePickerOptions
 	scanner?: boolean
 	multiple?: boolean
@@ -43,7 +44,7 @@ type TProps<T extends FieldValues> = TBaseControllerProps<T> & {
 }
 
 const BaseImagePickerInner = <T extends FieldValues>(
-	{ aspect, multiple, scanner, ...props }: TProps<T>,
+	{ aspect, multiple, scanner, ...props }: TBaseImagePickerProps<T>,
 	ref: Ref<any>,
 ) => {
 	const { openImageViewer } = useImageViewer()
@@ -181,7 +182,11 @@ const BaseImagePickerInner = <T extends FieldValues>(
 												className="absolute right-1 top-1 rounded-full bg-black/70 p-1"
 												hitSlop={8}
 											>
-												<XIcon size={14} color="#fff" />
+												<Icon
+													name="x"
+													size="lg"
+													className="text-background-300"
+												/>
 											</Pressable>
 										</Pressable>
 									</GridItem>
@@ -196,7 +201,7 @@ const BaseImagePickerInner = <T extends FieldValues>(
 											className="border-background-300 h-full"
 											onPress={() => onOpenDialog(v.field)}
 										>
-											<ButtonIcon as={PlusIcon} size="lg" />
+											<ButtonIcon name="plus" size="lg" />
 										</Button>
 									</GridItem>
 								)}
@@ -212,21 +217,21 @@ const BaseImagePickerInner = <T extends FieldValues>(
 						className="h-20 w-20 rounded-full"
 						onPress={onPressDocument}
 					>
-						<Icon as={FolderIcon} size="2xl" />
+						<Icon name="folder" size="2xl" />
 					</Button>
 					<Button
 						variant="outline"
 						className="h-20 w-20 rounded-full"
 						onPress={onPressImage}
 					>
-						<Icon as={ImageIcon} size="2xl" />
+						<Icon name="image" size="2xl" />
 					</Button>
 					<Button
 						variant="outline"
 						className="h-20 w-20 rounded-full"
 						onPress={onPressCamera}
 					>
-						<Icon as={CameraIcon} size="2xl" />
+						<Icon name="camera" size="2xl" />
 					</Button>
 				</View>
 			</BaseDialog>
@@ -235,7 +240,8 @@ const BaseImagePickerInner = <T extends FieldValues>(
 }
 
 export const BaseImagePicker = forwardRef(BaseImagePickerInner) as <
-	T extends FieldValues,
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(
-	props: TProps<T> & { ref?: Ref<any> },
+	props: TBaseImagePickerProps<TFieldValues, TName> & { ref?: Ref<any> },
 ) => ReturnType<typeof BaseImagePickerInner>
