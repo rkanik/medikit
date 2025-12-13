@@ -1,7 +1,7 @@
 import { Pressable, Alert as RNAlert, ScrollView, View } from 'react-native'
 
 import { BaseCard } from '@/components/base/card'
-import { BaseDialog } from '@/components/base/dialog'
+import { BaseModal } from '@/components/base/modal'
 import { Alert } from '@/components/ui/alert'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -173,7 +173,7 @@ export default function Screen() {
 								<ButtonIcon name="download" size="lg" />
 								<ButtonText>Restore</ButtonText>
 							</Button>
-							<BaseDialog
+							<BaseModal
 								visible={minimumIntervalDialog}
 								setVisible={setMinimumIntervalDialog}
 								trigger={v => (
@@ -208,7 +208,7 @@ export default function Screen() {
 										</BaseCard>
 									)}
 								/>
-							</BaseDialog>
+							</BaseModal>
 						</View>
 					</BaseCard>
 				</View>

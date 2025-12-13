@@ -3,7 +3,7 @@ import { TColorScheme } from '@/types'
 import { useCallback, useState } from 'react'
 import { View } from 'react-native'
 import { cn } from 'tailwind-variants'
-import { TBaseDialogTrigger } from '../base/dialog'
+import { BaseModal, TBaseModalProps } from '../base/modal'
 import { IconCard } from '../IconCard'
 
 const COLOR_SCHEMES = [
@@ -28,7 +28,7 @@ const COLOR_SCHEMES = [
 ]
 
 type TColorSchemePickerProps = {
-	trigger: TBaseDialogTrigger
+	trigger?: TBaseModalProps['trigger']
 }
 
 export const ColorSchemePicker = ({ trigger }: TColorSchemePickerProps) => {
@@ -44,46 +44,28 @@ export const ColorSchemePicker = ({ trigger }: TColorSchemePickerProps) => {
 	)
 
 	return (
-		<View className="px-4 gap-4 pt-4">
-			{COLOR_SCHEMES.map(v => (
-				<IconCard
-					key={v.value}
-					icon={v.icon}
-					title={v.label}
-					iconSize="4xl"
-					iconClassName={v.iconClassName}
-					onPress={() => onPress(v.value)}
-					className={cn({
-						'border dark:border-green-500': colorScheme === v.value,
-					})}
-				/>
-			))}
-		</View>
+		<BaseModal
+			height={400}
+			trigger={trigger}
+			visible={visible}
+			scrollable={false}
+			setVisible={setVisible}
+		>
+			<View className="px-4 gap-4 pt-4">
+				{COLOR_SCHEMES.map(v => (
+					<IconCard
+						key={v.value}
+						icon={v.icon}
+						title={v.label}
+						iconSize="4xl"
+						iconClassName={v.iconClassName}
+						onPress={() => onPress(v.value)}
+						className={cn({
+							'border dark:border-green-500': colorScheme === v.value,
+						})}
+					/>
+				))}
+			</View>
+		</BaseModal>
 	)
-
-	// return (
-	// 	<BaseDialog
-	// 		height={400}
-	// 		trigger={trigger}
-	// 		visible={visible}
-	// 		scrollable={false}
-	// 		setVisible={setVisible}
-	// 	>
-	// 		<View className="px-4 gap-4 pt-4">
-	// 			{COLOR_SCHEMES.map(v => (
-	// 				<IconCard
-	// 					key={v.value}
-	// 					icon={v.icon}
-	// 					title={v.label}
-	// 					iconSize="4xl"
-	// 					iconClassName={v.iconClassName}
-	// 					onPress={() => onPress(v.value)}
-	// 					className={cn({
-	// 						'border dark:border-green-500': colorScheme === v.value,
-	// 					})}
-	// 				/>
-	// 			))}
-	// 		</View>
-	// 	</BaseDialog>
-	// )
 }

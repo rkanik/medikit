@@ -3,10 +3,10 @@ import { TMaybe } from '@/types'
 import { TPatient } from '@/types/database'
 import { FlashList } from '@shopify/flash-list'
 import { useState } from 'react'
-import { BaseDialog, TBaseDialogProps } from './base/dialog'
+import { BaseModal, TBaseModalProps } from './base/modal'
 import { PatientCard } from './PatientCard'
 
-export type TPatientPickerProps = TBaseDialogProps & {
+export type TPatientPickerProps = TBaseModalProps & {
 	value?: TMaybe<TPatient>
 	onChange?: (patient?: TPatient) => void
 }
@@ -37,7 +37,7 @@ export const PatientPicker = ({
 }: TPatientPickerProps) => {
 	const [visible, setVisible] = useState(false)
 	return (
-		<BaseDialog {...props} visible={visible} setVisible={setVisible}>
+		<BaseModal {...props} visible={visible} setVisible={setVisible}>
 			<PatientItems
 				value={value}
 				onChange={value => {
@@ -45,6 +45,6 @@ export const PatientPicker = ({
 					setVisible(false)
 				}}
 			/>
-		</BaseDialog>
+		</BaseModal>
 	)
 }

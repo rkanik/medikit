@@ -1,6 +1,6 @@
 import { api } from '@/api'
 import { PatientPicker } from './PatientPicket'
-import { Avatar, AvatarFallbackText, AvatarImage } from './ui/avatar'
+import { Avatar } from './ui/avatar'
 
 export const CurrentPatientPicker = () => {
 	const { data, setData } = api.patients.useCurrentPatient()
@@ -9,10 +9,10 @@ export const CurrentPatientPicker = () => {
 			value={data}
 			height={400}
 			onChange={patient => setData(patient?.id)}
-			trigger={({ onPress }) => (
-				<Avatar size="md" onTouchStart={onPress}>
-					<AvatarFallbackText>{data?.name}</AvatarFallbackText>
-					<AvatarImage source={{ uri: data?.avatar?.uri }} />
+			trigger={v => (
+				<Avatar {...v} size="md">
+					<Avatar.Text>{data?.name}</Avatar.Text>
+					<Avatar.Image source={{ uri: data?.avatar?.uri }} />
 				</Avatar>
 			)}
 		/>

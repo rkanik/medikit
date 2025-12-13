@@ -31,7 +31,7 @@ import {
 	launchImageLibraryAsync,
 } from 'expo-image-picker'
 import { convert as convertPdfToImage } from 'react-native-pdf-to-image'
-import { BaseDialog } from '../dialog'
+import { BaseModal } from '../modal'
 
 type TBaseImagePickerProps<
 	TFieldValues extends FieldValues = FieldValues,
@@ -210,7 +210,7 @@ const BaseImagePickerInner = <T extends FieldValues>(
 					)
 				}}
 			/>
-			<BaseDialog height={180} visible={visible} setVisible={setVisible}>
+			<BaseModal height={180} visible={visible} setVisible={setVisible}>
 				<View className="flex-1 flex-row gap-4 justify-center px-4 py-8">
 					<Button
 						variant="outline"
@@ -234,7 +234,7 @@ const BaseImagePickerInner = <T extends FieldValues>(
 						<Icon name="camera" size="2xl" />
 					</Button>
 				</View>
-			</BaseDialog>
+			</BaseModal>
 		</Fragment>
 	)
 }

@@ -9,12 +9,12 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native'
-import { cn } from 'tailwind-variants'
 import { BaseController, TBaseControllerProps } from '../controller'
-import { BaseDialog } from '../dialog'
 
 import { Icon } from '@/components/ui/icon'
 import { FlashList } from '@shopify/flash-list'
+import { cn } from 'tailwind-variants'
+import { BaseModal } from '../modal'
 
 type TProps<T extends FieldValues> = TBaseControllerProps<T> & {
 	placeholder?: string
@@ -41,7 +41,7 @@ const BaseSelectInner = <T extends FieldValues>(
 				render={v => {
 					const option = props.options?.find(o => o.value === v.field.value)
 					return (
-						<BaseDialog
+						<BaseModal
 							visible={visible}
 							height={
 								(props.options?.length || 0) * (ITEM_HEIGHT + ITEM_GAP) +
@@ -49,8 +49,9 @@ const BaseSelectInner = <T extends FieldValues>(
 								40
 							}
 							setVisible={setVisible}
-							trigger={({ onPress }) => (
+							trigger={trigger => (
 								<TouchableOpacity
+									{...trigger}
 									className={cn(
 										'border border-background-300 rounded p-2 h-12 flex-row items-center justify-between',
 										{
@@ -58,7 +59,6 @@ const BaseSelectInner = <T extends FieldValues>(
 										},
 									)}
 									onPress={() => {
-										onPress()
 										Keyboard.dismiss()
 									}}
 								>
@@ -105,7 +105,7 @@ const BaseSelectInner = <T extends FieldValues>(
 									</Pressable>
 								)}
 							/>
-						</BaseDialog>
+						</BaseModal>
 					)
 				}}
 			/>

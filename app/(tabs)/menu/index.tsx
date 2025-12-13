@@ -17,7 +17,7 @@ export default function Screen() {
 						icon="download"
 						title="Updates"
 						iconClassName="text-teal-500"
-						onTouchStart={() => router.push('/updates')}
+						onPress={() => router.push('/updates')}
 					/>
 				</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
@@ -25,7 +25,7 @@ export default function Screen() {
 						icon="history"
 						title="Temp"
 						iconClassName="text-red-500"
-						onTouchStart={() => router.push('/temp')}
+						onPress={() => router.push('/temp')}
 					/>
 				</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
@@ -33,7 +33,7 @@ export default function Screen() {
 						icon="cloud-upload"
 						title="Backup"
 						iconClassName="text-blue-500"
-						onTouchStart={() => router.push('/backup')}
+						onPress={() => router.push('/backup')}
 					/>
 				</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
@@ -41,7 +41,7 @@ export default function Screen() {
 						icon="folder-sync"
 						title="Files"
 						iconClassName="text-orange-500"
-						onTouchStart={() => router.push('/files')}
+						onPress={() => router.push('/files')}
 					/>
 				</GridItem>
 				<GridItem _extra={{ className: 'col-span-1' }}>
@@ -51,7 +51,7 @@ export default function Screen() {
 								icon="palette"
 								title="Theme"
 								iconClassName="text-green-500"
-								onTouchStart={v.onPress}
+								onPress={v.onPress}
 							/>
 						)}
 					/>

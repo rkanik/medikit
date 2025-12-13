@@ -2,7 +2,7 @@ import { $df } from '@/utils/dayjs'
 import { useLogs } from '@/utils/logs'
 import { FlashList } from '@shopify/flash-list'
 import { BaseCard } from './base/card'
-import { BaseDialog } from './base/dialog'
+import { BaseModal } from './base/modal'
 import { Button } from './ui/button'
 import { Icon } from './ui/icon'
 import { Text } from './ui/text'
@@ -10,7 +10,7 @@ import { Text } from './ui/text'
 export const Logs = () => {
 	const { data } = useLogs()
 	return (
-		<BaseDialog
+		<BaseModal
 			scrollable={true}
 			trigger={v => (
 				<Button {...v} size="lg">
@@ -39,6 +39,6 @@ export const Logs = () => {
 					</BaseCard>
 				)}
 			/>
-		</BaseDialog>
+		</BaseModal>
 	)
 }
