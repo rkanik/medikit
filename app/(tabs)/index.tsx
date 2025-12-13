@@ -5,9 +5,10 @@ import { RecordCard } from '@/components/RecordCard'
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
 import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
-import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
 import { View } from 'react-native'
+
+import { FlashList } from '@/components/FlashList'
 import { cn } from 'tailwind-variants'
 
 export default function Screen() {
@@ -17,8 +18,7 @@ export default function Screen() {
 			<FlashList
 				data={data}
 				keyExtractor={item => item.id?.toString() ?? ''}
-				contentContainerStyle={{ flexGrow: 1 }}
-				contentContainerClassName={cn('flex-col-reverse px-4', {
+				contentContainerClassName={cn('flex-grow flex-col-reverse px-4', {
 					'pb-4': data.length === 0,
 					'pb-28': data.length > 0,
 				})}
@@ -26,7 +26,7 @@ export default function Screen() {
 					if (data.length === 0)
 						return (
 							<BaseCard className="items-center py-12">
-								<Icon name="list-todo" size="32" color="white" />
+								<Icon name="list-todo" size={32} color="white" />
 								<Text size="lg" className="mt-2">
 									No records found!
 								</Text>

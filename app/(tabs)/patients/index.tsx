@@ -1,7 +1,7 @@
 import { api } from '@/api'
 import { BaseActions } from '@/components/base/actions'
+import { FlashList } from '@/components/FlashList'
 import { PatientCard } from '@/components/PatientCard'
-import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
 import { View } from 'react-native'
 

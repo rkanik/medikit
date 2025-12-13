@@ -1,7 +1,7 @@
 import { api } from '@/api'
+import { FlashList } from '@/components/FlashList'
 import { TMaybe } from '@/types'
 import { TPatient } from '@/types/database'
-import { FlashList } from '@shopify/flash-list'
 import { useState } from 'react'
 import { BaseModal, TBaseModalProps } from './base/modal'
 import { PatientCard } from './PatientCard'

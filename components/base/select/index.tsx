@@ -11,8 +11,8 @@ import {
 } from 'react-native'
 import { BaseController, TBaseControllerProps } from '../controller'
 
+import { FlashList } from '@/components/FlashList'
 import { Icon } from '@/components/ui/icon'
-import { FlashList } from '@shopify/flash-list'
 import { cn } from 'tailwind-variants'
 import { BaseModal } from '../modal'
 

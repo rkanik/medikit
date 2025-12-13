@@ -1,4 +1,5 @@
 import { BaseCard } from '@/components/base/card'
+import { FlashList } from '@/components/FlashList'
 import { Badge, BadgeText } from '@/components/ui/badge'
 import {
 	Button,
@@ -12,7 +13,6 @@ import { useDownloader } from '@/hooks/useDownloader'
 import { useUpdater } from '@/hooks/useUpdater'
 import { $df } from '@/utils/dayjs'
 import { open } from '@/utils/open'
-import { FlashList } from '@shopify/flash-list'
 import { Stack } from 'expo-router'
 import { ScrollView, View } from 'react-native'
 
@@ -85,7 +85,7 @@ export default function Screen() {
 							{item.progress
 								? `${Math.round(
 										item.progress.totalBytesExpectedToWrite / 1024 / 1024,
-								  )} MB`
+									)} MB`
 								: ''}
 							{' - '}
 							{new URL(item.source).hostname}
