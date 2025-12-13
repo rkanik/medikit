@@ -1,5 +1,6 @@
 import { api } from '@/api'
 import { BaseActions } from '@/components/base/actions'
+import { BaseCard } from '@/components/base/card'
 import { BaseImage } from '@/components/base/image'
 import { Text } from '@/components/ui/text'
 import { useImageViewer } from '@/context/ImageViewerProvider'
@@ -64,27 +65,25 @@ export default function Screen() {
 				contentContainerClassName="px-4 pb-32 justify-end"
 				contentContainerStyle={{ flexGrow: 1 }}
 			>
-				<View className="flex-row justify-between">
-					<View className="flex-1 gap-1">
-						<Text className="uppercase text-sm opacity-75">
-							{$df(data.date, 'DD MMM, YYYY')} | {data.type}
+				<BaseCard>
+					<Text className="uppercase text-sm opacity-75">
+						{$df(data.date, 'DD MMM, YYYY')} | {data.type}
+					</Text>
+					<Text className="text-lg">{data.text}</Text>
+					{data.amount > 0 && (
+						<Text bold className="text-green-500">
+							{data.amount} TK
 						</Text>
-						<Text className="text-lg">{data.text}</Text>
-						{data.amount > 0 && (
-							<Text bold className="text-green-500">
-								{data.amount} TK
-							</Text>
-						)}
-					</View>
-					<View className="flex-none"></View>
-				</View>
+					)}
+				</BaseCard>
 				<View className="mt-4 gap-4">
 					{attachments.map((attachment, index) => (
-						<BaseImage
-							key={index}
-							uri={attachment?.uri}
-							onPress={e => onPressImage(e, index)}
-						/>
+						<BaseCard key={index} className="p-0">
+							<BaseImage
+								uri={attachment?.uri}
+								onPress={e => onPressImage(e, index)}
+							/>
+						</BaseCard>
 					))}
 				</View>
 			</ScrollView>

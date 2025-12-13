@@ -6,9 +6,18 @@ export const BaseCard = ({ className, ...props }: PressableProps) => {
 		<Pressable
 			{...props}
 			className={cn(
-				'bg-white dark:bg-neutral-800 p-4 rounded-lg overflow-hidden border border-green-200 dark:border-neutral-700',
+				'bg-white dark:bg-neutral-800 p-4 rounded-lg overflow-hidden',
 				className,
 			)}
+			style={{
+				boxShadow: '0 0 4px rgba(0, 0, 0, 0.1)',
+			}}
+			// android_ripple={{
+			// 	color: 'rgba(0, 0, 0, 0.2)',
+			// 	foreground: true,
+			// 	borderless: true,
+			// 	radius: 100,
+			// }}
 		/>
 	)
 }

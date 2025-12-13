@@ -1,5 +1,6 @@
 import { api } from '@/api'
 import { BaseActions } from '@/components/base/actions'
+import { BaseCard } from '@/components/base/card'
 import { RecordCard } from '@/components/RecordCard'
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -47,7 +48,7 @@ export default function Screen() {
 						)
 					return (
 						<View className="mb-4">
-							<View className="border border-green-200 p-4 rounded-lg bg-white dark:bg-neutral-800 dark:border-neutral-700">
+							<BaseCard>
 								<Heading>Costs</Heading>
 								<View className="gap-4 mt-4">
 									<View className="flex-row gap-8 flex-wrap">
@@ -73,7 +74,7 @@ export default function Screen() {
 										))}
 									</View>
 								</View>
-							</View>
+							</BaseCard>
 						</View>
 					)
 				}}

@@ -11,7 +11,6 @@ import {
 	ButtonSpinner,
 	ButtonText,
 } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Divider } from '@/components/ui/divider'
 import { Heading } from '@/components/ui/heading'
 import { HStack } from '@/components/ui/hstack'
@@ -88,7 +87,7 @@ export default function Screen() {
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Stack.Screen options={{ title: 'Backup & Restore' }} />
-			<View className="rounded-2xl border border-emerald-200 dark:border-emerald-900 p-4 gap-2 bg-emerald-50/80 dark:bg-emerald-900/30">
+			<BaseCard className="gap-2">
 				<Text className="text-lg font-semibold text-emerald-900 dark:text-emerald-100">
 					Google Drive Backup
 				</Text>
@@ -97,7 +96,7 @@ export default function Screen() {
 					external servers are involved — everything stays on your device until
 					you tap &apos;Upload to Google Drive&apos;.
 				</Text>
-			</View>
+			</BaseCard>
 			{error && (
 				<Alert action="error" className="gap-3 mt-3">
 					<AlertText className="text-typography-900" size="sm">
@@ -113,7 +112,7 @@ export default function Screen() {
 			)}
 			{user ? (
 				<View className="mt-4 gap-4">
-					<Card size="lg" variant="outline">
+					<BaseCard>
 						<Heading size="md">Google Account</Heading>
 						<Text size="sm">
 							This account will be used to backup and restore your data to
@@ -145,8 +144,8 @@ export default function Screen() {
 								<ButtonText>Disconnect</ButtonText>
 							</Button>
 						</View>
-					</Card>
-					<Card size="lg" variant="outline">
+					</BaseCard>
+					<BaseCard>
 						<Heading size="md">Backup & Restore</Heading>
 						<Text size="sm">Backup and restore your data to Google Drive.</Text>
 						<Divider className="my-3" />
@@ -196,7 +195,7 @@ export default function Screen() {
 									renderItem={({ item }) => (
 										<BaseCard
 											className={cn('mb-2', {
-												'border-green-500 dark:border-green-500':
+												'bg-black dark:bg-white':
 													item.value === minimumInterval,
 											})}
 											onPress={() => {
@@ -204,16 +203,23 @@ export default function Screen() {
 												setMinimumIntervalDialog(false)
 											}}
 										>
-											<Text>{item.title}</Text>
+											<Text
+												className={cn({
+													'text-white dark:text-black font-bold':
+														item.value === minimumInterval,
+												})}
+											>
+												{item.title}
+											</Text>
 										</BaseCard>
 									)}
 								/>
 							</BaseDialog>
 						</View>
-					</Card>
+					</BaseCard>
 				</View>
 			) : (
-				<Card size="lg" variant="outline" className="mt-3">
+				<BaseCard className="mt-3">
 					<Heading size="md">Google Drive Backup</Heading>
 					<Text size="sm">
 						Connect your google account to backup and restore your data to
@@ -227,7 +233,7 @@ export default function Screen() {
 							<ButtonText>Connect Google</ButtonText>
 						</Button>
 					</HStack>
-				</Card>
+				</BaseCard>
 			)}
 
 			{/* <Card size="lg" variant="outline" className="mt-3">

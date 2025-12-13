@@ -3,7 +3,6 @@ import { TPatient, TRecord } from '@/types/database'
 import { $df } from '@/utils/dayjs'
 import { fs } from '@/utils/fs'
 import { log } from '@/utils/logs'
-import { sleep } from '@/utils/sleep'
 import { storage } from '@/utils/storage'
 import { useMMKVNumber } from 'react-native-mmkv'
 import { createNotification } from './notification'
@@ -94,17 +93,6 @@ export const backup = async () => {
 					body: event.error?.message || 'Error while backing up data.',
 				})
 			},
-			onComplete() {
-				sleep(500).then(() => {
-					n.update({
-						title: `Success!`,
-						body: `Backup completed at ${$df(
-							new Date(),
-							'DD MMM, YYYY hh:mm A',
-						)}.`,
-					})
-				})
-			},
 		})
 
 		if (patients.length && records.length) {
@@ -134,6 +122,10 @@ export const backup = async () => {
 		}
 
 		storage.lastBackupTime.set(Date.now())
+		n.update({
+			title: `Success!`,
+			body: `Backup completed at ${$df(new Date(), 'DD MMM, YYYY hh:mm A')}.`,
+		})
 		return {
 			success: true,
 			message: 'Backup completed successfully',
