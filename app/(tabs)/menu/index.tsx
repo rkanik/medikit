@@ -10,9 +10,9 @@ export default function Screen() {
 			contentContainerClassName="justify-end px-4 py-4"
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
-			<Grid className="gap-4" _extra={{ className: 'grid-cols-3' }}>
-				<GridItem _extra={{ className: 'col-span-1' }}>{/*  */}</GridItem>
-				<GridItem _extra={{ className: 'col-span-1' }}>
+			<Grid cols={3} gap={8}>
+				{/* <GridItem></GridItem> */}
+				<GridItem>
 					<IconCard
 						icon="download"
 						title="Updates"
@@ -20,7 +20,7 @@ export default function Screen() {
 						onPress={() => router.push('/updates')}
 					/>
 				</GridItem>
-				<GridItem _extra={{ className: 'col-span-1' }}>
+				<GridItem>
 					<IconCard
 						icon="history"
 						title="Temp"
@@ -28,7 +28,7 @@ export default function Screen() {
 						onPress={() => router.push('/temp')}
 					/>
 				</GridItem>
-				<GridItem _extra={{ className: 'col-span-1' }}>
+				<GridItem>
 					<IconCard
 						icon="cloud-upload"
 						title="Backup"
@@ -36,7 +36,7 @@ export default function Screen() {
 						onPress={() => router.push('/backup')}
 					/>
 				</GridItem>
-				<GridItem _extra={{ className: 'col-span-1' }}>
+				<GridItem>
 					<IconCard
 						icon="folder-sync"
 						title="Files"
@@ -44,7 +44,7 @@ export default function Screen() {
 						onPress={() => router.push('/files')}
 					/>
 				</GridItem>
-				<GridItem _extra={{ className: 'col-span-1' }}>
+				<GridItem>
 					<ColorSchemePicker
 						trigger={v => (
 							<IconCard

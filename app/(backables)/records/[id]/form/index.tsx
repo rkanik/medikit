@@ -72,8 +72,8 @@ export default function Screen() {
 					className="px-4 pt-4 pb-32 flex justify-end flex-1"
 					onSubmit={form.handleSubmit(onSubmit)}
 				>
-					<Grid className="gap-4" _extra={{ className: 'grid-cols-2' }}>
-						<GridItem _extra={{ className: 'col-span-2' }}>
+					<Grid cols={2} gap={16}>
+						<GridItem colSpan={2}>
 							<BaseImagePicker
 								name="attachments"
 								label="Attachments"
@@ -82,17 +82,17 @@ export default function Screen() {
 								multiple={true}
 							/>
 						</GridItem>
-						<GridItem _extra={{ className: 'col-span-2' }}>
+						<GridItem>
 							<BaseInput
 								name="text"
 								label="Description"
 								placeholder="Enter description..."
 								control={form.control}
 								isRequired={true}
-								autoFocus={true}
+								// autoFocus={true}
 							/>
 						</GridItem>
-						<GridItem _extra={{ className: 'col-span-2' }}>
+						<GridItem>
 							<BaseSelect
 								name="type"
 								label="Type"
@@ -102,7 +102,7 @@ export default function Screen() {
 								options={api.records.types}
 							/>
 						</GridItem>
-						<GridItem _extra={{ className: 'col-span-1' }}>
+						<GridItem>
 							<BaseDatePicker
 								name="date"
 								label="Date"
@@ -111,7 +111,7 @@ export default function Screen() {
 								isRequired={true}
 							/>
 						</GridItem>
-						<GridItem _extra={{ className: 'col-span-1' }}>
+						<GridItem>
 							<BaseInput
 								name="amount"
 								label="Cost (TK)"
@@ -120,7 +120,7 @@ export default function Screen() {
 								control={form.control}
 							/>
 						</GridItem>
-						<GridItem _extra={{ className: 'col-span-2' }}>
+						<GridItem>
 							<BaseActions
 								className="relative justify-end px-0"
 								data={[

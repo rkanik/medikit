@@ -10,7 +10,6 @@ export const Logs = () => {
 	const { data } = useLogs()
 	return (
 		<BaseModal
-			scrollable={true}
 			trigger={v => (
 				<Button
 					{...v}

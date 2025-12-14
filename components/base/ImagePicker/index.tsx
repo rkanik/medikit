@@ -157,56 +157,51 @@ const BaseImagePickerInner = <T extends FieldValues>(
 				render={v => {
 					const assets = getValue(v.field.value)
 					return (
-						<View className="gap-4">
-							<Grid className="gap-4" _extra={{ className: 'grid-cols-3' }}>
-								{assets.map((asset, index) => (
-									<GridItem key={index} _extra={{ className: 'col-span-1' }}>
-										<Pressable
-											className="relative rounded overflow-hidden border border-background-300"
-											onPress={() => {
-												if (multiple) {
-													openImageViewer(assets, index)
-													return
-												}
-												onOpenDialog(v.field)
-											}}
-										>
-											<Image
-												source={{ uri: asset?.uri }}
-												style={{ width: '100%', aspectRatio: 1 }}
-												contentFit="cover"
-												contentPosition="center"
-											/>
-											<Pressable
-												onPress={() => handleRemove(v.field, index)}
-												className="absolute right-1 top-1 rounded-full bg-black/70 p-1"
-												hitSlop={8}
-											>
-												<Icon
-													name="x"
-													size="lg"
-													className="text-background-300"
-												/>
-											</Pressable>
-										</Pressable>
-									</GridItem>
-								))}
-								{(multiple || (!multiple && !assets.length)) && (
-									<GridItem
-										_extra={{ className: 'col-span-1' }}
-										className="aspect-square"
+						<Grid cols={3} gap={16}>
+							{assets.map((asset, index) => (
+								<GridItem key={index}>
+									<Pressable
+										className="relative rounded overflow-hidden border border-background-300"
+										onPress={() => {
+											if (multiple) {
+												openImageViewer(assets, index)
+												return
+											}
+											onOpenDialog(v.field)
+										}}
 									>
-										<Button
-											variant="outline"
-											className="border-background-300 h-full"
-											onPress={() => onOpenDialog(v.field)}
+										<Image
+											source={{ uri: asset?.uri }}
+											style={{ width: '100%', aspectRatio: 1 }}
+											contentFit="cover"
+											contentPosition="center"
+										/>
+										<Pressable
+											onPress={() => handleRemove(v.field, index)}
+											className="absolute right-1 top-1 rounded-full bg-black/70 p-1"
+											hitSlop={8}
 										>
-											<ButtonIcon name="plus" size="lg" />
-										</Button>
-									</GridItem>
-								)}
-							</Grid>
-						</View>
+											<Icon
+												name="x"
+												size="lg"
+												className="text-background-300"
+											/>
+										</Pressable>
+									</Pressable>
+								</GridItem>
+							))}
+							{(multiple || (!multiple && !assets.length)) && (
+								<GridItem className="aspect-square">
+									<Button
+										variant="outline"
+										className="border-background-300 h-full"
+										onPress={() => onOpenDialog(v.field)}
+									>
+										<ButtonIcon name="plus" size="lg" />
+									</Button>
+								</GridItem>
+							)}
+						</Grid>
 					)
 				}}
 			/>

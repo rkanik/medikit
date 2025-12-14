@@ -50,9 +50,9 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 				</View>
 			</View>
 			{attachments.length > 0 && (
-				<Grid className="gap-4 mt-2" _extra={{ className: 'grid-cols-3' }}>
+				<Grid cols={3} gap={8} className="mt-2">
 					{attachments.slice(0, 3).map((attachment, index) => (
-						<GridItem key={index} _extra={{ className: 'col-span-1' }}>
+						<GridItem key={index}>
 							<Pressable
 								className="relative rounded-lg overflow-hidden"
 								onPress={e => onPressImage(e, index)}

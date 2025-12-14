@@ -1,4 +1,3 @@
-import { useSchemeColors } from '@/hooks/useSchemeColors'
 import {
 	BottomSheetBackdrop,
 	BottomSheetModal,
@@ -6,25 +5,27 @@ import {
 } from '@gorhom/bottom-sheet'
 import { createRef, Fragment, useCallback, useEffect } from 'react'
 
+import { remapProps } from 'nativewind'
+
+remapProps(BottomSheetModal, {
+	className: 'backgroundStyle',
+	indicatorClassName: 'handleIndicatorStyle',
+})
+
 export type TBaseModalProps = React.PropsWithChildren<{
 	height?: number | string
 	visible?: boolean
-	scrollable?: boolean
 	trigger?: (v: { onPress: () => void }) => React.ReactNode
 	setVisible?: (visible: boolean) => void
 }>
 
-export const BaseModal = (props: TBaseModalProps) => {
-	const {
-		visible,
-		children,
-		height = '60%',
-		scrollable = true,
-		trigger,
-		setVisible,
-	} = props
-	const { backgroundColor, borderColor } = useSchemeColors()
-
+export const BaseModal = ({
+	visible,
+	children,
+	height = '60%',
+	trigger,
+	setVisible,
+}: TBaseModalProps) => {
 	const ref = createRef<BottomSheetModal>()
 
 	const onPress = useCallback(() => ref.current?.present(), [ref])
@@ -49,29 +50,21 @@ export const BaseModal = (props: TBaseModalProps) => {
 				snapPoints={[1, height]}
 				enableDynamicSizing={false}
 				backdropComponent={BottomSheetBackdrop}
+				className="bg-neutral-100 dark:bg-neutral-700"
+				indicatorClassName="bg-neutral-200 dark:bg-neutral-500"
 				onChange={v => {
 					if (v === 0) return onClose()
 					setVisible?.(v > -1)
 				}}
-				backgroundStyle={{
-					backgroundColor,
-				}}
-				handleIndicatorStyle={{
-					backgroundColor: borderColor,
-				}}
 			>
-				{scrollable ? (
-					<BottomSheetScrollView
-						nestedScrollEnabled
-						keyboardShouldPersistTaps="always"
-						automaticallyAdjustKeyboardInsets={true}
-						contentContainerStyle={{ flexGrow: 1 }}
-					>
-						{children}
-					</BottomSheetScrollView>
-				) : (
-					children
-				)}
+				<BottomSheetScrollView
+					nestedScrollEnabled
+					keyboardShouldPersistTaps="always"
+					automaticallyAdjustKeyboardInsets={true}
+					contentContainerStyle={{ flexGrow: 1 }}
+				>
+					{children}
+				</BottomSheetScrollView>
 			</BottomSheetModal>
 		</Fragment>
 	)

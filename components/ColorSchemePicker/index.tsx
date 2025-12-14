@@ -48,7 +48,6 @@ export const ColorSchemePicker = ({ trigger }: TColorSchemePickerProps) => {
 			height={400}
 			trigger={trigger}
 			visible={visible}
-			scrollable={false}
 			setVisible={setVisible}
 		>
 			<View className="px-4 gap-4 pt-4">
