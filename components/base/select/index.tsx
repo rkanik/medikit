@@ -72,18 +72,10 @@ const BaseSelectInner = <T extends FieldValues>(
 									<View className="flex-none flex-row items-center gap-2">
 										{v.field.value && (
 											<Pressable onPress={() => v.field.onChange(null)}>
-												<Icon
-													name="x"
-													size="lg"
-													className="text-background-300"
-												/>
+												<Icon name="x" className="text-background-300" />
 											</Pressable>
 										)}
-										<Icon
-											name="chevron-down"
-											size="lg"
-											className="text-background-300"
-										/>
+										<Icon name="chevron-down" className="text-background-300" />
 									</View>
 								</TouchableOpacity>
 							)}

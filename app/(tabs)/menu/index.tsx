@@ -10,37 +10,41 @@ export default function Screen() {
 			contentContainerClassName="justify-end px-4 py-4"
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
-			<Grid cols={3} gap={8}>
-				{/* <GridItem></GridItem> */}
+			<Grid cols={3} gap={16}>
+				<GridItem></GridItem>
 				<GridItem>
 					<IconCard
 						icon="download"
 						title="Updates"
-						iconClassName="text-teal-500"
+						titleClassName="text-lg"
+						iconClassName="text-3xl text-teal-500 dark:text-teal-400"
 						onPress={() => router.push('/updates')}
 					/>
 				</GridItem>
 				<GridItem>
 					<IconCard
-						icon="history"
+						icon="clock"
 						title="Temp"
-						iconClassName="text-red-500"
+						titleClassName="text-lg"
+						iconClassName="text-3xl text-red-500 dark:text-red-400"
 						onPress={() => router.push('/temp')}
 					/>
 				</GridItem>
 				<GridItem>
 					<IconCard
-						icon="cloud-upload"
+						icon="upload-cloud"
 						title="Backup"
-						iconClassName="text-blue-500"
+						titleClassName="text-lg"
+						iconClassName="text-3xl text-blue-500 dark:text-blue-400"
 						onPress={() => router.push('/backup')}
 					/>
 				</GridItem>
 				<GridItem>
 					<IconCard
-						icon="folder-sync"
+						icon="folder"
 						title="Files"
-						iconClassName="text-orange-500"
+						titleClassName="text-lg"
+						iconClassName="text-3xl text-orange-500 dark:text-orange-400"
 						onPress={() => router.push('/files')}
 					/>
 				</GridItem>
@@ -48,9 +52,10 @@ export default function Screen() {
 					<ColorSchemePicker
 						trigger={v => (
 							<IconCard
-								icon="palette"
+								icon="sun"
 								title="Theme"
-								iconClassName="text-green-500"
+								titleClassName="text-lg"
+								iconClassName="text-3xl text-green-500 dark:text-green-400"
 								onPress={v.onPress}
 							/>
 						)}

@@ -181,11 +181,7 @@ const BaseImagePickerInner = <T extends FieldValues>(
 											className="absolute right-1 top-1 rounded-full bg-black/70 p-1"
 											hitSlop={8}
 										>
-											<Icon
-												name="x"
-												size="lg"
-												className="text-background-300"
-											/>
+											<Icon name="x" className="text-background-300" />
 										</Pressable>
 									</Pressable>
 								</GridItem>
@@ -197,7 +193,7 @@ const BaseImagePickerInner = <T extends FieldValues>(
 										className="border-background-300 h-full"
 										onPress={() => onOpenDialog(v.field)}
 									>
-										<ButtonIcon name="plus" size="lg" />
+										<ButtonIcon name="plus" />
 									</Button>
 								</GridItem>
 							)}
@@ -212,21 +208,21 @@ const BaseImagePickerInner = <T extends FieldValues>(
 						className="h-20 w-20 rounded-full"
 						onPress={onPressDocument}
 					>
-						<Icon name="folder" size="2xl" />
+						<Icon name="folder" />
 					</Button>
 					<Button
 						variant="outline"
 						className="h-20 w-20 rounded-full"
 						onPress={onPressImage}
 					>
-						<Icon name="image" size="2xl" />
+						<Icon name="image" />
 					</Button>
 					<Button
 						variant="outline"
 						className="h-20 w-20 rounded-full"
 						onPress={onPressCamera}
 					>
-						<Icon name="camera" size="2xl" />
+						<Icon name="camera" />
 					</Button>
 				</View>
 			</BaseModal>

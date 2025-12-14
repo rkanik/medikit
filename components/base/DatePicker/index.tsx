@@ -79,11 +79,7 @@ const BaseDatePickerInner = <
 					</Text>
 					{v.field.value && (
 						<Pressable onPress={() => v.field.onChange(null)}>
-							<Icon
-								name="x"
-								size="lg"
-								className="text-background-300 ml-auto"
-							/>
+							<Icon name="x" className="text-background-300 ml-auto" />
 						</Pressable>
 					)}
 				</TouchableOpacity>

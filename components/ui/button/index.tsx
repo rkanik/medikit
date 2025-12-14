@@ -5,8 +5,24 @@ import {
 	PressableProps,
 	TextProps,
 } from 'react-native'
-import { cn } from 'tailwind-variants'
+import { cn, tv } from 'tailwind-variants'
 import { Icon, TIconProps } from '../icon'
+
+const buttonVariants = tv({
+	base: 'flex-row items-center justify-center',
+	variants: {
+		variant: {
+			base: 'dark:bg-white',
+		},
+		size: {
+			base: 'px-8 py-4',
+		},
+	},
+	defaultVariants: {
+		size: 'base',
+		variant: 'base',
+	},
+})
 
 export type TButtonProps = PressableProps & {
 	size?: string
@@ -14,7 +30,7 @@ export type TButtonProps = PressableProps & {
 }
 
 export const Button = ({ className, ...props }: TButtonProps) => {
-	return <Pressable {...props} className={cn('', className)} />
+	return <Pressable {...props} className={buttonVariants({ className })} />
 }
 
 export type TButtonTextProps = TextProps & {

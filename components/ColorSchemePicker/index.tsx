@@ -11,19 +11,19 @@ const COLOR_SCHEMES = [
 		value: 'light' as TColorScheme,
 		label: 'Light Mode',
 		icon: 'sun',
-		iconClassName: 'text-yellow-500',
+		iconClassName: 'text-4xl text-yellow-500 dark:text-yellow-400',
 	},
 	{
 		value: 'dark' as TColorScheme,
 		label: 'Dark Mode',
 		icon: 'moon',
-		iconClassName: 'text-blue-500',
+		iconClassName: 'text-4xl text-blue-500 dark:text-blue-400',
 	},
 	{
 		value: 'system' as TColorScheme,
 		label: 'System Mode',
-		icon: 'palette',
-		iconClassName: 'text-green-500',
+		icon: 'settings',
+		iconClassName: 'text-4xl text-green-500 dark:text-green-400',
 	},
 ]
 
@@ -56,11 +56,12 @@ export const ColorSchemePicker = ({ trigger }: TColorSchemePickerProps) => {
 						key={v.value}
 						icon={v.icon}
 						title={v.label}
-						iconSize="4xl"
+						titleClassName="text-lg font-medium"
 						iconClassName={v.iconClassName}
 						onPress={() => onPress(v.value)}
 						className={cn({
-							'border dark:border-green-500': colorScheme === v.value,
+							'border border-neutral-400 dark:border-neutral-400':
+								colorScheme === v.value,
 						})}
 					/>
 				))}

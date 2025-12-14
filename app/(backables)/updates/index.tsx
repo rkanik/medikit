@@ -30,7 +30,7 @@ export default function Screen() {
 
 			<Button className="mt-4" onPress={() => checkForUpdates()}>
 				{loading && <ButtonSpinner color="gray" />}
-				<ButtonIcon name="refresh-ccw" size="lg" />
+				<ButtonIcon name="refresh-ccw" />
 				<ButtonText>Check for Updates</ButtonText>
 			</Button>
 

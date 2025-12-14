@@ -30,7 +30,6 @@ export const BaseListItem = (props: TBaseListItemProps) => {
 				{props.icon && (
 					<Icon
 						name={props.icon}
-						size={props.iconSize || 'xl'}
 						className={cn('dark:text-neutral-400', props.iconClassName)}
 					/>
 				)}
@@ -47,7 +46,6 @@ export const BaseListItem = (props: TBaseListItemProps) => {
 				<View className="flex-none">
 					<Icon
 						name={props.rightIcon || 'chevron-right'}
-						size={props.rightIconSize || 'xl'}
 						className={cn('dark:text-neutral-400', props.rightIconClassName)}
 					/>
 				</View>

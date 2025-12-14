@@ -5,33 +5,30 @@ import { PressableProps } from 'react-native'
 import { cn } from 'tailwind-variants'
 
 type TIconCardProps = PressableProps & {
+	icon: string
 	title: string
-	className?: string
 	iconClassName?: string
 	titleClassName?: string
-	icon: string
-	iconSize?: any
 }
 
 export const IconCard = ({
 	icon,
 	title,
-	className,
 	iconClassName,
 	titleClassName,
-	iconSize = '2xl',
 	...props
 }: TIconCardProps) => {
 	return (
-		<BaseCard {...props} className={cn('p-4 aspect-square', className)}>
-			<Icon name={icon} size={iconSize} className={iconClassName} />
-			<Text size="lg" className={cn('mt-2', titleClassName)}>
-				{title}
-			</Text>
+		<BaseCard {...props}>
+			<Icon name={icon} className={iconClassName} />
+			<Text className={cn('mt-2', titleClassName)}>{title}</Text>
 			<Icon
 				name={icon}
-				size="10xl"
-				className={cn('absolute -bottom-4 -right-4 opacity-40', iconClassName)}
+				className={cn(
+					'absolute -bottom-4 -right-4 opacity-5',
+					iconClassName,
+					'text-7xl',
+				)}
 			/>
 		</BaseCard>
 	)

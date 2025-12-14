@@ -1,33 +1,65 @@
 import { Text } from '@/components/ui/text'
-import { Image, ImageProps } from 'expo-image'
-import { Pressable, TextProps, ViewProps } from 'react-native'
-import { cn } from 'tailwind-variants'
+import { TMaybe } from '@/types'
+import { Image } from 'expo-image'
+import { useState } from 'react'
+import { Pressable, ViewProps } from 'react-native'
+import { cn, tv, VariantProps } from 'tailwind-variants'
 
-export type TAvatarProps = ViewProps & {
-	size?: string
-}
+const avatarVariants = tv({
+	base: 'w-12 h-12 rounded-full items-center overflow-hidden justify-center',
+	variants: {
+		variant: {
+			primary:
+				'bg-white border border-white dark:bg-neutral-700 dark:border-neutral-700',
+			secondary:
+				'bg-neutral-200 border border-neutral-200 dark:bg-black dark:border-black',
+		},
+	},
+	defaultVariants: {
+		variant: 'primary',
+	},
+})
 
-export const Avatar = ({ className, ...props }: TAvatarProps) => {
-	return <Pressable {...props} className={cn('', className)} />
-}
+export type TAvatarProps = ViewProps &
+	VariantProps<typeof avatarVariants> & {
+		text?: TMaybe<string>
+		textClassName?: string
+		image?: TMaybe<string>
+		imageClassName?: string
+	}
 
-export type TAvatarImageProps = ImageProps & {
-	//
-}
-
-export const AvatarImage = ({ className, ...props }: TAvatarImageProps) => {
+export const Avatar = ({
+	text,
+	image,
+	variant,
+	className,
+	textClassName,
+	imageClassName,
+	...props
+}: TAvatarProps) => {
+	const [error, setError] = useState(false)
+	const shouldShowText = text && (!image || error)
 	return (
-		<Image {...props} className={cn('w-10 h-10 rounded-full', className)} />
+		<Pressable {...props} className={avatarVariants({ variant, className })}>
+			{shouldShowText && (
+				<Text className={cn('uppercase text-base font-bold', textClassName)}>
+					{text
+						.split(' ')
+						.map(v => v[0])
+						.slice(0, 2)
+						.join('')}
+				</Text>
+			)}
+			{image && (
+				<Image
+					source={{ uri: image }}
+					style={{ height: '100%', width: '100%' }}
+					className={imageClassName}
+					contentFit="cover"
+					contentPosition="center"
+					onError={() => setError(true)}
+				/>
+			)}
+		</Pressable>
 	)
 }
-
-export type TAvatarTextProps = TextProps & {
-	//
-}
-
-export const AvatarText = ({ className, ...props }: TAvatarTextProps) => {
-	return <Text {...props} className={cn('', className)} />
-}
-
-Avatar.Text = AvatarText
-Avatar.Image = AvatarImage

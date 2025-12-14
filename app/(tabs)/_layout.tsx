@@ -3,7 +3,7 @@ import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { appName } from '@/const'
 import { colors } from '@/const/colors'
-import { useScheme } from '@/hooks/useScheme'
+import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { useUpdater } from '@/hooks/useUpdater'
 import { Image } from 'expo-image'
 import { Tabs } from 'expo-router'
@@ -24,12 +24,12 @@ const items = [
 	{
 		title: 'Menu',
 		name: 'menu/index',
-		icon: 'menu',
+		icon: 'grid',
 	},
 ]
 
 export default function TabLayout() {
-	const { scheme } = useScheme()
+	const { borderColor, backgroundColor, textColor } = useSchemeColors()
 	useUpdater()
 	return (
 		<Tabs
@@ -42,21 +42,13 @@ export default function TabLayout() {
 				sceneStyle: {
 					backgroundColor: 'transparent',
 				},
-				tabBarActiveTintColor: scheme({
-					dark: colors.green[500],
-					light: colors.green[500],
-				}),
+				tabBarActiveTintColor: colors.green[500],
+				tabBarInactiveTintColor: textColor,
 				tabBarStyle: {
 					height: 96,
 					paddingTop: 8,
-					borderColor: scheme({
-						dark: colors.neutral[600],
-						light: colors.green[200],
-					}),
-					backgroundColor: scheme({
-						dark: colors.neutral[800],
-						light: colors.green[50],
-					}),
+					borderColor,
+					backgroundColor,
 				},
 				headerTitle: () => (
 					<View className="flex-row items-center gap-2">
@@ -66,7 +58,7 @@ export default function TabLayout() {
 								style={{ width: '100%', aspectRatio: 1 }}
 							/>
 						</View>
-						<Text size="2xl" className="text-green-600 font-semibold">
+						<Text className="text-green-600 font-semibold text-xl">
 							{appName}
 						</Text>
 					</View>
@@ -86,21 +78,22 @@ export default function TabLayout() {
 						title: item.title,
 						tabBarIcon: v => (
 							<View
-								className={cn('px-4 py-2 rounded-full', {
-									'dark:bg-neutral-900': v.focused,
-								})}
+								className={cn(
+									'w-12 h-8 flex items-center justify-center rounded-full',
+									{
+										'dark:bg-neutral-700': v.focused,
+									},
+								)}
 							>
-								<Icon size="xl" name={item.icon} color={v.color} />
+								<Icon name={item.icon} className="text-xl" />
 							</View>
 						),
 						tabBarLabel: v => (
 							<Text
-								style={{
-									color: v.color,
-									fontSize: 12,
-									marginTop: 4,
-									fontWeight: v.focused ? 'bold' : 'normal',
-								}}
+								style={{ color: v.color }}
+								className={cn('text-base mt-1', {
+									'font-semibold': v.focused,
+								})}
 							>
 								{v.children}
 							</Text>

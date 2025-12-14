@@ -3,12 +3,12 @@ import 'react-native-reanimated'
 
 import { Logs } from '@/components/Logs'
 import { Providers } from '@/components/Providers'
-import { colors } from '@/const/colors'
 import { useScheme } from '@/hooks/useScheme'
+import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { initializeBackgroundTask } from '@/services/background'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { useEffect } from 'react'
+import { Fragment, useEffect } from 'react'
 
 export const unstable_settings = {
 	anchor: '(tabs)',
@@ -25,15 +25,11 @@ const promise = new Promise<void>(resolve => {
 // Pass the promise to the background task, it will wait until the promise resolves
 initializeBackgroundTask(promise)
 
-export default function RootLayout() {
+const RootLayoutInner = () => {
 	const { scheme } = useScheme()
-
-	useEffect(() => {
-		if (resolver) resolver()
-	}, [])
-
+	const { backgroundColor } = useSchemeColors()
 	return (
-		<Providers>
+		<Fragment>
 			<Logs />
 			<StatusBar
 				style={scheme({
@@ -43,18 +39,8 @@ export default function RootLayout() {
 			/>
 			<Stack
 				screenOptions={{
-					contentStyle: {
-						backgroundColor: scheme({
-							dark: colors.neutral[900],
-							light: colors.neutral[100],
-						}),
-					},
-					headerStyle: {
-						backgroundColor: scheme({
-							dark: colors.neutral[800],
-							light: colors.neutral[100],
-						}),
-					},
+					headerStyle: { backgroundColor },
+					contentStyle: { backgroundColor },
 				}}
 			>
 				<Stack.Screen
@@ -64,6 +50,20 @@ export default function RootLayout() {
 					}}
 				/>
 			</Stack>
+		</Fragment>
+	)
+}
+
+export default function RootLayout() {
+	useEffect(() => {
+		if (resolver) {
+			resolver()
+		}
+	}, [])
+
+	return (
+		<Providers>
+			<RootLayoutInner />
 		</Providers>
 	)
 }

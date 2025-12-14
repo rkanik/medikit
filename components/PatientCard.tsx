@@ -26,13 +26,15 @@ export const PatientCard = ({
 				'border-green-500 dark:border-green-500': selected,
 			})}
 		>
-			<View className="items-center gap-2">
-				<Avatar>
-					<Avatar.Text>{data.name}</Avatar.Text>
-					<Avatar.Image source={{ uri: data.avatar?.uri }} />
-				</Avatar>
+			<View className="items-center gap-2 flex-row">
+				<Avatar
+					variant="secondary"
+					className="w-16 h-16"
+					text={data.name}
+					image={data.avatar?.uri}
+				/>
 				<View>
-					<Text size="md">{data.name}</Text>
+					<Text className="text-lg">{data.name}</Text>
 					{data.dob && (
 						<Text>
 							{$df(data.dob, 'DD MMMM, YYYY')}({$d().diff(data.dob, 'years')}{' '}

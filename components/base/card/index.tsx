@@ -1,23 +1,20 @@
-import { Pressable, PressableProps } from 'react-native'
+import { Pressable } from '@/components/ui/pressable'
+import { forwardRef } from 'react'
+import { PressableProps, View } from 'react-native'
 import { cn } from 'tailwind-variants'
 
-export const BaseCard = ({ className, ...props }: PressableProps) => {
+export const BaseCard = forwardRef<View, PressableProps>(function BaseCard(
+	{ className, ...v }: PressableProps,
+	ref,
+) {
 	return (
 		<Pressable
-			{...props}
+			{...v}
+			ref={ref}
 			className={cn(
-				'bg-white dark:bg-neutral-400 p-4 rounded-lg overflow-hidden',
+				'bg-white dark:bg-neutral-800 p-4 rounded-lg overflow-hidden',
 				className,
 			)}
-			style={{
-				boxShadow: '0 0 4px rgba(0, 0, 0, 0.1)',
-			}}
-			android_ripple={{
-				color: 'rgba(0, 0, 0, 0.2)',
-				foreground: true,
-				borderless: true,
-				radius: 100,
-			}}
 		/>
 	)
-}
+})

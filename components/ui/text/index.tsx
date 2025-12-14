@@ -14,13 +14,12 @@ export const TextProvider = ({ className, ...props }: TTextProviderProps) => {
 }
 
 export type TTextProps = TextProps & {
-	size?: string
-	bold?: boolean
+	//
 }
 
 export const Text = ({ className, ...props }: TTextProps) => {
 	const context = useContext(Context)
-	return <RNText {...props} className={cn('', context?.className, className)} />
+	return <RNText {...props} className={cn(context?.className, className)} />
 }
 
 Text.Provider = TextProvider

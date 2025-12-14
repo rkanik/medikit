@@ -1,7 +1,7 @@
 import { api } from '@/api'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
-import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Avatar } from '@/components/ui/avatar'
 import { Divider } from '@/components/ui/divider'
 import { Text } from '@/components/ui/text'
 import { $d, $df } from '@/utils/dayjs'
@@ -45,10 +45,12 @@ export default function Screen() {
 				contentContainerStyle={{ flexGrow: 1 }}
 			>
 				<View className="items-center">
-					<Avatar size="2xl">
-						<Avatar.Text>{data.name}</Avatar.Text>
-						<AvatarImage source={{ uri: data.avatar?.uri }} />
-					</Avatar>
+					<Avatar
+						className="h-24 w-24"
+						textClassName="text-2xl"
+						text={data.name}
+						image={data.avatar?.uri}
+					/>
 					<Text size="xl" className="mt-5">
 						{data.name}
 					</Text>

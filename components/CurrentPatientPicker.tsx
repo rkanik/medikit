@@ -10,10 +10,7 @@ export const CurrentPatientPicker = () => {
 			height={400}
 			onChange={patient => setData(patient?.id)}
 			trigger={v => (
-				<Avatar {...v} size="md">
-					<Avatar.Text>{data?.name}</Avatar.Text>
-					<Avatar.Image source={{ uri: data?.avatar?.uri }} />
-				</Avatar>
+				<Avatar {...v} text={data?.name} image={data?.avatar?.uri} />
 			)}
 		/>
 	)

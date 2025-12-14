@@ -4,7 +4,7 @@ import { BaseCard } from '@/components/base/card'
 import { BaseModal } from '@/components/base/modal'
 import { FlashList } from '@/components/FlashList'
 import { Alert } from '@/components/ui/alert'
-import { Avatar, AvatarImage } from '@/components/ui/avatar'
+import { Avatar } from '@/components/ui/avatar'
 import {
 	Button,
 	ButtonIcon,
@@ -102,7 +102,7 @@ export default function Screen() {
 						{error}
 					</Text>
 					<Pressable className="ml-auto" onPress={() => setError(null)}>
-						<Icon name="close" size="lg" />
+						<Icon name="close" />
 					</Pressable>
 				</Alert>
 			)}
@@ -116,12 +116,7 @@ export default function Screen() {
 						</Text>
 						<Divider className="my-3" />
 						<View className="items-center gap-2">
-							<Avatar size="lg">
-								<Avatar.Text>
-									{user.name?.charAt(0) || user.email.split('@')[0].charAt(0)}
-								</Avatar.Text>
-								<AvatarImage source={{ uri: user.photo ?? '' }} />
-							</Avatar>
+							<Avatar text={user.name} image={user.photo} />
 							<View>
 								<Text size="sm">{user.name || user.email.split('@')[0]}</Text>
 								<Text size="sm">{user.email}</Text>
@@ -165,12 +160,12 @@ export default function Screen() {
 						<View className="gap-2 mt-4 flex-row">
 							<Button disabled={isUploading} onPress={onBackup}>
 								{isUploading && <ButtonSpinner color="gray" />}
-								<ButtonIcon name="upload" size="lg" />
+								<ButtonIcon name="upload" />
 								<ButtonText>Backup</ButtonText>
 							</Button>
 							<Button disabled={isRestoring} onPress={onRestore}>
 								{isRestoring && <ButtonSpinner color="gray" />}
-								<ButtonIcon name="download" size="lg" />
+								<ButtonIcon name="download" />
 								<ButtonText>Restore</ButtonText>
 							</Button>
 							<BaseModal
@@ -178,7 +173,7 @@ export default function Screen() {
 								setVisible={setMinimumIntervalDialog}
 								trigger={v => (
 									<Button {...v} className="aspect-square">
-										<ButtonIcon name="clock" size="lg" />
+										<ButtonIcon name="clock" />
 									</Button>
 								)}
 							>

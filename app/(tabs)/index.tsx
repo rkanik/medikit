@@ -26,7 +26,7 @@ export default function Screen() {
 					if (data.length === 0)
 						return (
 							<BaseCard className="items-center py-12">
-								<Icon name="list-todo" size={32} color="white" />
+								<Icon name="list-todo" />
 								<Text size="lg" className="mt-2">
 									No records found!
 								</Text>
@@ -39,7 +39,7 @@ export default function Screen() {
 									className="rounded-full mt-4"
 									onPress={() => router.push('/records/new/form')}
 								>
-									<ButtonIcon name="plus" size="lg" />
+									<ButtonIcon name="plus" />
 									<ButtonText size="md">Add Record</ButtonText>
 								</Button>
 							</BaseCard>

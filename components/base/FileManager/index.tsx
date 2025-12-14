@@ -98,7 +98,7 @@ export const FileManager = ({
 			<View className="flex-row items-center gap-2 px-4 py-3 border-b border-outline-200">
 				{canGoBack && (
 					<Button variant="link" size="sm" onPress={handleBack} className="p-2">
-						<ButtonIcon name="chevron-left" size="sm" />
+						<ButtonIcon name="chevron-left" />
 					</Button>
 				)}
 				<Text size="sm" className="flex-1">
@@ -128,23 +128,11 @@ export const FileManager = ({
 							>
 								<View className="items-center justify-center w-10 h-10">
 									{item.isDirectory ? (
-										<Icon
-											name="folder"
-											size="lg"
-											className="text-background-300"
-										/>
+										<Icon name="folder" className="text-background-300" />
 									) : item.uri.endsWith('.json') ? (
-										<Icon
-											name="file-json"
-											size="lg"
-											className="text-background-300"
-										/>
+										<Icon name="file-json" className="text-background-300" />
 									) : item.uri.endsWith('.apk') ? (
-										<Icon
-											name="package"
-											size="lg"
-											className="text-background-300"
-										/>
+										<Icon name="package" className="text-background-300" />
 									) : ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(
 											item.uri.split('.').pop() ?? '',
 									  ) ? (
@@ -153,11 +141,7 @@ export const FileManager = ({
 											style={{ width: 24, height: 24 }}
 										/>
 									) : (
-										<Icon
-											name="file"
-											size="lg"
-											className="text-background-300"
-										/>
+										<Icon name="file" className="text-background-300" />
 									)}
 								</View>
 								<View className="flex-1 min-w-0">
@@ -171,11 +155,7 @@ export const FileManager = ({
 									)}
 								</View>
 								{item.isDirectory && (
-									<Icon
-										name="chevron-right"
-										size="lg"
-										className="text-background-300"
-									/>
+									<Icon name="chevron-right" className="text-background-300" />
 								)}
 							</Pressable>
 						))}

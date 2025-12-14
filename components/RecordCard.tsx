@@ -45,9 +45,7 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 						</Text>
 					)}
 				</View>
-				<View className="flex-none">
-					{/* <Icon as={ThreeDotsIcon} size="xl" /> */}
-				</View>
+				<View className="flex-none"></View>
 			</View>
 			{attachments.length > 0 && (
 				<Grid cols={3} gap={8} className="mt-2">

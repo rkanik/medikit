@@ -3,13 +3,16 @@ import {
 	BottomSheetModal,
 	BottomSheetScrollView,
 } from '@gorhom/bottom-sheet'
+import { cssInterop } from 'nativewind'
 import { createRef, Fragment, useCallback, useEffect } from 'react'
 
-import { remapProps } from 'nativewind'
-
-remapProps(BottomSheetModal, {
-	className: 'backgroundStyle',
-	indicatorClassName: 'handleIndicatorStyle',
+cssInterop(BottomSheetModal, {
+	className: {
+		target: 'backgroundStyle',
+	},
+	indicatorClassName: {
+		target: 'handleIndicatorStyle',
+	},
 })
 
 export type TBaseModalProps = React.PropsWithChildren<{
@@ -50,7 +53,8 @@ export const BaseModal = ({
 				snapPoints={[1, height]}
 				enableDynamicSizing={false}
 				backdropComponent={BottomSheetBackdrop}
-				className="bg-neutral-100 dark:bg-neutral-700"
+				// @ts-ignore
+				className="bg-neutral-200 dark:bg-neutral-700"
 				indicatorClassName="bg-neutral-200 dark:bg-neutral-500"
 				onChange={v => {
 					if (v === 0) return onClose()
