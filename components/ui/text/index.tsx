@@ -1,25 +1,47 @@
-import { createContext, PropsWithChildren, useContext } from 'react'
+import { createContext, forwardRef, PropsWithChildren, useContext } from 'react'
 import { Text as RNText, TextProps } from 'react-native'
 import { cn } from 'tailwind-variants'
 
-const Context = createContext<{
+type TTextContext = {
 	className?: string
-}>(null!)
-
-export type TTextProviderProps = PropsWithChildren<{
-	className?: string
-}>
-export const TextProvider = ({ className, ...props }: TTextProviderProps) => {
-	return <Context.Provider {...props} value={{ className }} />
 }
 
-export type TTextProps = TextProps & {
-	//
+export const TextContext = createContext<TTextContext>(null!)
+
+export const TextProvider = ({
+	className,
+	...props
+}: PropsWithChildren<TTextContext>) => {
+	return <TextContext.Provider {...props} value={{ className }} />
 }
 
-export const Text = ({ className, ...props }: TTextProps) => {
-	const context = useContext(Context)
-	return <RNText {...props} className={cn(context?.className, className)} />
+const createText = ({ className: className2, ...props3 }: TextProps) => {
+	return forwardRef<RNText, TextProps>(function Text(
+		{ className: className3, ...props2 },
+		ref,
+	) {
+		const { className: className1 } = useContext(TextContext)
+		return (
+			<RNText
+				{...props2}
+				{...props3}
+				ref={ref}
+				className={cn(className1, className2, className3)}
+			/>
+		)
+	})
 }
 
-Text.Provider = TextProvider
+export const Text = createText({})
+
+export const Title = createText({
+	className: 'text-lg font-semibold',
+})
+
+export const Subtitle = createText({
+	className: 'text-base opacity-70 dark:opacity-80',
+})
+
+export const Body = createText({
+	className: 'text-base opacity-60 dark:opacity-70',
+})

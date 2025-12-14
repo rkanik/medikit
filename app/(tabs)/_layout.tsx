@@ -3,6 +3,7 @@ import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { appName } from '@/const'
 import { colors } from '@/const/colors'
+import { useScheme } from '@/hooks/useScheme'
 import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { useUpdater } from '@/hooks/useUpdater'
 import { Image } from 'expo-image'
@@ -29,7 +30,8 @@ const items = [
 ]
 
 export default function TabLayout() {
-	const { borderColor, backgroundColor, textColor } = useSchemeColors()
+	const { scheme } = useScheme()
+	const { borderColor, textColor } = useSchemeColors()
 	useUpdater()
 	return (
 		<Tabs
@@ -48,7 +50,10 @@ export default function TabLayout() {
 					height: 96,
 					paddingTop: 8,
 					borderColor,
-					backgroundColor,
+					backgroundColor: scheme({
+						dark: colors.neutral[800],
+						light: 'white',
+					}),
 				},
 				headerTitle: () => (
 					<View className="flex-row items-center gap-2">
@@ -81,7 +86,7 @@ export default function TabLayout() {
 								className={cn(
 									'w-12 h-8 flex items-center justify-center rounded-full',
 									{
-										'dark:bg-neutral-700': v.focused,
+										'bg-green-300 dark:bg-green-500': v.focused,
 									},
 								)}
 							>
@@ -90,9 +95,8 @@ export default function TabLayout() {
 						),
 						tabBarLabel: v => (
 							<Text
-								style={{ color: v.color }}
 								className={cn('text-base mt-1', {
-									'font-semibold': v.focused,
+									'font-semibold text-green-500 dark:text-green-300': v.focused,
 								})}
 							>
 								{v.children}

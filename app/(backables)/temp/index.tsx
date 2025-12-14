@@ -1,4 +1,5 @@
-import { Button, ButtonText } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
+import { Text } from '@/components/ui/text'
 import { useNotification } from '@/services/notification'
 import { log } from '@/utils/logs'
 import { sleep } from '@/utils/sleep'
@@ -43,7 +44,7 @@ export default function Screen() {
 			<Stack.Screen options={{ title: 'Temp' }} />
 			<View>
 				<Button onPress={showNotification}>
-					<ButtonText>Show Notification</ButtonText>
+					<Text>Show Notification</Text>
 				</Button>
 			</View>
 		</ScrollView>

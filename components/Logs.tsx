@@ -11,13 +11,7 @@ export const Logs = () => {
 	return (
 		<BaseModal
 			trigger={v => (
-				<Button
-					{...v}
-					size="lg"
-					className="absolute bottom-4 right-4 z-10 w-10 h-10 rounded-full bg-red-500"
-				>
-					<Button.Text>Logs</Button.Text>
-				</Button>
+				<Button {...v} icon="info" className="absolute bottom-4 right-4 z-10" />
 			)}
 		>
 			<FlashList
@@ -27,7 +21,7 @@ export const Logs = () => {
 				contentContainerClassName="px-4 pt-4 pb-16 flex-grow"
 				renderItem={({ item }) => (
 					<BaseCard className="mb-2 p-2">
-						<Text size="xs" className="opacity-50 mb-1 uppercase">
+						<Text className="opacity-50 mb-1 uppercase">
 							{$df(item.time, 'DD MMM, YYYY hh:mm A')}
 						</Text>
 						<Text>

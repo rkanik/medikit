@@ -1,21 +1,53 @@
 import { Text } from '@/components/ui/text'
-import {
-	ActivityIndicator,
-	Pressable,
-	PressableProps,
-	TextProps,
-} from 'react-native'
-import { cn, tv } from 'tailwind-variants'
-import { Icon, TIconProps } from '../icon'
+import { useScheme } from '@/hooks/useScheme'
+import { ActivityIndicator, PressableProps } from 'react-native'
+import { tv, VariantProps } from 'tailwind-variants'
+import { Icon } from '../icon'
+import { Pressable } from '../pressable'
 
-const buttonVariants = tv({
-	base: 'flex-row items-center justify-center',
+const bv = tv({
+	base: 'flex-row items-center justify-center overflow-hidden rounded-full',
 	variants: {
 		variant: {
-			base: 'dark:bg-white',
+			base: 'bg-green-300 dark:bg-neutral-700',
+			base2: 'bg-neutral-400 dark:bg-neutral-800',
 		},
 		size: {
-			base: 'px-8 py-4',
+			base: 'px-4 h-12 gap-2',
+			xl: 'px-6 h-20 gap-3',
+		},
+		disabled: {
+			true: 'opacity-50',
+		},
+		icon: {
+			true: '',
+			false: '',
+		},
+	},
+	compoundVariants: [
+		{
+			icon: true,
+			size: ['base', 'xl'],
+			class: 'aspect-square p-0',
+		},
+	],
+	defaultVariants: {
+		size: 'base',
+		variant: 'base',
+		disabled: false,
+	},
+})
+
+const btv = tv({
+	base: '',
+	variants: {
+		variant: {
+			base: 'text-black dark:text-white',
+			base2: 'text-black dark:text-white',
+		},
+		size: {
+			base: 'text-base',
+			xl: 'text-2xl',
 		},
 	},
 	defaultVariants: {
@@ -24,37 +56,86 @@ const buttonVariants = tv({
 	},
 })
 
-export type TButtonProps = PressableProps & {
-	size?: string
-	variant?: string
+const biv = tv({
+	base: '',
+	variants: {
+		variant: {
+			base: 'text-black dark:text-white',
+			base2: 'text-black dark:text-white',
+		},
+		size: {
+			base: 'text-xl',
+			xl: 'text-2xl',
+		},
+	},
+	defaultVariants: {
+		size: 'base',
+		variant: 'base',
+	},
+})
+
+const loadingSize = {
+	base: 16,
+	xl: 20,
+} as const
+
+export type TButtonProps = Omit<PressableProps, 'children'> &
+	Omit<VariantProps<typeof bv>, 'icon'> & {
+		icon?: string
+		text?: string
+		loading?: boolean
+	}
+
+export const Button = ({
+	icon,
+	text,
+	loading,
+	disabled,
+	className,
+	size = 'base',
+	variant = 'base',
+	...props
+}: TButtonProps) => {
+	const { scheme } = useScheme()
+	return (
+		<Pressable
+			{...props}
+			className={bv({
+				size,
+				variant,
+				className,
+				disabled,
+				icon: !!icon && !text,
+			})}
+		>
+			{loading && (
+				<ActivityIndicator
+					size={loadingSize[size]}
+					color={scheme({
+						dark: 'white',
+						light: 'black',
+					})}
+				/>
+			)}
+			{icon && !loading && (
+				<Icon
+					name={icon}
+					className={biv({
+						size,
+						variant,
+					})}
+				/>
+			)}
+			{text && (
+				<Text
+					className={btv({
+						size,
+						variant,
+					})}
+				>
+					{text}
+				</Text>
+			)}
+		</Pressable>
+	)
 }
-
-export const Button = ({ className, ...props }: TButtonProps) => {
-	return <Pressable {...props} className={buttonVariants({ className })} />
-}
-
-export type TButtonTextProps = TextProps & {
-	size?: string
-}
-
-export const ButtonText = ({ className, ...props }: TButtonTextProps) => {
-	return <Text {...props} className={cn('', className)} />
-}
-
-export type TButtonIconProps = TIconProps
-
-export const ButtonIcon = ({ className, ...props }: TButtonIconProps) => {
-	return <Icon {...props} className={cn('', className)} />
-}
-
-export type TButtonSpinnerProps = {
-	color?: string
-}
-
-export const ButtonSpinner = ({ color }: TButtonSpinnerProps) => {
-	return <ActivityIndicator color={color} />
-}
-
-Button.Text = ButtonText
-Button.Icon = ButtonIcon
-Button.Spinner = ButtonSpinner

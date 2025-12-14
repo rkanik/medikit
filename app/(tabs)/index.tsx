@@ -2,7 +2,7 @@ import { api } from '@/api'
 import { BaseActions } from '@/components/base/actions'
 import { BaseCard } from '@/components/base/card'
 import { RecordCard } from '@/components/RecordCard'
-import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { router } from 'expo-router'
@@ -27,21 +27,16 @@ export default function Screen() {
 						return (
 							<BaseCard className="items-center py-12">
 								<Icon name="list-todo" />
-								<Text size="lg" className="mt-2">
-									No records found!
-								</Text>
+								<Text className="mt-2">No records found!</Text>
 								<Text className="text-center">
 									Add a new record to get started
 								</Text>
 								<Button
-									size="xl"
-									variant="solid"
-									className="rounded-full mt-4"
+									icon="plus"
+									text="Add Record"
+									className="mt-4"
 									onPress={() => router.push('/records/new/form')}
-								>
-									<ButtonIcon name="plus" />
-									<ButtonText size="md">Add Record</ButtonText>
-								</Button>
+								/>
 							</BaseCard>
 						)
 					return (
@@ -52,22 +47,22 @@ export default function Screen() {
 									<View className="flex-row gap-8 flex-wrap">
 										<View>
 											<Text>Total</Text>
-											<Text bold>{summary.total} TK</Text>
+											<Text className="font-bold">{summary.total} TK</Text>
 										</View>
 										<View>
 											<Text>This Month</Text>
-											<Text bold>{summary.thisMonth} TK</Text>
+											<Text className="font-bold">{summary.thisMonth} TK</Text>
 										</View>
 										<View>
 											<Text>This Year</Text>
-											<Text bold>{summary.thisYear} TK</Text>
+											<Text className="font-bold">{summary.thisYear} TK</Text>
 										</View>
 									</View>
 									<View className="flex-row gap-8 flex-wrap">
 										{Object.entries(summary.types).map(([type, amount]) => (
 											<View key={type}>
 												<Text>{type}</Text>
-												<Text bold>{amount} TK</Text>
+												<Text className="font-bold">{amount} TK</Text>
 											</View>
 										))}
 									</View>

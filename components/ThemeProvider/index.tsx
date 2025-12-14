@@ -9,11 +9,6 @@ export const ThemeProvider = ({ children }: TThemeProviderProps) => {
 	useEffect(() => {
 		if (colorScheme === 'system') {
 			const listener = (preferences?: Appearance.AppearancePreferences) => {
-				console.log(
-					'listener',
-					preferences?.colorScheme,
-					Appearance.getColorScheme(),
-				)
 				Appearance.setColorScheme(
 					preferences?.colorScheme || Appearance.getColorScheme(),
 				)

@@ -14,8 +14,8 @@ export const Pressable = forwardRef<View, PressableProps>(function Pressable(
 			android_ripple={{
 				foreground: true,
 				color: scheme({
-					dark: 'rgba(0, 0, 0, 0.25)',
-					light: 'rgba(0, 0, 0, 0.1)',
+					dark: 'rgba(255, 255, 255, 0.3)',
+					light: 'rgba(0, 0, 0, 0.3)',
 				}),
 			}}
 		/>

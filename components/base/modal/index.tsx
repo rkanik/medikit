@@ -55,7 +55,7 @@ export const BaseModal = ({
 				backdropComponent={BottomSheetBackdrop}
 				// @ts-ignore
 				className="bg-neutral-200 dark:bg-neutral-700"
-				indicatorClassName="bg-neutral-200 dark:bg-neutral-500"
+				indicatorClassName="bg-neutral-400 dark:bg-neutral-500"
 				onChange={v => {
 					if (v === 0) return onClose()
 					setVisible?.(v > -1)

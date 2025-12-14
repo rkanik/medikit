@@ -2,25 +2,22 @@ import { Image, ImageProps } from 'expo-image'
 import { useCallback, useEffect, useState } from 'react'
 import {
 	DimensionValue,
-	GestureResponderEvent,
 	LayoutChangeEvent,
-	Pressable,
 	Image as RNImage,
+	View,
+	ViewProps,
 } from 'react-native'
 
 type TBaseImageProps = Omit<ImageProps, 'source' | 'style'> & {
 	uri?: string
+	viewProps?: ViewProps
 	aspectRatio?: number
-	imageClassName?: string
-	onPress?: (event: GestureResponderEvent) => void
 }
 
 export const BaseImage = ({
 	uri,
-	className,
+	viewProps,
 	aspectRatio,
-	imageClassName,
-	onPress,
 	...props
 }: TBaseImageProps) => {
 	const [height, setHeight] = useState<DimensionValue>()
@@ -34,19 +31,18 @@ export const BaseImage = ({
 		}
 	}, [uri, aspectRatio, layoutWidth])
 
-	const onLayout = useCallback((event: LayoutChangeEvent) => {
-		const { width } = event.nativeEvent.layout
-		setLayoutWidth(width)
-	}, [])
+	const onLayout = useCallback(
+		(event: LayoutChangeEvent) => {
+			const { width } = event.nativeEvent.layout
+			setLayoutWidth(width)
+			viewProps?.onLayout?.(event)
+		},
+		[viewProps],
+	)
 
 	return (
-		<Pressable onPress={onPress} onLayout={onLayout} className={className}>
-			<Image
-				{...props}
-				source={{ uri }}
-				style={{ height, aspectRatio }}
-				className={imageClassName}
-			/>
-		</Pressable>
+		<View {...viewProps} onLayout={onLayout}>
+			<Image {...props} source={{ uri }} style={{ height, aspectRatio }} />
+		</View>
 	)
 }

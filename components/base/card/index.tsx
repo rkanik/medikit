@@ -1,6 +1,7 @@
 import { Pressable } from '@/components/ui/pressable'
 import { forwardRef } from 'react'
 import { PressableProps, View } from 'react-native'
+
 import { cn } from 'tailwind-variants'
 
 export const BaseCard = forwardRef<View, PressableProps>(function BaseCard(

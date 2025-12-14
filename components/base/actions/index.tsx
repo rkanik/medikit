@@ -1,4 +1,4 @@
-import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { GestureResponderEvent, View } from 'react-native'
 import { cn } from 'tailwind-variants'
 
@@ -24,16 +24,11 @@ export const BaseActions = ({ data, className }: TBaseActionsProps) => {
 			{data.map((item, index) => (
 				<Button
 					key={index}
-					size="xl"
-					variant="solid"
-					className={cn('rounded-full', {
-						'aspect-square p-0': !item.text,
-					})}
+					icon={item.icon}
+					text={item.text}
+					className="rounded-full"
 					onPress={item.onPress}
-				>
-					<ButtonIcon name={item.icon} />
-					{item.text && <ButtonText size="md">{item.text}</ButtonText>}
-				</Button>
+				/>
 			))}
 		</View>
 	)

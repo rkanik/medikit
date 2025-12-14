@@ -1,4 +1,4 @@
-import { Button, ButtonIcon } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { fs } from '@/utils/fs'
@@ -7,6 +7,7 @@ import { Directory, File } from 'expo-file-system'
 import { Image } from 'expo-image'
 import { useCallback, useEffect, useState } from 'react'
 import { Pressable, ScrollView, View } from 'react-native'
+import { cn } from 'tailwind-variants'
 
 type FileItem = {
 	name: string
@@ -98,12 +99,10 @@ export const FileManager = ({
 			<View className="flex-row items-center gap-2 px-4 py-3 border-b border-outline-200">
 				{canGoBack && (
 					<Button variant="link" size="sm" onPress={handleBack} className="p-2">
-						<ButtonIcon name="chevron-left" />
+						<Icon name="chevron-left" />
 					</Button>
 				)}
-				<Text size="sm" className="flex-1">
-					{pathDisplay}
-				</Text>
+				<Text className="flex-1">{pathDisplay}</Text>
 			</View>
 
 			{/* File list */}
@@ -114,9 +113,7 @@ export const FileManager = ({
 					</View>
 				) : items.length === 0 ? (
 					<View className="p-4 items-center">
-						<Text size="sm" className="text-typography-500">
-							No files or directories
-						</Text>
+						<Text className="text-typography-500">No files or directories</Text>
 					</View>
 				) : (
 					<View className="p-2">
@@ -145,11 +142,15 @@ export const FileManager = ({
 									)}
 								</View>
 								<View className="flex-1 min-w-0">
-									<Text size="sm" bold={item.isDirectory}>
+									<Text
+										className={cn('text-sm', {
+											'font-bold': item.isDirectory,
+										})}
+									>
 										{item.name}
 									</Text>
 									{!item.isDirectory && item.size !== null && (
-										<Text size="xs" className="text-typography-500">
+										<Text className="text-typography-500 text-xs">
 											{fs.formatSize(item.size)}
 										</Text>
 									)}

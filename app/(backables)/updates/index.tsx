@@ -1,12 +1,8 @@
 import { BaseCard } from '@/components/base/card'
 import { FlashList } from '@/components/FlashList'
 import { Badge, BadgeText } from '@/components/ui/badge'
-import {
-	Button,
-	ButtonIcon,
-	ButtonSpinner,
-	ButtonText,
-} from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
+import { Icon } from '@/components/ui/icon'
 import { Progress, ProgressFilledTrack } from '@/components/ui/progress'
 import { Text } from '@/components/ui/text'
 import { useDownloader } from '@/hooks/useDownloader'
@@ -14,7 +10,7 @@ import { useUpdater } from '@/hooks/useUpdater'
 import { $df } from '@/utils/dayjs'
 import { open } from '@/utils/open'
 import { Stack } from 'expo-router'
-import { ScrollView, View } from 'react-native'
+import { ActivityIndicator, ScrollView, View } from 'react-native'
 
 export default function Screen() {
 	const { checkForUpdates, loading, lastChecked } = useUpdater()
@@ -29,9 +25,9 @@ export default function Screen() {
 			<Text>Updates: {$df(lastChecked, 'DD MMM, YYYY hh:mm A')}</Text>
 
 			<Button className="mt-4" onPress={() => checkForUpdates()}>
-				{loading && <ButtonSpinner color="gray" />}
-				<ButtonIcon name="refresh-ccw" />
-				<ButtonText>Check for Updates</ButtonText>
+				{loading && <ActivityIndicator color="gray" />}
+				<Icon name="refresh-ccw" />
+				<Text>Check for Updates</Text>
 			</Button>
 
 			<FlashList
@@ -41,7 +37,9 @@ export default function Screen() {
 				renderItem={({ item }) => (
 					<BaseCard className="mb-2">
 						<View className="flex-row">
-							<Text bold>{item.destination.split('/').pop()}</Text>
+							<Text className="font-bold">
+								{item.destination.split('/').pop()}
+							</Text>
 							<Badge
 								size="sm"
 								className="ml-1"
@@ -72,7 +70,7 @@ export default function Screen() {
 							>
 								<ProgressFilledTrack className="bg-green-500" />
 							</Progress>
-							<Text size="xs">
+							<Text>
 								{Math.round(
 									((item.progress?.totalBytesWritten || 1) /
 										(item.progress?.totalBytesExpectedToWrite || 1)) *
@@ -81,7 +79,7 @@ export default function Screen() {
 								%
 							</Text>
 						</View>
-						<Text size="sm" className="opacity-50">
+						<Text className="opacity-50">
 							{item.progress
 								? `${Math.round(
 										item.progress.totalBytesExpectedToWrite / 1024 / 1024,
@@ -93,8 +91,8 @@ export default function Screen() {
 						<View className="flex-row gap-2 mt-2">
 							{item.status === 'completed' && (
 								<Button size="xs" onPress={() => open(item.destination)}>
-									<ButtonIcon name="external-link" />
-									<ButtonText>Open</ButtonText>
+									<Icon name="external-link" />
+									<Text>Open</Text>
 								</Button>
 							)}
 							{item.status === 'paused' && (
@@ -104,8 +102,8 @@ export default function Screen() {
 										resume(item.source, item.destination)
 									}}
 								>
-									<ButtonIcon name="play" />
-									<ButtonText>Resume</ButtonText>
+									<Icon name="play" />
+									<Text>Resume</Text>
 								</Button>
 							)}
 							{item.status === 'downloading' && (
@@ -115,19 +113,17 @@ export default function Screen() {
 										pause(item.source, item.destination)
 									}}
 								>
-									<ButtonIcon name="pause" />
-									<ButtonText>Pause</ButtonText>
+									<Icon name="pause" />
+									<Text>Pause</Text>
 								</Button>
 							)}
 							<Button size="xs" onPress={() => remove(item)}>
-								<ButtonIcon name="trash" />
-								<ButtonText>Delete</ButtonText>
+								<Icon name="trash" />
+								<Text>Delete</Text>
 							</Button>
 						</View>
 						{item.error && (
-							<Text size="xs" className="mt-2 text-error-500">
-								{item.error}
-							</Text>
+							<Text className="mt-2 text-error-500">{item.error}</Text>
 						)}
 					</BaseCard>
 				)}

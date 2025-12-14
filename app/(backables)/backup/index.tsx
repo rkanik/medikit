@@ -5,15 +5,10 @@ import { BaseModal } from '@/components/base/modal'
 import { FlashList } from '@/components/FlashList'
 import { Alert } from '@/components/ui/alert'
 import { Avatar } from '@/components/ui/avatar'
-import {
-	Button,
-	ButtonIcon,
-	ButtonSpinner,
-	ButtonText,
-} from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'
 import { Icon } from '@/components/ui/icon'
-import { Text } from '@/components/ui/text'
+import { Body, Subtitle, Text, Title } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
 import { minimumIntervals, useBackgroundTask } from '@/services/background'
 import { backup, useBackup } from '@/services/backup'
@@ -73,6 +68,17 @@ export default function Screen() {
 		)
 	}, [])
 
+	const onDisconnect = useCallback(async () => {
+		RNAlert.alert(
+			'Disconnect from Google Drive',
+			'Are you sure you want to disconnect from Google Drive? This will remove all your data from Google Drive.',
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{ text: 'Disconnect', onPress: logout },
+			],
+		)
+	}, [logout])
+
 	const { lastBackupTime, lastBackupSize } = useBackup()
 	const { minimumInterval, setMinimumInterval } = useBackgroundTask()
 	const [minimumIntervalDialog, setMinimumIntervalDialog] = useState(false)
@@ -95,7 +101,7 @@ export default function Screen() {
 			</BaseCard>
 			{error && (
 				<Alert action="error" className="gap-3 mt-3">
-					<Text className="text-typography-900" size="sm">
+					<Text className="text-typography-900">
 						<Text className="mr-2 font-semibold text-typography-900">
 							Error:
 						</Text>
@@ -109,73 +115,72 @@ export default function Screen() {
 			{user ? (
 				<View className="mt-4 gap-4">
 					<BaseCard>
-						<Text size="md">Google Account</Text>
-						<Text size="sm">
+						<Title>Google Account</Title>
+						<Subtitle>
 							This account will be used to backup and restore your data to
 							Google Drive.
-						</Text>
+						</Subtitle>
 						<Divider className="my-3" />
-						<View className="items-center gap-2">
+						<View className="items-center gap-2 flex-row">
 							<Avatar text={user.name} image={user.photo} />
 							<View>
-								<Text size="sm">{user.name || user.email.split('@')[0]}</Text>
-								<Text size="sm">{user.email}</Text>
+								<Text>{user.name || user.email.split('@')[0]}</Text>
+								<Text>{user.email}</Text>
 							</View>
 						</View>
 						<View className="flex-row">
 							<Button
-								variant="outline"
 								disabled={isLoading}
 								className="mt-3"
-								onPress={logout}
-							>
-								{isLoading && <ButtonSpinner color="gray" />}
-								<Button.Text>Disconnect</Button.Text>
-							</Button>
+								icon="log-out"
+								text="Disconnect"
+								loading={isLoading}
+								onPress={onDisconnect}
+							/>
 						</View>
 					</BaseCard>
 					<BaseCard>
-						<Text size="md">Backup & Restore</Text>
-						<Text size="sm">Backup and restore your data to Google Drive.</Text>
+						<Title>Backup & Restore</Title>
+						<Subtitle>Backup and restore your data to Google Drive.</Subtitle>
 						<Divider className="my-3" />
 						<View>
-							<Text size="sm">
+							<Body>
 								Size:{' '}
 								{lastBackupSize
 									? `${Math.round(lastBackupSize / 1024 / 1024)} MB`
 									: 'None'}
-							</Text>
-							<Text size="sm">
+							</Body>
+							<Body>
 								Frequency:{' '}
 								{minimumIntervals.find(v => v.value === minimumInterval)
 									?.title || 'Default'}
-							</Text>
-							<Text size="sm">
+							</Body>
+							<Body>
 								Last backup:{' '}
 								{lastBackupTime
 									? $df(lastBackupTime, 'hh:mm A - DD MMMM YYYY')
 									: 'Never'}
-							</Text>
+							</Body>
 						</View>
 						<View className="gap-2 mt-4 flex-row">
-							<Button disabled={isUploading} onPress={onBackup}>
-								{isUploading && <ButtonSpinner color="gray" />}
-								<ButtonIcon name="upload" />
-								<ButtonText>Backup</ButtonText>
-							</Button>
-							<Button disabled={isRestoring} onPress={onRestore}>
-								{isRestoring && <ButtonSpinner color="gray" />}
-								<ButtonIcon name="download" />
-								<ButtonText>Restore</ButtonText>
-							</Button>
+							<Button
+								disabled={isUploading}
+								icon="upload"
+								text="Backup"
+								loading={isUploading}
+								onPress={onBackup}
+							/>
+							<Button
+								disabled={isRestoring}
+								icon="download"
+								text="Restore"
+								loading={isRestoring}
+								onPress={onRestore}
+							/>
 							<BaseModal
 								visible={minimumIntervalDialog}
 								setVisible={setMinimumIntervalDialog}
-								trigger={v => (
-									<Button {...v} className="aspect-square">
-										<ButtonIcon name="clock" />
-									</Button>
-								)}
+								trigger={v => <Button {...v} icon="clock" />}
 							>
 								<FlashList
 									contentContainerClassName="px-4 pt-4 pb-16"
@@ -209,18 +214,22 @@ export default function Screen() {
 				</View>
 			) : (
 				<BaseCard className="mt-3">
-					<Text size="md">Google Drive Backup</Text>
-					<Text size="sm">
+					<Title>Google Drive Backup</Title>
+					<Subtitle>
 						Connect your google account to backup and restore your data to
 						Google Drive. Make sure to grant the necessary permissions to the
 						app.
-					</Text>
+					</Subtitle>
 					<Divider className="my-3" />
-					<View>
-						<Button onPress={login} disabled={isLoading} className="mt-3">
-							{isLoading && <ButtonSpinner color="gray" />}
-							<ButtonText>Connect Google</ButtonText>
-						</Button>
+					<View className="flex-row">
+						<Button
+							icon="log-in"
+							text="Connect Google"
+							loading={isLoading}
+							disabled={isLoading}
+							className="mt-3"
+							onPress={login}
+						/>
 					</View>
 				</BaseCard>
 			)}

@@ -2,7 +2,9 @@ import { api } from '@/api'
 import { BaseActions } from '@/components/base/actions'
 import { BaseCard } from '@/components/base/card'
 import { BaseImage } from '@/components/base/image'
-import { Text } from '@/components/ui/text'
+import { Grid, GridItem } from '@/components/ui/grid'
+import { Pressable } from '@/components/ui/pressable'
+import { Subtitle, Text, Title } from '@/components/ui/text'
 import { useImageViewer } from '@/context/ImageViewerProvider'
 import { $df } from '@/utils/dayjs'
 // import { Image } from 'expo-image'
@@ -65,26 +67,28 @@ export default function Screen() {
 				contentContainerStyle={{ flexGrow: 1 }}
 			>
 				<BaseCard>
-					<Text className="uppercase text-sm opacity-75">
+					<Subtitle className="uppercase text-sm">
 						{$df(data.date, 'DD MMM, YYYY')} | {data.type}
-					</Text>
-					<Text className="text-lg">{data.text}</Text>
+					</Subtitle>
+					<Title>{data.text}</Title>
 					{data.amount > 0 && (
-						<Text bold className="text-green-500">
+						<Text className="font-bold text-green-500 dark:text-green-300">
 							{data.amount} TK
 						</Text>
 					)}
 				</BaseCard>
-				<View className="mt-4 gap-4">
+				<Grid cols={attachments.length > 1 ? 2 : 1} gap={16} className="mt-4">
 					{attachments.map((attachment, index) => (
-						<BaseCard key={index} className="p-0">
-							<BaseImage
-								uri={attachment?.uri}
+						<GridItem key={index}>
+							<Pressable
+								className="rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700"
 								onPress={e => onPressImage(e, index)}
-							/>
-						</BaseCard>
+							>
+								<BaseImage uri={attachment?.uri} aspectRatio={1} />
+							</Pressable>
+						</GridItem>
 					))}
-				</View>
+				</Grid>
 			</ScrollView>
 			<BaseActions
 				className="bottom-12"

@@ -1,4 +1,4 @@
-import { Button, ButtonIcon } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Image } from 'expo-image'
 import type { Ref } from 'react'
 import {
@@ -189,12 +189,12 @@ const BaseImagePickerInner = <T extends FieldValues>(
 							{(multiple || (!multiple && !assets.length)) && (
 								<GridItem className="aspect-square">
 									<Button
-										variant="outline"
-										className="border-background-300 h-full"
+										size="xl"
+										icon="plus"
+										variant="base2"
+										className="h-full rounded-lg"
 										onPress={() => onOpenDialog(v.field)}
-									>
-										<ButtonIcon name="plus" />
-									</Button>
+									/>
 								</GridItem>
 							)}
 						</Grid>
@@ -204,26 +204,23 @@ const BaseImagePickerInner = <T extends FieldValues>(
 			<BaseModal height={180} visible={visible} setVisible={setVisible}>
 				<View className="flex-1 flex-row gap-4 justify-center px-4 py-8">
 					<Button
-						variant="outline"
-						className="h-20 w-20 rounded-full"
+						icon="folder"
+						variant="base2"
+						size="xl"
 						onPress={onPressDocument}
-					>
-						<Icon name="folder" />
-					</Button>
+					/>
 					<Button
-						variant="outline"
-						className="h-20 w-20 rounded-full"
+						icon="image"
+						variant="base2"
+						size="xl"
 						onPress={onPressImage}
-					>
-						<Icon name="image" />
-					</Button>
+					/>
 					<Button
-						variant="outline"
-						className="h-20 w-20 rounded-full"
+						icon="camera"
+						variant="base2"
+						size="xl"
 						onPress={onPressCamera}
-					>
-						<Icon name="camera" />
-					</Button>
+					/>
 				</View>
 			</BaseModal>
 		</Fragment>

@@ -18,7 +18,7 @@ export const useSchemeColors = () => {
 		}),
 		borderColor: scheme({
 			dark: colors.neutral[700],
-			light: colors.green[200],
+			light: colors.neutral[300],
 		}),
 	}
 }
