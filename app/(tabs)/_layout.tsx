@@ -57,7 +57,7 @@ export default function TabLayout() {
 				},
 				headerTitle: () => (
 					<View className="flex-row items-center gap-2">
-						<View className="w-12 h-12 bg-white dark:bg-neutral-800 p-3 rounded-full items-center justify-center border border-green-200 dark:border-neutral-700">
+						<View className="w-12 h-12 bg-white dark:bg-neutral-700 p-3 rounded-full items-center justify-center">
 							<Image
 								source={require('@/assets/images/icon2.png')}
 								style={{ width: '100%', aspectRatio: 1 }}
