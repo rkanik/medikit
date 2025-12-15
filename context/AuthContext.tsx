@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 			setUser(response.data.user)
 			setToken(response.data.idToken)
 		} else {
-			setError(response.data || 'Unknown error: Please try again')
+			setError(`Prompt was cancelled by the user. Please try again.`)
 		}
 
 		setLoading(false)

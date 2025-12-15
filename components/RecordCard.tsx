@@ -54,7 +54,12 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 						<GridItem key={index}>
 							<Pressable
 								className="rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700"
-								onPress={e => onPressImage(e, index)}
+								onPress={e => {
+									if (attachments.length > 3 && index === 2) {
+										return onPress?.(e)
+									}
+									onPressImage(e, index)
+								}}
 							>
 								<BaseImage uri={attachment?.uri} aspectRatio={1} />
 								{attachments.length > 3 && index === 2 && (
@@ -62,7 +67,7 @@ export const RecordCard = ({ data, className, onPress }: TRecordCardProps) => {
 										pointerEvents="none"
 										className="absolute inset-0 bg-black/50 p-2 items-center justify-center"
 									>
-										<Text className="text-4xl text-white dark:text-black">
+										<Text className="text-4xl text-white">
 											+{attachments.length - 3}
 										</Text>
 									</View>

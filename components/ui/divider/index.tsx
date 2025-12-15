@@ -9,7 +9,7 @@ export const Divider = ({ className, ...props }: TDividerProps) => {
 	return (
 		<View
 			{...props}
-			className={cn('h-px bg-gray-200 dark:bg-gray-700', className)}
+			className={cn('h-px bg-neutral-200 dark:bg-neutral-700', className)}
 		/>
 	)
 }

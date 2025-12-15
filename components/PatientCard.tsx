@@ -23,7 +23,7 @@ export const PatientCard = ({
 		<BaseCard
 			onPress={onPress}
 			className={cn('p-5', className, {
-				'border-green-500 dark:border-green-500': selected,
+				'border-2 border-green-500 dark:border-green-300': selected,
 			})}
 		>
 			<View className="items-center gap-2 flex-row">

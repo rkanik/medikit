@@ -1,4 +1,4 @@
-import { Pressable, Alert as RNAlert, ScrollView, View } from 'react-native'
+import { Alert as RNAlert, ScrollView, View } from 'react-native'
 
 import { BaseCard } from '@/components/base/card'
 import { BaseModal } from '@/components/base/modal'
@@ -7,7 +7,6 @@ import { Alert } from '@/components/ui/alert'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Divider } from '@/components/ui/divider'
-import { Icon } from '@/components/ui/icon'
 import { Body, Subtitle, Text, Title } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
 import { minimumIntervals, useBackgroundTask } from '@/services/background'
@@ -15,7 +14,7 @@ import { backup, useBackup } from '@/services/backup'
 import { restore } from '@/services/restore'
 import { $df } from '@/utils/dayjs'
 import { Stack } from 'expo-router'
-import { useCallback, useState } from 'react'
+import { Fragment, useCallback, useState } from 'react'
 import { cn } from 'tailwind-variants'
 
 export default function Screen() {
@@ -99,19 +98,6 @@ export default function Screen() {
 					you tap &apos;Upload to Google Drive&apos;.
 				</Text>
 			</BaseCard>
-			{error && (
-				<Alert action="error" className="gap-3 mt-3">
-					<Text className="text-typography-900">
-						<Text className="mr-2 font-semibold text-typography-900">
-							Error:
-						</Text>
-						{error}
-					</Text>
-					<Pressable className="ml-auto" onPress={() => setError(null)}>
-						<Icon name="close" />
-					</Pressable>
-				</Alert>
-			)}
 			{user ? (
 				<View className="mt-4 gap-4">
 					<BaseCard>
@@ -122,10 +108,14 @@ export default function Screen() {
 						</Subtitle>
 						<Divider className="my-3" />
 						<View className="items-center gap-2 flex-row">
-							<Avatar text={user.name} image={user.photo} />
+							<Avatar
+								text={user.name}
+								image={user.photo}
+								className="w-16 h-16"
+							/>
 							<View>
-								<Text>{user.name || user.email.split('@')[0]}</Text>
-								<Text>{user.email}</Text>
+								<Title>{user.name || user.email.split('@')[0]}</Title>
+								<Subtitle>{user.email}</Subtitle>
 							</View>
 						</View>
 						<View className="flex-row">
@@ -213,25 +203,35 @@ export default function Screen() {
 					</BaseCard>
 				</View>
 			) : (
-				<BaseCard className="mt-3">
-					<Title>Google Drive Backup</Title>
-					<Subtitle>
-						Connect your google account to backup and restore your data to
-						Google Drive. Make sure to grant the necessary permissions to the
-						app.
-					</Subtitle>
-					<Divider className="my-3" />
-					<View className="flex-row">
-						<Button
-							icon="log-in"
-							text="Connect Google"
-							loading={isLoading}
-							disabled={isLoading}
+				<Fragment>
+					{error && (
+						<Alert
+							type="error"
+							title="Error!"
 							className="mt-3"
-							onPress={login}
+							subtitle={error}
+							onClose={() => setError(null)}
 						/>
-					</View>
-				</BaseCard>
+					)}
+					<BaseCard className="mt-3">
+						<Title>Google Drive Backup</Title>
+						<Subtitle>
+							Connect your google account to backup and restore your data to
+							Google Drive. Make sure to grant the necessary permissions to the
+							app.
+						</Subtitle>
+						<Divider className="my-3" />
+						<View className="flex-row">
+							<Button
+								icon="log-in"
+								text="Connect Google"
+								loading={isLoading}
+								disabled={isLoading}
+								onPress={login}
+							/>
+						</View>
+					</BaseCard>
+				</Fragment>
 			)}
 
 			{/* <Card size="lg" variant="outline" className="mt-3">

@@ -11,8 +11,10 @@ const bv = tv({
 		variant: {
 			base: 'bg-green-300 dark:bg-neutral-700',
 			base2: 'bg-neutral-400 dark:bg-neutral-800',
+			// transparent: '',
 		},
 		size: {
+			sm: 'px-3 h-9 gap-1',
 			base: 'px-4 h-12 gap-2',
 			xl: 'px-6 h-20 gap-3',
 		},
@@ -27,7 +29,7 @@ const bv = tv({
 	compoundVariants: [
 		{
 			icon: true,
-			size: ['base', 'xl'],
+			size: ['sm', 'base', 'xl'],
 			class: 'aspect-square p-0',
 		},
 	],
@@ -44,8 +46,10 @@ const btv = tv({
 		variant: {
 			base: 'text-black dark:text-white',
 			base2: 'text-black dark:text-white',
+			// transparent: '',
 		},
 		size: {
+			sm: 'text-sm',
 			base: 'text-base',
 			xl: 'text-2xl',
 		},
@@ -62,12 +66,26 @@ const biv = tv({
 		variant: {
 			base: 'text-black dark:text-white',
 			base2: 'text-black dark:text-white',
+			// transparent: '',
 		},
 		size: {
+			sm: 'text-base',
 			base: 'text-xl',
 			xl: 'text-2xl',
 		},
+		icon: {
+			true: '',
+			false: '',
+		},
 	},
+	compoundVariants: [
+		// {
+		// 	icon: true,
+		// 	size: ['sm'],
+		// 	variant: ['transparent'],
+		// 	class: 'text-xl',
+		// },
+	],
 	defaultVariants: {
 		size: 'base',
 		variant: 'base',
@@ -75,6 +93,7 @@ const biv = tv({
 })
 
 const loadingSize = {
+	sm: 12,
 	base: 16,
 	xl: 20,
 } as const
@@ -97,17 +116,18 @@ export const Button = ({
 	...props
 }: TButtonProps) => {
 	const { scheme } = useScheme()
+	const commonProps = {
+		size,
+		variant,
+		disabled,
+		icon: !!icon && !text,
+	}
+	const variantProps = {
+		...commonProps,
+		className,
+	}
 	return (
-		<Pressable
-			{...props}
-			className={bv({
-				size,
-				variant,
-				className,
-				disabled,
-				icon: !!icon && !text,
-			})}
-		>
+		<Pressable {...props} className={bv(variantProps)}>
 			{loading && (
 				<ActivityIndicator
 					size={loadingSize[size]}
@@ -117,25 +137,8 @@ export const Button = ({
 					})}
 				/>
 			)}
-			{icon && !loading && (
-				<Icon
-					name={icon}
-					className={biv({
-						size,
-						variant,
-					})}
-				/>
-			)}
-			{text && (
-				<Text
-					className={btv({
-						size,
-						variant,
-					})}
-				>
-					{text}
-				</Text>
-			)}
+			{icon && !loading && <Icon name={icon} className={biv(commonProps)} />}
+			{text && <Text className={btv(commonProps)}>{text}</Text>}
 		</Pressable>
 	)
 }

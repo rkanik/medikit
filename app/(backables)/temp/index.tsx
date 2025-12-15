@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button'
-import { Text } from '@/components/ui/text'
 import { useNotification } from '@/services/notification'
 import { log } from '@/utils/logs'
 import { sleep } from '@/utils/sleep'
@@ -42,10 +41,12 @@ export default function Screen() {
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Stack.Screen options={{ title: 'Temp' }} />
-			<View>
-				<Button onPress={showNotification}>
-					<Text>Show Notification</Text>
-				</Button>
+			<View className="flex-1 items-center justify-center">
+				<Button
+					onPress={showNotification}
+					icon="bell"
+					text="Show Notification"
+				/>
 			</View>
 		</ScrollView>
 	)
