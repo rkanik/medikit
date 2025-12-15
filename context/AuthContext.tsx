@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 				setError(`Prompt was cancelled by the user. Please try again.`)
 			}
 		} catch (error) {
-			setError(error as string)
+			setError((error as any)?.message || 'An unknown error occurred')
 		}
 		setLoading(false)
 	}, [])
