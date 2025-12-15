@@ -1,3 +1,4 @@
+import { webClientId } from '@/const'
 import { TMaybe, TUser } from '@/types'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
 import {
@@ -21,7 +22,7 @@ export type TAuthContext = {
 
 GoogleSignin.configure({
 	scopes: ['https://www.googleapis.com/auth/drive.file'],
-	webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+	webClientId,
 })
 
 const AuthContext = createContext<TAuthContext>(null!)

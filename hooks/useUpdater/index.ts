@@ -54,7 +54,7 @@ export const useUpdater = () => {
 		const currentVersion = versionToNumber(appVersion)
 
 		//
-		if (version !== currentVersion) {
+		if (version > currentVersion) {
 			const apkName = apkUrl.split('/').pop()
 			const destinationFile = new File(Paths.document, apkName!)
 

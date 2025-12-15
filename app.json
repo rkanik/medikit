@@ -2,7 +2,7 @@
   "expo": {
     "name": "MediKit",
     "slug": "medikit",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "medikit",
@@ -15,6 +15,7 @@
       }
     },
     "android": {
+      "versionCode": 121,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -65,7 +66,6 @@
           "color": "#ffffff"
         }
       ]
-      
     ],
     "experiments": {
       "typedRoutes": true,
