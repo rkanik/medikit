@@ -11,6 +11,7 @@ import { Body, Subtitle, Text, Title } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
 import { minimumIntervals, useBackgroundTask } from '@/services/background'
 import { backup, useBackup } from '@/services/backup'
+import { $export } from '@/services/export'
 import { restore } from '@/services/restore'
 import { $df } from '@/utils/dayjs'
 import { Stack } from 'expo-router'
@@ -84,7 +85,7 @@ export default function Screen() {
 
 	return (
 		<ScrollView
-			contentContainerClassName="px-4 pb-8"
+			contentContainerClassName="px-4 pb-20"
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Stack.Screen options={{ title: 'Backup & Restore' }} />
@@ -195,6 +196,17 @@ export default function Screen() {
 									)}
 								/>
 							</BaseModal>
+						</View>
+					</BaseCard>
+					<BaseCard>
+						<Title>Import & Export</Title>
+						<Subtitle>
+							Import and export your data from and to your device.
+						</Subtitle>
+						<Divider className="my-3" />
+						<View className="gap-2 mt-4 flex-row">
+							<Button icon="arrow-down" text="Import" onPress={onBackup} />
+							<Button icon="arrow-up" text="Export" onPress={$export} />
 						</View>
 					</BaseCard>
 				</View>

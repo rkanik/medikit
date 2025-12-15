@@ -1,5 +1,6 @@
 import { webClientId } from '@/const'
 import { TMaybe, TUser } from '@/types'
+import { log } from '@/utils/logs'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
 import {
 	createContext,
@@ -20,6 +21,7 @@ export type TAuthContext = {
 	setError: React.Dispatch<React.SetStateAction<TMaybe<string>>>
 }
 
+log(`[Auth]: configuring GoogleSignin`, webClientId)
 GoogleSignin.configure({
 	scopes: ['https://www.googleapis.com/auth/drive.file'],
 	webClientId,
@@ -40,7 +42,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 			await GoogleSignin.signOut()
 			setUser(null)
 			setToken(null)
-			setError(null)
 		} catch (error) {
 			setError(error as string)
 		}
@@ -50,25 +51,39 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 	const login = useCallback(async () => {
 		setError(null)
 		setLoading(true)
+		try {
+			// Logout if there are any existing sessions
+			log(`[Auth]: checking play services`)
+			const hasPlayServices = await GoogleSignin.hasPlayServices({
+				showPlayServicesUpdateDialog: true,
+			})
+			log(`[Auth]: hasPlayServices: ${hasPlayServices}`)
 
-		// Logout if there are any existing sessions
-		await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true })
-		await GoogleSignin.signOut()
+			log(`[Auth]: signing out`)
+			await GoogleSignin.signOut()
+			log(`[Auth]: signed out`)
 
-		// Login
-		const response = await GoogleSignin.signIn()
-		if (response.type === 'success') {
-			setUser(response.data.user)
-			setToken(response.data.idToken)
-		} else {
-			setError(`Prompt was cancelled by the user. Please try again.`)
+			// Login
+			log(`[Auth]: signing in`)
+			const response = await GoogleSignin.signIn()
+			log(`[Auth]: signed in`, response)
+
+			if (response.type === 'success') {
+				setUser(response.data.user)
+				setToken(response.data.idToken)
+			} else {
+				setError(`Prompt was cancelled by the user. Please try again.`)
+			}
+		} catch (error) {
+			setError(error as string)
 		}
-
 		setLoading(false)
 	}, [])
 
 	useEffect(() => {
+		log(`[Auth]: getting current user`)
 		const data = GoogleSignin.getCurrentUser()
+		log(`[Auth]: current user`, data?.user.email, data?.idToken?.length)
 		if (data?.user) setUser(data.user)
 		if (data?.idToken) setToken(data.idToken)
 	}, [])
