@@ -5,15 +5,17 @@ import { Button } from '../button'
 import { Subtitle, Title } from '../text'
 
 export type TAlertProps = Omit<PressableProps, 'children'> & {
-	type?: 'error'
+	type?: 'error' | 'success'
 	title?: string
 	subtitle?: string
+	inverted?: boolean
 	onClose?: () => void
 }
 
 export const Alert = ({
 	type,
 	title,
+	inverted,
 	subtitle,
 	className,
 	onClose,
@@ -26,13 +28,29 @@ export const Alert = ({
 				'flex-row justify-between items-center gap-4',
 				{
 					'bg-red-500/50 dark:bg-red-500/50': type === 'error',
+					'bg-green-500/50 dark:bg-green-500/50':
+						type === 'success' && !inverted,
 				},
 				className,
 			)}
 		>
 			<View className="flex-1">
-				<Title>{title}</Title>
-				<Subtitle>{subtitle}</Subtitle>
+				<Title
+					className={cn({
+						'text-green-800 dark:text-green-500':
+							type === 'success' && inverted,
+					})}
+				>
+					{title}
+				</Title>
+				<Subtitle
+					className={cn({
+						'text-green-800 dark:text-green-500':
+							type === 'success' && inverted,
+					})}
+				>
+					{subtitle}
+				</Subtitle>
 			</View>
 			<View className="flex-none">
 				{onClose && (

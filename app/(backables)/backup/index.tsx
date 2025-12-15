@@ -88,16 +88,12 @@ export default function Screen() {
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Stack.Screen options={{ title: 'Backup & Restore' }} />
-			<BaseCard className="gap-2">
-				<Text className="text-lg font-semibold text-emerald-900 dark:text-emerald-100">
-					Google Drive Backup
-				</Text>
-				<Text className="text-sm text-emerald-900/80 dark:text-emerald-100/80">
-					Keep your medical histories safe by syncing them to your own Drive. No
-					external servers are involved — everything stays on your device until
-					you tap &apos;Upload to Google Drive&apos;.
-				</Text>
-			</BaseCard>
+			<Alert
+				inverted
+				type="success"
+				title="Google Drive Backup"
+				subtitle="Keep your medical histories safe by syncing them to your own Drive. No external servers are involved — everything stays on your device until you tap 'Upload to Google Drive'."
+			/>
 			{user ? (
 				<View className="mt-4 gap-4">
 					<BaseCard>

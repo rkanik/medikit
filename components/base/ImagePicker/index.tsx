@@ -164,11 +164,11 @@ const BaseImagePickerInner = <
 				render={v => {
 					const assets = getValue(v.field.value)
 					return (
-						<Grid cols={3} gap={16}>
+						<Grid cols={3} gap={8}>
 							{assets.map((asset, index) => (
 								<GridItem key={index}>
 									<Pressable
-										className="relative rounded overflow-hidden border border-background-300"
+										className="rounded-lg overflow-hidden"
 										onPress={() => {
 											if (multiple) {
 												openImageViewer(assets, index)
@@ -185,10 +185,9 @@ const BaseImagePickerInner = <
 										/>
 										<Pressable
 											onPress={() => handleRemove(v.field, index)}
-											className="absolute right-1 top-1 rounded-full bg-black/70 p-1"
-											hitSlop={8}
+											className="absolute right-1 top-1 bg-red-500/90 p-1 rounded-full"
 										>
-											<Icon name="x" className="text-background-300" />
+											<Icon name="x" className="text-white" />
 										</Pressable>
 									</Pressable>
 								</GridItem>
