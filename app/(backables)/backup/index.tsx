@@ -12,6 +12,7 @@ import { useAuth } from '@/context/AuthContext'
 import { minimumIntervals, useBackgroundTask } from '@/services/background'
 import { backup, useBackup } from '@/services/backup'
 import { $export } from '@/services/export'
+import { $import } from '@/services/import'
 import { restore } from '@/services/restore'
 import { $df } from '@/utils/dayjs'
 import { Stack } from 'expo-router'
@@ -78,6 +79,17 @@ export default function Screen() {
 			],
 		)
 	}, [logout])
+
+	const onImport = useCallback(async () => {
+		RNAlert.alert(
+			'Import from Device',
+			'Are you sure you want to import your data from your device? This will overwrite your existing data.',
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{ text: 'Import', onPress: $import },
+			],
+		)
+	}, [])
 
 	const { lastBackupTime, lastBackupSize } = useBackup()
 	const { minimumInterval, setMinimumInterval } = useBackgroundTask()
@@ -198,17 +210,6 @@ export default function Screen() {
 							</BaseModal>
 						</View>
 					</BaseCard>
-					<BaseCard>
-						<Title>Import & Export</Title>
-						<Subtitle>
-							Import and export your data from and to your device.
-						</Subtitle>
-						<Divider className="my-3" />
-						<View className="gap-2 mt-4 flex-row">
-							<Button icon="arrow-down" text="Import" onPress={onBackup} />
-							<Button icon="arrow-up" text="Export" onPress={$export} />
-						</View>
-					</BaseCard>
 				</View>
 			) : (
 				<Fragment>
@@ -241,6 +242,18 @@ export default function Screen() {
 					</BaseCard>
 				</Fragment>
 			)}
+
+			<BaseCard className="mt-4">
+				<Title>Import & Export</Title>
+				<Subtitle>
+					Import and export your data from and to your device.
+				</Subtitle>
+				<Divider className="my-3" />
+				<View className="gap-2 mt-4 flex-row">
+					<Button icon="arrow-down" text="Import" onPress={onImport} />
+					<Button icon="arrow-up" text="Export" onPress={$export} />
+				</View>
+			</BaseCard>
 
 			{/* <Card size="lg" variant="outline" className="mt-3">
 				<Heading size="md">Background Tasks</Heading>
