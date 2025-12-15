@@ -18,6 +18,14 @@ const PatientItems = ({ value, onChange }: TPatientPickerProps) => {
 			data={data}
 			contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 4 }}
 			keyExtractor={item => item.id.toString()}
+			ListHeaderComponent={() => (
+				<PatientCard
+					data={{ id: 0, name: 'All Patients' }}
+					className="mb-4"
+					selected={!value}
+					onPress={() => onChange?.(undefined)}
+				/>
+			)}
 			renderItem={({ item }) => (
 				<PatientCard
 					data={item}

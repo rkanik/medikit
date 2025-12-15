@@ -1,5 +1,5 @@
 import { api } from '@/api'
-import { TZPatient } from '@/api/patients'
+import { TZPatient, usePatient } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
@@ -15,7 +15,7 @@ import { View } from 'react-native'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
-	const { data } = api.patients.usePatientById(Number(id))
+	const { data } = usePatient(Number(id))
 
 	const form = useForm({
 		resolver: zodResolver(api.patients.zPatient),
@@ -85,7 +85,7 @@ export default function Screen() {
 							label="Name"
 							placeholder="Write name here..."
 							control={form.control}
-							isRequired={true}
+							required={true}
 							autoFocus={true}
 						/>
 						<BaseDatePicker

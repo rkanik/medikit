@@ -1,4 +1,4 @@
-import { api } from '@/api'
+import { usePatient, usePatientActions } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
 import { Avatar } from '@/components/ui/avatar'
@@ -11,7 +11,8 @@ import { Alert, ScrollView, View } from 'react-native'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
-	const { data, remove } = api.patients.usePatientById(Number(id))
+	const { data } = usePatient(Number(id))
+	const { remove } = usePatientActions(Number(id))
 
 	const onDelete = useCallback(() => {
 		Alert.alert('Delete', 'Are you sure you want to delete this item?', [

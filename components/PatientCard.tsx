@@ -4,7 +4,7 @@ import { GestureResponderEvent, View } from 'react-native'
 import { cn } from 'tailwind-variants'
 import { BaseCard } from './base/card'
 import { Avatar } from './ui/avatar'
-import { Text } from './ui/text'
+import { Subtitle, Title } from './ui/text'
 
 type TPatientCardProps = {
 	data: TPatient
@@ -26,7 +26,7 @@ export const PatientCard = ({
 				'border-2 border-green-500 dark:border-green-300': selected,
 			})}
 		>
-			<View className="items-center gap-2 flex-row">
+			<View className="items-center gap-4 flex-row">
 				<Avatar
 					variant="secondary"
 					className="w-16 h-16"
@@ -34,12 +34,12 @@ export const PatientCard = ({
 					image={data.avatar?.uri}
 				/>
 				<View>
-					<Text className="text-lg">{data.name}</Text>
+					<Title>{data.name}</Title>
 					{data.dob && (
-						<Text>
+						<Subtitle>
 							{$df(data.dob, 'DD MMMM, YYYY')}({$d().diff(data.dob, 'years')}{' '}
 							yrs)
-						</Text>
+						</Subtitle>
 					)}
 				</View>
 			</View>

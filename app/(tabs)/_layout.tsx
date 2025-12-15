@@ -7,7 +7,7 @@ import { useScheme } from '@/hooks/useScheme'
 import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { useUpdater } from '@/hooks/useUpdater'
 import { Image } from 'expo-image'
-import { Tabs } from 'expo-router'
+import { Tabs, usePathname } from 'expo-router'
 import { View } from 'react-native'
 import { cn } from 'tailwind-variants'
 
@@ -32,6 +32,9 @@ const items = [
 export default function TabLayout() {
 	const { scheme } = useScheme()
 	const { borderColor, textColor } = useSchemeColors()
+
+	const pathname = usePathname()
+
 	useUpdater()
 	return (
 		<Tabs
@@ -70,7 +73,7 @@ export default function TabLayout() {
 				),
 				headerRight: () => (
 					<View className="mr-5">
-						<CurrentPatientPicker />
+						{pathname === '/' && <CurrentPatientPicker />}
 					</View>
 				),
 			}}

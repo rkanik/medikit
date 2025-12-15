@@ -1,9 +1,11 @@
 import { api } from '@/api'
 import { BaseActions } from '@/components/base/actions'
 import { FlashList } from '@/components/FlashList'
+import { NoPatients } from '@/components/NoPatients'
 import { PatientCard } from '@/components/PatientCard'
 import { router } from 'expo-router'
 import { View } from 'react-native'
+import { cn } from 'tailwind-variants'
 
 export default function PatientsScreen() {
 	const { data } = api.patients.usePatients()
@@ -13,7 +15,10 @@ export default function PatientsScreen() {
 				data={data}
 				keyExtractor={item => item.id?.toString() ?? ''}
 				contentContainerStyle={{ flexGrow: 1 }}
-				contentContainerClassName="flex-col-reverse pb-28 px-4"
+				contentContainerClassName={cn('flex-grow flex-col-reverse px-4', {
+					'pb-4': data.length === 0,
+					'pb-28': data.length > 0,
+				})}
 				renderItem={({ item, index }) => (
 					<PatientCard
 						data={item}
@@ -21,17 +26,23 @@ export default function PatientsScreen() {
 						onPress={() => router.push(`/patients/${item.id}`)}
 					/>
 				)}
+				ListFooterComponent={() => {
+					if (!data.length) return <NoPatients />
+					return null
+				}}
 			/>
-			<BaseActions
-				className="bottom-8"
-				data={[
-					{
-						icon: 'plus',
-						text: 'Patient',
-						onPress: () => router.push('/patients/new/form'),
-					},
-				]}
-			/>
+			{data.length > 0 && (
+				<BaseActions
+					className="bottom-8"
+					data={[
+						{
+							icon: 'plus',
+							text: 'Add Patient',
+							onPress: () => router.push('/patients/new/form'),
+						},
+					]}
+				/>
+			)}
 		</View>
 	)
 }

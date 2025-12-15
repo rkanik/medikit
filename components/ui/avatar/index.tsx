@@ -53,10 +53,14 @@ export const Avatar = ({
 			{image && (
 				<Image
 					source={{ uri: image }}
-					style={{ height: '100%', width: '100%' }}
 					className={imageClassName}
 					contentFit="cover"
 					contentPosition="center"
+					style={{
+						width: '100%',
+						height: '100%',
+						borderRadius: 512,
+					}}
 					onError={() => setError(true)}
 				/>
 			)}

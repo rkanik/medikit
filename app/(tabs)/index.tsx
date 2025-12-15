@@ -1,18 +1,18 @@
-import { api } from '@/api'
 import { BaseActions } from '@/components/base/actions'
-import { BaseCard } from '@/components/base/card'
 import { RecordCard } from '@/components/RecordCard'
-import { Button } from '@/components/ui/button'
-import { Icon } from '@/components/ui/icon'
-import { Text } from '@/components/ui/text'
 import { router } from 'expo-router'
 import { View } from 'react-native'
 
+import { useCurrentPatient } from '@/api/patients'
+import { useRecords } from '@/api/records'
 import { FlashList } from '@/components/FlashList'
+import { NoRecords } from '@/components/NoRecords'
+import { RecordsSummary } from '@/components/RecordsSummary'
 import { cn } from 'tailwind-variants'
 
 export default function Screen() {
-	const { data, summary } = api.records.useRecords()
+	const { data: currentPatient } = useCurrentPatient()
+	const { data } = useRecords({ patientId: currentPatient?.id })
 	return (
 		<View className="flex-1 relative">
 			<FlashList
@@ -23,51 +23,11 @@ export default function Screen() {
 					'pb-28': data.length > 0,
 				})}
 				ListFooterComponent={() => {
-					if (data.length === 0)
-						return (
-							<BaseCard className="items-center py-12">
-								<Icon name="list-todo" />
-								<Text className="mt-2">No records found!</Text>
-								<Text className="text-center">
-									Add a new record to get started
-								</Text>
-								<Button
-									icon="plus"
-									text="Add Record"
-									className="mt-4"
-									onPress={() => router.push('/records/new/form')}
-								/>
-							</BaseCard>
-						)
+					// if (!currentPatient) return <NoPatients />
+					if (!data.length) return <NoRecords />
 					return (
 						<View className="mb-4">
-							<BaseCard>
-								<Text>Costs</Text>
-								<View className="gap-4 mt-4">
-									<View className="flex-row gap-8 flex-wrap">
-										<View>
-											<Text>Total</Text>
-											<Text className="font-bold">{summary.total} TK</Text>
-										</View>
-										<View>
-											<Text>This Month</Text>
-											<Text className="font-bold">{summary.thisMonth} TK</Text>
-										</View>
-										<View>
-											<Text>This Year</Text>
-											<Text className="font-bold">{summary.thisYear} TK</Text>
-										</View>
-									</View>
-									<View className="flex-row gap-8 flex-wrap">
-										{Object.entries(summary.types).map(([type, amount]) => (
-											<View key={type}>
-												<Text>{type}</Text>
-												<Text className="font-bold">{amount} TK</Text>
-											</View>
-										))}
-									</View>
-								</View>
-							</BaseCard>
+							<RecordsSummary patientId={currentPatient?.id} />
 						</View>
 					)
 				}}
@@ -75,6 +35,7 @@ export default function Screen() {
 					<RecordCard
 						data={item}
 						className={index ? 'mt-4' : ''}
+						showPatient={!currentPatient}
 						onPress={() => router.push(`/records/${item.id}`)}
 					/>
 				)}
@@ -85,7 +46,7 @@ export default function Screen() {
 					data={[
 						{
 							icon: 'plus',
-							text: 'Record',
+							text: 'Add Record',
 							onPress: () => router.push('/records/new/form'),
 						},
 					]}

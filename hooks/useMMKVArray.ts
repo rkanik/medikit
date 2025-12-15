@@ -71,6 +71,15 @@ export const useMMKVArray = <T, K = any>(
 		[getKey, setData],
 	)
 
+	const removeWhere = useCallback(
+		(predicate: (item: T) => boolean) => {
+			setData((data = []) => {
+				return data.filter(predicate)
+			})
+		},
+		[setData],
+	)
+
 	return {
 		data,
 		push,
@@ -79,5 +88,6 @@ export const useMMKVArray = <T, K = any>(
 		remove,
 		getByKey,
 		setData,
+		removeWhere,
 	}
 }

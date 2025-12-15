@@ -5,6 +5,7 @@ import { fs } from '@/utils/fs'
 import { useCallback, useMemo } from 'react'
 import { useMMKVNumber } from 'react-native-mmkv'
 import { z } from 'zod'
+import { useRecordsStorage } from './records'
 
 export type TZPatient = z.infer<typeof zPatient>
 const zPatient = z.object({
@@ -14,7 +15,7 @@ const zPatient = z.object({
 	avatar: z.any(),
 })
 
-const usePatientsStorage = () => {
+export const usePatientsStorage = () => {
 	return useMMKVArray<TPatient>(`patients`, {
 		getKey: item => item.id,
 	})
@@ -24,23 +25,19 @@ const useCurrentPatientIdStorage = () => {
 	return useMMKVNumber('currentPatientId')
 }
 
-const useCurrentPatient = () => {
+export const useCurrentPatient = () => {
 	const { data: items } = usePatientsStorage()
-	const [currentPatientId, setData] = useCurrentPatientIdStorage()
+	const [id, setData] = useCurrentPatientIdStorage()
 	const data = useMemo<TMaybe<TPatient>>(() => {
-		return (
-			items.find(item => {
-				return item.id === currentPatientId
-			}) || items[0]
-		)
-	}, [items, currentPatientId])
+		return items.find(item => item.id === id)
+	}, [id, items])
 	return {
 		data,
 		setData,
 	}
 }
 
-const usePatients = () => {
+export const usePatients = () => {
 	const { data } = usePatientsStorage()
 	return { data }
 }
@@ -83,24 +80,36 @@ const usePatientsActions = () => {
 	}
 }
 
-const usePatientById = (id: number) => {
-	const { remove: removeItem, getByKey } = usePatientsStorage()
+export const usePatient = (id: number) => {
+	const { getByKey } = usePatientsStorage()
 	const data = useMemo(() => getByKey(id), [id, getByKey])
+	return {
+		data,
+	}
+}
+
+export const usePatientActions = (id: number) => {
+	const { remove: removeItem, getByKey } = usePatientsStorage()
+	const { removeWhere: removeRecordsWhere } = useRecordsStorage()
 
 	const remove = useCallback(async () => {
+		const data = getByKey(id)
 		if (data?.avatar?.uri) {
 			fs.remove(data.avatar.uri)
 		}
-		removeItem(data?.id)
-	}, [data, removeItem])
+		removeItem(id)
+		removeRecordsWhere(record => record.patientId === id)
+	}, [id, getByKey, removeItem, removeRecordsWhere])
 
-	return { data, remove }
+	return {
+		remove,
+	}
 }
 
 export const patients = {
 	zPatient,
+	usePatient,
 	usePatients,
-	usePatientById,
 	useCurrentPatient,
 	usePatientsActions,
 }
