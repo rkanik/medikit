@@ -82,14 +82,15 @@ export default function Screen() {
 								multiple={true}
 							/>
 						</GridItem>
-						<GridItem>
+						<GridItem colSpan={2}>
 							<BaseInput
 								name="text"
 								label="Description"
 								placeholder="Enter description..."
 								control={form.control}
-								isRequired={true}
-								// autoFocus={true}
+								required={true}
+								multiline={true}
+								numberOfLines={4}
 							/>
 						</GridItem>
 						<GridItem>
@@ -98,7 +99,7 @@ export default function Screen() {
 								label="Type"
 								placeholder="Select type..."
 								control={form.control}
-								isRequired={true}
+								required={true}
 								options={api.records.types}
 							/>
 						</GridItem>
@@ -108,7 +109,7 @@ export default function Screen() {
 								label="Date"
 								placeholder="Select date..."
 								control={form.control}
-								isRequired={true}
+								required={true}
 							/>
 						</GridItem>
 						<GridItem>

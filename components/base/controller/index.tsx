@@ -8,35 +8,42 @@ export type TBaseControllerProps<
 	TFieldValues extends FieldValues = FieldValues,
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = ControllerProps<TFieldValues, TName> & {
-	size?: string
 	label?: string
+	required?: boolean
 	className?: string
-	helperText?: string
-	isRequired?: boolean
 }
 
 export const BaseController = <
 	TFieldValues extends FieldValues = FieldValues,
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({
-	name,
-	control,
-	className,
 	label,
-	helperText,
+	required,
+	className,
 	render,
 	...props
 }: TBaseControllerProps<TFieldValues, TName>) => {
 	return (
 		<Controller
-			name={name}
-			control={control}
+			{...props}
 			render={v => (
-				<View className={cn(className)}>
-					{label && <Text>{label}</Text>}
+				<View className={className}>
+					{label && (
+						<Text
+							className={cn('text-base font-medium mb-1', {
+								'text-red-500': !!v.fieldState.error,
+							})}
+						>
+							{label}
+							{required && <Text className="text-red-500">*</Text>}
+						</Text>
+					)}
 					{render(v)}
-					{helperText && <Text>{helperText}</Text>}
-					{v.fieldState.error && <Text>{v.fieldState.error?.message}</Text>}
+					{v.fieldState.error && (
+						<Text className="text-red-500 text-sm mt-1">
+							{v.fieldState.error?.message}
+						</Text>
+					)}
 				</View>
 			)}
 		/>

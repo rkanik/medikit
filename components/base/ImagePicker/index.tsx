@@ -13,7 +13,6 @@ import type {
 	ControllerRenderProps,
 	FieldPath,
 	FieldValues,
-	Path,
 } from 'react-hook-form'
 import { Keyboard, Pressable, View } from 'react-native'
 import { BaseController, TBaseControllerProps } from '../controller'
@@ -43,13 +42,21 @@ type TBaseImagePickerProps<
 	aspect?: [number, number]
 }
 
-const BaseImagePickerInner = <T extends FieldValues>(
-	{ aspect, multiple, scanner, ...props }: TBaseImagePickerProps<T>,
+const BaseImagePickerInner = <
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>(
+	{
+		aspect,
+		multiple,
+		scanner,
+		...props
+	}: TBaseImagePickerProps<TFieldValues, TName>,
 	ref: Ref<any>,
 ) => {
 	const { openImageViewer } = useImageViewer()
 
-	type TField = ControllerRenderProps<T, Path<T>>
+	type TField = ControllerRenderProps<TFieldValues, TName>
 	const fieldRef = useRef<TField>(null)
 
 	const options: ImagePickerOptions = useMemo(
@@ -232,4 +239,4 @@ export const BaseImagePicker = forwardRef(BaseImagePickerInner) as <
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(
 	props: TBaseImagePickerProps<TFieldValues, TName> & { ref?: Ref<any> },
-) => ReturnType<typeof BaseImagePickerInner>
+) => ReturnType<typeof BaseImagePickerInner<TFieldValues, TName>>

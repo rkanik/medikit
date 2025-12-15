@@ -19,9 +19,14 @@ const BaseInputInner = <
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(
 	{
-		autoFocus,
+		name,
+		label,
+		control,
+		required,
+		className,
 		keyboardType,
-		size = 'lg',
+		onBlur,
+		onFocus,
 		...props
 	}: TProps<TFieldValues, TName>,
 	ref: Ref<TextInput>,
@@ -29,14 +34,13 @@ const BaseInputInner = <
 	const form = useCurrentForm()
 	return (
 		<BaseController
-			{...props}
-			size={size}
+			{...{ name, label, control, required, className }}
 			render={v => (
 				<Input
-					size={size}
-					autoFocus={autoFocus}
+					{...props}
+					ref={ref}
+					error={!!v.fieldState.error}
 					value={String(v.field.value)}
-					placeholder={props.placeholder || ''}
 					keyboardType={keyboardType}
 					onChangeText={text => {
 						if (keyboardType === 'numeric') {
@@ -45,12 +49,12 @@ const BaseInputInner = <
 							v.field.onChange(text)
 						}
 					}}
-					onFocus={(e: any) => {
-						props.onFocus?.(e)
+					onFocus={e => {
+						onFocus?.(e)
 						form?.onFocus(e)
 					}}
-					onBlur={(e: any) => {
-						props.onBlur?.(e)
+					onBlur={e => {
+						onBlur?.(e)
 						v.field.onBlur()
 					}}
 				/>
@@ -59,6 +63,9 @@ const BaseInputInner = <
 	)
 }
 
-export const BaseInput = forwardRef(BaseInputInner) as <T extends FieldValues>(
-	props: TProps<T> & { ref?: Ref<TextInput> },
-) => ReturnType<typeof BaseInputInner>
+export const BaseInput = forwardRef(BaseInputInner) as <
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>(
+	props: TProps<TFieldValues, TName> & { ref?: Ref<TextInput> },
+) => ReturnType<typeof BaseInputInner<TFieldValues, TName>>
