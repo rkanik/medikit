@@ -11,9 +11,10 @@ const bv = tv({
 		variant: {
 			base: 'bg-green-300 dark:bg-neutral-700',
 			base2: 'bg-neutral-400 dark:bg-neutral-800',
-			// transparent: '',
+			transparent: '',
 		},
 		size: {
+			xs: 'px-2 h-8 gap-1',
 			sm: 'px-3 h-9 gap-1',
 			base: 'px-4 h-12 gap-2',
 			xl: 'px-6 h-20 gap-3',
@@ -46,9 +47,10 @@ const btv = tv({
 		variant: {
 			base: 'text-black dark:text-white',
 			base2: 'text-black dark:text-white',
-			// transparent: '',
+			transparent: '',
 		},
 		size: {
+			xs: 'text-xs',
 			sm: 'text-sm',
 			base: 'text-base',
 			xl: 'text-2xl',
@@ -66,9 +68,10 @@ const biv = tv({
 		variant: {
 			base: 'text-black dark:text-white',
 			base2: 'text-black dark:text-white',
-			// transparent: '',
+			transparent: '',
 		},
 		size: {
+			xs: 'text-xs',
 			sm: 'text-base',
 			base: 'text-xl',
 			xl: 'text-2xl',
@@ -79,12 +82,18 @@ const biv = tv({
 		},
 	},
 	compoundVariants: [
-		// {
-		// 	icon: true,
-		// 	size: ['sm'],
-		// 	variant: ['transparent'],
-		// 	class: 'text-xl',
-		// },
+		{
+			icon: true,
+			size: ['sm'],
+			variant: ['transparent'],
+			class: 'text-xl',
+		},
+		{
+			icon: true,
+			size: ['xs'],
+			variant: ['transparent'],
+			class: 'text-lg',
+		},
 	],
 	defaultVariants: {
 		size: 'base',
@@ -93,6 +102,7 @@ const biv = tv({
 })
 
 const loadingSize = {
+	xs: 10,
 	sm: 12,
 	base: 16,
 	xl: 20,

@@ -1,9 +1,10 @@
+import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { forwardRef, useState } from 'react'
 import { TextInput, TextInputProps } from 'react-native'
 import { tv, VariantProps } from 'tailwind-variants'
 
-const inputVariants = tv({
-	base: 'rounded-lg',
+export const inputVariants = tv({
+	base: 'rounded-lg flex-row items-center justify-between overflow-hidden',
 	variants: {
 		variant: {
 			base: 'bg-white dark:bg-neutral-700 text-black dark:text-white border',
@@ -45,7 +46,7 @@ const inputVariants = tv({
 
 export type TInputProps = TextInputProps &
 	VariantProps<typeof inputVariants> & {
-		error?: boolean
+		//
 	}
 
 export const Input = forwardRef<TextInput, TInputProps>(function Input(
@@ -61,11 +62,11 @@ export const Input = forwardRef<TextInput, TInputProps>(function Input(
 	ref,
 ) {
 	const [focus, setFocus] = useState(false)
+	const { textColorSecondary } = useSchemeColors()
 	return (
 		<TextInput
 			{...props}
 			ref={ref}
-			data-focus={true}
 			className={inputVariants({
 				size,
 				error,
@@ -73,6 +74,7 @@ export const Input = forwardRef<TextInput, TInputProps>(function Input(
 				variant,
 				className,
 			})}
+			placeholderTextColor={textColorSecondary}
 			onFocus={e => {
 				onFocus?.(e)
 				setFocus(true)

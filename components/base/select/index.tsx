@@ -1,112 +1,138 @@
 import { Text } from '@/components/ui/text'
 import type { Ref } from 'react'
-import { forwardRef, Fragment, useState } from 'react'
-import type { FieldValues } from 'react-hook-form'
-import {
-	Keyboard,
-	Pressable,
-	TextInput,
-	TouchableOpacity,
-	View,
-} from 'react-native'
+import { forwardRef, useState } from 'react'
+import type { FieldPath, FieldValues } from 'react-hook-form'
+import { Keyboard, TextInput, TouchableOpacity, View } from 'react-native'
 import { BaseController, TBaseControllerProps } from '../controller'
 
 import { FlashList } from '@/components/FlashList'
 import { Icon } from '@/components/ui/icon'
-import { cn } from 'tailwind-variants'
+import { inputVariants } from '@/components/ui/input'
+import { Pressable } from '@/components/ui/pressable'
+import { cn, VariantProps } from 'tailwind-variants'
 import { BaseModal } from '../modal'
 
-type TProps<T extends FieldValues> = TBaseControllerProps<T> & {
-	placeholder?: string
-	options?: {
-		label: string
-		value: string
-	}[]
-}
+type TProps<
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = Omit<TBaseControllerProps<TFieldValues, TName>, 'render'> &
+	VariantProps<typeof inputVariants> & {
+		placeholder?: string
+		options?: {
+			label: string
+			value: string
+		}[]
+	}
 
 const ITEM_GAP = 8
-const ITEM_HEIGHT = 48
-const CONTAINER_PADDING = 20
+const ITEM_HEIGHT = 64
+const CONTAINER_PADDING = 16
 
-const BaseSelectInner = <T extends FieldValues>(
-	{ size = 'lg', ...props }: TProps<T>,
+const BaseSelectInner = <
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>(
+	{
+		name,
+		label,
+		control,
+		required,
+		className,
+		size,
+		focus,
+		variant,
+		...props
+	}: TProps<TFieldValues, TName>,
 	ref: Ref<TextInput>,
 ) => {
 	const [visible, setVisible] = useState(false)
 	return (
-		<Fragment>
-			<BaseController
-				{...props}
-				size={size}
-				render={v => {
-					const option = props.options?.find(o => o.value === v.field.value)
-					return (
-						<BaseModal
-							visible={visible}
-							height={
-								(props.options?.length || 0) * (ITEM_HEIGHT + ITEM_GAP) +
-								CONTAINER_PADDING +
-								40
-							}
-							setVisible={setVisible}
-							trigger={trigger => (
-								<TouchableOpacity
-									{...trigger}
+		<BaseController
+			{...{ name, label, control, required, className }}
+			render={v => {
+				const option = props.options?.find(o => o.value === v.field.value)
+				return (
+					<BaseModal
+						visible={visible}
+						setVisible={setVisible}
+						height={
+							(props.options?.length || 0) * (ITEM_HEIGHT + ITEM_GAP) +
+							CONTAINER_PADDING +
+							40
+						}
+						trigger={trigger => (
+							<Pressable
+								className={inputVariants({
+									size,
+									variant,
+									focus: false,
+									error: !!v.fieldState.error,
+								})}
+								onPress={() => {
+									trigger.onPress()
+									Keyboard.dismiss()
+								}}
+							>
+								<Text
+									className={cn('text-lg', {
+										'text-neutral-500 dark:text-neutral-400': !v.field.value,
+									})}
+								>
+									{option?.label || props.placeholder}
+								</Text>
+								<View className="flex-none flex-row items-center gap-2">
+									{v.field.value ? (
+										<TouchableOpacity onPress={() => v.field.onChange(null)}>
+											<Icon
+												name="x"
+												className="text-lg text-neutral-500 dark:text-neutral-400"
+											/>
+										</TouchableOpacity>
+									) : (
+										<Icon
+											name="chevron-down"
+											className="text-xl text-neutral-500 dark:text-neutral-400"
+										/>
+									)}
+								</View>
+							</Pressable>
+						)}
+					>
+						<FlashList
+							data={props.options}
+							keyExtractor={item => item.value}
+							contentContainerStyle={{
+								paddingHorizontal: CONTAINER_PADDING,
+							}}
+							renderItem={({ item }) => (
+								<Pressable
+									style={{ height: ITEM_HEIGHT, marginBottom: ITEM_GAP }}
 									className={cn(
-										'border border-background-300 rounded p-2 h-12 flex-row items-center justify-between',
+										'bg-white dark:bg-neutral-900 rounded-lg flex-row items-center px-4 overflow-hidden',
 										{
-											'border-red-500': !!v.fieldState.error,
+											'border-2 border-green-500 dark:border-green-300':
+												item.value === v.field.value,
 										},
 									)}
 									onPress={() => {
-										Keyboard.dismiss()
+										v.field.onChange(item.value)
+										setVisible(false)
 									}}
 								>
-									<Text
-										className={cn('text-typography-900 text-lg', {
-											'text-typography-500': !v.field.value,
-										})}
-									>
-										{option?.label || props.placeholder}
-									</Text>
-									<View className="flex-none flex-row items-center gap-2">
-										{v.field.value && (
-											<Pressable onPress={() => v.field.onChange(null)}>
-												<Icon name="x" className="text-background-300" />
-											</Pressable>
-										)}
-										<Icon name="chevron-down" className="text-background-300" />
-									</View>
-								</TouchableOpacity>
+									<Text className="text-lg">{item.label}</Text>
+								</Pressable>
 							)}
-						>
-							<FlashList
-								data={props.options}
-								keyExtractor={item => item.value}
-								contentContainerStyle={{ paddingHorizontal: CONTAINER_PADDING }}
-								renderItem={({ item }) => (
-									<Pressable
-										style={{ height: ITEM_HEIGHT, marginBottom: ITEM_GAP }}
-										className="dark:bg-neutral-900 rounded-lg flex-row items-center px-4"
-										onPress={() => {
-											v.field.onChange(item.value)
-											setVisible(false)
-										}}
-									>
-										<Text>{item.label}</Text>
-									</Pressable>
-								)}
-							/>
-						</BaseModal>
-					)
-				}}
-			/>
-		</Fragment>
+						/>
+					</BaseModal>
+				)
+			}}
+		/>
 	)
 }
 
 export const BaseSelect = forwardRef(BaseSelectInner) as <
-	T extends FieldValues,
+	TFieldValues extends FieldValues = FieldValues,
+	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(
-	props: TProps<T> & { ref?: Ref<TextInput> },
+	props: TProps<TFieldValues, TName> & { ref?: Ref<TextInput> },
 ) => ReturnType<typeof BaseSelectInner>

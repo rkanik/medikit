@@ -9,7 +9,7 @@ export const useSchemeColors = () => {
 			light: 'black',
 		}),
 		textColorSecondary: scheme({
-			dark: colors.neutral[500],
+			dark: colors.neutral[400],
 			light: colors.neutral[500],
 		}),
 		backgroundColor: scheme({
