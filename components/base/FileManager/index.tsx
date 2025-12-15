@@ -1,33 +1,80 @@
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/ui/icon'
-import { Text } from '@/components/ui/text'
+import { Pressable } from '@/components/ui/pressable'
+import { Subtitle, Text, Title } from '@/components/ui/text'
 import { fs } from '@/utils/fs'
-import { log } from '@/utils/logs'
+import { FlashList } from '@shopify/flash-list'
 import { Directory, File } from 'expo-file-system'
 import { Image } from 'expo-image'
+import { startActivityAsync } from 'expo-intent-launcher'
 import { useCallback, useEffect, useState } from 'react'
-import { Pressable, ScrollView, View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 import { cn } from 'tailwind-variants'
 
-type FileItem = {
-	name: string
-	isDirectory: boolean
-	size: number | null
-	uri: string
-	exists: boolean
+const extensionIcons: Record<string, string> = {
+	'.jpg': 'image',
+	'.jpeg': 'image',
+	'.png': 'image',
+	'.gif': 'image',
+	'.webp': 'image',
+	'.svg': 'image',
+	'.json': 'code',
+	'.apk': 'package',
+}
+
+type TListItemProps = {
+	uri?: string
+	icon?: string
+	title: string
+	subtitle?: string
+	className?: string
+	onPress?: () => void
+}
+const ListItem = ({
+	uri,
+	title,
+	subtitle,
+	className,
+	icon = 'file',
+	onPress,
+}: TListItemProps) => {
+	return (
+		<Pressable
+			onPress={onPress}
+			className={cn(
+				'flex-row items-center py-3 pr-4 rounded-lg bg-white dark:bg-neutral-800 overflow-hidden',
+				className,
+			)}
+		>
+			<View className="w-16 flex items-center justify-center flex-none">
+				{icon ? (
+					icon === 'image' ? (
+						<Image
+							source={{ uri }}
+							style={{
+								width: 36,
+								height: 36,
+								borderRadius: 4,
+							}}
+						/>
+					) : (
+						<Icon name={icon} className="text-2xl" />
+					)
+				) : null}
+			</View>
+			<View className="flex-1">
+				<Title numberOfLines={1}>{title}</Title>
+				{subtitle && <Subtitle>{subtitle}</Subtitle>}
+			</View>
+		</Pressable>
+	)
 }
 
 type FileManagerProps = {
 	initialPath?: string | string[]
-	onFileSelect?: (file: File) => void
-	onDirectorySelect?: (directory: Directory) => void
 }
 
-export const FileManager = ({
-	initialPath,
-	onFileSelect,
-	onDirectorySelect,
-}: FileManagerProps) => {
+export const FileManager = ({ initialPath }: FileManagerProps) => {
 	const [currentPath, setCurrentPath] = useState<string[]>(
 		initialPath
 			? typeof initialPath === 'string'
@@ -35,26 +82,24 @@ export const FileManager = ({
 				: initialPath
 			: [],
 	)
-	const [items, setItems] = useState<FileItem[]>([])
 	const [loading, setLoading] = useState(false)
+
+	const [files, setFiles] = useState<File[]>([])
+	const [directories, setDirectories] = useState<Directory[]>([])
 
 	const loadDirectory = useCallback(async (path: string[]) => {
 		setLoading(true)
 		try {
 			const directoryItems = fs.list(path)
-			const itemsWithInfo = await Promise.all(
-				directoryItems.map(item => fs.getInfo(item)),
-			)
-			// Sort: directories first, then files, both alphabetically
-			const sorted = itemsWithInfo.sort((a, b) => {
-				if (a.isDirectory && !b.isDirectory) return -1
-				if (!a.isDirectory && b.isDirectory) return 1
-				return a.name.localeCompare(b.name)
-			})
-			setItems(sorted)
-		} catch (error) {
-			log('Error loading directory:', error)
-			setItems([])
+
+			const files = directoryItems.filter(v => v instanceof File)
+			setFiles(files)
+
+			const directories = directoryItems.filter(v => v instanceof Directory)
+			setDirectories(directories)
+		} catch {
+			setFiles([])
+			setDirectories([])
 		} finally {
 			setLoading(false)
 		}
@@ -64,23 +109,19 @@ export const FileManager = ({
 		loadDirectory(currentPath)
 	}, [currentPath, loadDirectory])
 
-	const handleItemPress = useCallback(
-		async (item: FileItem) => {
-			if (item.isDirectory) {
+	const onPressItem = useCallback(
+		(item: File | Directory) => {
+			if (item instanceof Directory) {
 				const newPath = [...currentPath, item.name]
-				setCurrentPath(newPath)
-				if (onDirectorySelect) {
-					const directory = fs.getDirectory(newPath)
-					onDirectorySelect(directory)
-				}
-			} else {
-				if (onFileSelect) {
-					const file = new File(fs.getDirectory(currentPath), item.name)
-					onFileSelect(file)
-				}
+				return setCurrentPath(newPath)
 			}
+			startActivityAsync('android.intent.action.VIEW', {
+				data: item.contentUri,
+				type: item.type,
+				flags: 1,
+			})
 		},
-		[currentPath, onFileSelect, onDirectorySelect],
+		[currentPath],
 	)
 
 	const handleBack = useCallback(() => {
@@ -98,9 +139,7 @@ export const FileManager = ({
 			{/* Header with back button and path */}
 			<View className="flex-row items-center gap-2 px-4 py-3 border-b border-outline-200">
 				{canGoBack && (
-					<Button variant="link" size="sm" onPress={handleBack} className="p-2">
-						<Icon name="chevron-left" />
-					</Button>
+					<Button size="sm" icon="chevron-left" onPress={handleBack} />
 				)}
 				<Text className="flex-1">{pathDisplay}</Text>
 			</View>
@@ -111,55 +150,63 @@ export const FileManager = ({
 					<View className="p-4 items-center">
 						<Text>Loading...</Text>
 					</View>
-				) : items.length === 0 ? (
+				) : directories.length + files.length === 0 ? (
 					<View className="p-4 items-center">
 						<Text className="text-typography-500">No files or directories</Text>
 					</View>
 				) : (
 					<View className="p-2">
-						{items.map((item, index) => (
-							<Pressable
-								key={`${item.uri}-${index}`}
-								onPress={() => handleItemPress(item)}
-								className="flex-row items-center gap-3 p-3 rounded-lg active:bg-background-100 border-b border-outline-100"
-							>
-								<View className="items-center justify-center w-10 h-10">
-									{item.isDirectory ? (
-										<Icon name="folder" className="text-background-300" />
-									) : item.uri.endsWith('.json') ? (
-										<Icon name="file-json" className="text-background-300" />
-									) : item.uri.endsWith('.apk') ? (
-										<Icon name="package" className="text-background-300" />
-									) : ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(
-											item.uri.split('.').pop() ?? '',
-									  ) ? (
-										<Image
-											source={{ uri: item.uri }}
-											style={{ width: 24, height: 24 }}
-										/>
-									) : (
-										<Icon name="file" className="text-background-300" />
-									)}
+						<View className="gap-4">
+							{directories.length > 0 && (
+								<View>
+									<View className="pl-4 mb-1">
+										<Title>Folders</Title>
+									</View>
+									<FlashList
+										data={directories}
+										contentContainerStyle={{
+											borderRadius: 16,
+											overflow: 'hidden',
+										}}
+										renderItem={({ item, index }) => (
+											<ListItem
+												key={index}
+												icon="folder"
+												title={item.name}
+												subtitle={fs.formatSize(item.size)}
+												className={cn({ 'mt-1': index > 0 })}
+												onPress={() => onPressItem(item)}
+											/>
+										)}
+									/>
 								</View>
-								<View className="flex-1 min-w-0">
-									<Text
-										className={cn('text-sm', {
-											'font-bold': item.isDirectory,
-										})}
-									>
-										{item.name}
-									</Text>
-									{!item.isDirectory && item.size !== null && (
-										<Text className="text-typography-500 text-xs">
-											{fs.formatSize(item.size)}
-										</Text>
-									)}
+							)}
+							{files.length > 0 && (
+								<View>
+									<View className="pl-4 mb-1">
+										<Title>Files</Title>
+									</View>
+									<FlashList
+										data={files}
+										contentContainerStyle={{
+											borderRadius: 16,
+											overflow: 'hidden',
+										}}
+										renderItem={({ item, index }) => (
+											<ListItem
+												key={index}
+												uri={item.uri}
+												icon={extensionIcons[item.extension]}
+												title={item.name}
+												subtitle={fs.formatSize(item.size)}
+												className={cn({ 'mt-1': index > 0 })}
+												onPress={() => onPressItem(item)}
+											/>
+										)}
+									/>
 								</View>
-								{item.isDirectory && (
-									<Icon name="chevron-right" className="text-background-300" />
-								)}
-							</Pressable>
-						))}
+							)}
+						</View>
 					</View>
 				)}
 			</ScrollView>

@@ -3,7 +3,7 @@ import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
 import { Avatar } from '@/components/ui/avatar'
 import { Divider } from '@/components/ui/divider'
-import { Text } from '@/components/ui/text'
+import { Subtitle, Text, Title } from '@/components/ui/text'
 import { $d, $df } from '@/utils/dayjs'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { Fragment, useCallback } from 'react'
@@ -30,9 +30,9 @@ export default function Screen() {
 		return (
 			<Fragment>
 				<Stack.Screen options={{ title: 'Not Found!' }} />
-				<Box className="flex-1 px-5">
+				<View className="flex-1 px-5">
 					<Text>Patient not found!</Text>
-				</Box>
+				</View>
 			</Fragment>
 		)
 	}
@@ -51,14 +51,12 @@ export default function Screen() {
 						text={data.name}
 						image={data.avatar?.uri}
 					/>
-					<Text size="xl" className="mt-5">
-						{data.name}
-					</Text>
+					<Title className="mt-5 text-2xl">{data.name}</Title>
 					{data.dob && (
-						<Text>
+						<Subtitle>
 							{$df(data.dob, 'DD MMMM, YYYY')} ({$d().diff(data.dob, 'years')}
 							yrs)
-						</Text>
+						</Subtitle>
 					)}
 				</View>
 				<View className="mt-8">
