@@ -7,7 +7,6 @@ import { BaseInput } from '@/components/base/input'
 import { BaseSelect } from '@/components/base/select'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
-import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
@@ -69,77 +68,64 @@ export default function Screen() {
 			/>
 			<FormProvider {...form}>
 				<Form
-					className="px-4 pt-4 pb-32 flex justify-end flex-1"
+					className="px-4 pt-4 pb-32 flex justify-end flex-1 gap-4"
 					onSubmit={form.handleSubmit(onSubmit)}
 				>
-					<Grid cols={2} gap={16}>
-						<GridItem colSpan={2}>
-							<BaseImagePicker
-								name="attachments"
-								label="Attachments"
-								control={form.control}
-								scanner={true}
-								multiple={true}
-							/>
-						</GridItem>
-						<GridItem colSpan={2}>
-							<BaseInput
-								name="text"
-								label="Description"
-								placeholder="Enter description..."
-								control={form.control}
-								required={true}
-								multiline={true}
-								numberOfLines={4}
-							/>
-						</GridItem>
-						<GridItem>
-							<BaseSelect
-								name="type"
-								label="Type"
-								placeholder="Select type..."
-								control={form.control}
-								required={true}
-								options={api.records.types}
-							/>
-						</GridItem>
-						<GridItem>
-							<BaseDatePicker
-								name="date"
-								label="Date"
-								placeholder="Select date..."
-								control={form.control}
-								required={true}
-							/>
-						</GridItem>
-						<GridItem>
-							<BaseInput
-								name="amount"
-								label="Cost (TK)"
-								keyboardType="numeric"
-								placeholder="Cost..."
-								control={form.control}
-							/>
-						</GridItem>
-						<GridItem>
-							<BaseActions
-								className="relative justify-end px-0"
-								data={[
-									{
-										icon: 'x',
-										onPress: () => router.back(),
-									},
-									{
-										icon: 'check-circle',
-										text: 'Submit',
-										onPress(e) {
-											form.handleSubmit(onSubmit)(e)
-										},
-									},
-								]}
-							/>
-						</GridItem>
-					</Grid>
+					<BaseImagePicker
+						name="attachments"
+						label="Attachments"
+						control={form.control}
+						scanner={true}
+						multiple={true}
+					/>
+					<BaseInput
+						name="text"
+						label="Description"
+						placeholder="Enter description..."
+						control={form.control}
+						required={true}
+						multiline={true}
+						numberOfLines={4}
+					/>
+
+					<BaseSelect
+						name="type"
+						label="Type"
+						placeholder="Select type..."
+						control={form.control}
+						required={true}
+						options={api.records.types}
+					/>
+					<BaseDatePicker
+						name="date"
+						label="Date"
+						placeholder="Select date..."
+						control={form.control}
+						required={true}
+					/>
+					<BaseInput
+						name="amount"
+						label="Cost (TK)"
+						keyboardType="numeric"
+						placeholder="Cost..."
+						control={form.control}
+					/>
+					<BaseActions
+						className="relative justify-end px-0"
+						data={[
+							{
+								icon: 'x',
+								onPress: () => router.back(),
+							},
+							{
+								icon: 'check-circle',
+								text: 'Submit',
+								onPress(e) {
+									form.handleSubmit(onSubmit)(e)
+								},
+							},
+						]}
+					/>
 				</Form>
 			</FormProvider>
 		</KeyboardAvoidingScrollView>

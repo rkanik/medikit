@@ -7,7 +7,7 @@ export const inputVariants = tv({
 	base: 'rounded-lg flex-row items-center justify-between overflow-hidden',
 	variants: {
 		variant: {
-			base: 'bg-white dark:bg-neutral-700 text-black dark:text-white border',
+			base: 'bg-white dark:bg-neutral-800 text-black dark:text-white border',
 		},
 		size: {
 			base: 'px-4 min-h-14 text-lg leading-snug',

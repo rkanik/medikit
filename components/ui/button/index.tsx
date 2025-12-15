@@ -10,7 +10,7 @@ const bv = tv({
 	variants: {
 		variant: {
 			base: 'bg-green-300 dark:bg-neutral-700',
-			base2: 'bg-neutral-400 dark:bg-neutral-800',
+			base2: 'bg-white dark:bg-neutral-800',
 			transparent: '',
 		},
 		size: {

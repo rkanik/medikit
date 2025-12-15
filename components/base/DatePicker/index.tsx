@@ -1,5 +1,6 @@
 import { Icon } from '@/components/ui/icon'
-import { TInputProps } from '@/components/ui/input'
+import { inputVariants } from '@/components/ui/input'
+import { Pressable } from '@/components/ui/pressable'
 import { $df } from '@/utils/dayjs'
 import { isAndroid } from '@/utils/is'
 import {
@@ -13,16 +14,17 @@ import type {
 	FieldPath,
 	FieldValues,
 } from 'react-hook-form'
-import { Pressable, Text, TextInput, TouchableOpacity } from 'react-native'
-import { cn } from 'tailwind-variants'
+import { Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { cn, VariantProps } from 'tailwind-variants'
 import { BaseController, TBaseControllerProps } from '../controller'
 
 type TBaseDatePickerProps<
 	TFieldValues extends FieldValues = FieldValues,
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = Omit<TBaseControllerProps<TFieldValues, TName>, 'render'> &
-	TInputProps &
+	VariantProps<typeof inputVariants> &
 	Omit<AndroidNativeProps, 'value' | 'onChange'> & {
+		placeholder?: string
 		initialValue?: Date
 		inputFormat?: string
 		outputFormat?: string
@@ -32,57 +34,85 @@ const BaseDatePickerInner = <
 	TFieldValues extends FieldValues = FieldValues,
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(
-	{ size = 'lg', ...props }: TBaseDatePickerProps<TFieldValues, TName>,
+	{
+		name,
+		size,
+		mode,
+		label,
+		variant,
+		control,
+		display,
+		required,
+		className,
+		inputFormat,
+		placeholder,
+		maximumDate,
+		initialValue,
+		outputFormat,
+	}: TBaseDatePickerProps<TFieldValues, TName>,
 	ref: Ref<TextInput>,
 ) => {
 	const onPress = useCallback(
 		(field: ControllerRenderProps<TFieldValues, TName>) => {
 			if (isAndroid) {
 				DateTimePickerAndroid.open({
-					mode: props.mode,
+					mode,
+					display,
+					maximumDate,
 					value: field.value
 						? new Date(field.value)
-						: props.initialValue || new Date(),
-					display: props.display,
-					maximumDate: props.maximumDate,
-					onChange(_, date) {
-						if (!date) return
-						field.onChange($df(date, props.outputFormat ?? 'YYYY-MM-DD'))
+						: initialValue || new Date(),
+					onChange(event, date) {
+						if (event.type !== 'set') return
+						field.onChange(
+							date ? $df(date, outputFormat ?? 'YYYY-MM-DD') : date,
+						)
 					},
 				})
 			}
 		},
-		[props],
+		[mode, initialValue, display, maximumDate, outputFormat],
 	)
 	return (
 		<BaseController
-			{...props}
-			size={size}
+			{...{ name, label, control, required, className }}
 			render={v => (
-				<TouchableOpacity
-					className={cn(
-						'border border-background-300 rounded p-2 h-12 flex-row items-center justify-between',
-						{
-							'border-red-500': !!v.fieldState.error,
-						},
-					)}
-					onPress={() => onPress(v.field)}
+				<Pressable
+					className={inputVariants({
+						size,
+						variant,
+						focus: false,
+						error: !!v.fieldState.error,
+					})}
+					onPress={() => {
+						onPress(v.field)
+					}}
 				>
 					<Text
-						className={cn('text-typography-900 text-lg', {
-							'text-typography-500': !v.field.value,
+						className={cn('text-lg text-black dark:text-white', {
+							'text-neutral-500 dark:text-neutral-400': !v.field.value,
 						})}
 					>
 						{v.field.value
-							? $df(v.field.value, props.inputFormat ?? 'YYYY-MM-DD')
-							: props.placeholder}
+							? $df(v.field.value, inputFormat ?? 'YYYY-MM-DD')
+							: placeholder}
 					</Text>
-					{v.field.value && (
-						<Pressable onPress={() => v.field.onChange(null)}>
-							<Icon name="x" className="text-background-300 ml-auto" />
-						</Pressable>
-					)}
-				</TouchableOpacity>
+					<View className="flex-none flex-row items-center gap-2">
+						{v.field.value ? (
+							<TouchableOpacity onPress={() => v.field.onChange(null)}>
+								<Icon
+									name="x"
+									className="text-lg text-neutral-500 dark:text-neutral-400"
+								/>
+							</TouchableOpacity>
+						) : (
+							<Icon
+								name="calendar"
+								className="text-xl text-neutral-500 dark:text-neutral-400"
+							/>
+						)}
+					</View>
+				</Pressable>
 			)}
 		/>
 	)
@@ -93,4 +123,4 @@ export const BaseDatePicker = forwardRef(BaseDatePickerInner) as <
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(
 	props: TBaseDatePickerProps<TFieldValues, TName> & { ref?: Ref<TextInput> },
-) => ReturnType<typeof BaseDatePickerInner>
+) => ReturnType<typeof BaseDatePickerInner<TFieldValues, TName>>

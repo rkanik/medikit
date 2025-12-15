@@ -135,4 +135,4 @@ export const BaseSelect = forwardRef(BaseSelectInner) as <
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(
 	props: TProps<TFieldValues, TName> & { ref?: Ref<TextInput> },
-) => ReturnType<typeof BaseSelectInner>
+) => ReturnType<typeof BaseSelectInner<TFieldValues, TName>>

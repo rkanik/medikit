@@ -31,16 +31,18 @@ export const BaseController = <
 					{label && (
 						<Text
 							className={cn('text-base font-medium mb-1', {
-								'text-red-500': !!v.fieldState.error,
+								'text-red-500 dark:text-red-400': !!v.fieldState.error,
 							})}
 						>
 							{label}
-							{required && <Text className="text-red-500">*</Text>}
+							{required && (
+								<Text className="text-red-500 dark:text-red-400">*</Text>
+							)}
 						</Text>
 					)}
 					{render(v)}
 					{v.fieldState.error && (
-						<Text className="text-red-500 text-sm mt-1">
+						<Text className="text-red-500 dark:text-red-400 text-sm mt-1">
 							{v.fieldState.error?.message}
 						</Text>
 					)}
