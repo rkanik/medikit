@@ -7,7 +7,10 @@ import { useCurrentPatient } from '@/api/patients'
 import { useRecords } from '@/api/records'
 import { FlashList } from '@/components/FlashList'
 import { NoRecords } from '@/components/NoRecords'
+import { PatientCard } from '@/components/PatientCard'
 import { RecordsSummary } from '@/components/RecordsSummary'
+import { Title } from '@/components/ui/text'
+import { Fragment } from 'react'
 import { cn } from 'tailwind-variants'
 
 export default function Screen() {
@@ -23,12 +26,18 @@ export default function Screen() {
 					'pb-28': data.length > 0,
 				})}
 				ListFooterComponent={() => {
-					// if (!currentPatient) return <NoPatients />
 					if (!data.length) return <NoRecords />
 					return (
-						<View className="mb-4">
+						<Fragment>
+							{currentPatient && (
+								<Fragment>
+									<Title className="mt-4 mb-2">Patient</Title>
+									<PatientCard data={currentPatient} className="mb-4" />
+								</Fragment>
+							)}
 							<RecordsSummary patientId={currentPatient?.id} />
-						</View>
+							<Title className="mt-4 mb-2">Records</Title>
+						</Fragment>
 					)
 				}}
 				renderItem={({ item, index }) => (

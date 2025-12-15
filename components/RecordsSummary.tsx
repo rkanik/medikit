@@ -1,41 +1,76 @@
 import { useRecordsSummary } from '@/hooks/useRecordsSummary'
-import { View } from 'react-native'
+import { ScrollView, View, ViewProps } from 'react-native'
 import { BaseCard } from './base/card'
-import { Text, Title } from './ui/text'
+import { Subtitle, Title } from './ui/text'
 
-export type TRecordsSummaryProps = {
+export type TRecordsSummaryProps = ViewProps & {
 	patientId?: number
 }
 
-export const RecordsSummary = ({ patientId }: TRecordsSummaryProps) => {
+export const RecordsSummary = ({
+	patientId,
+	...props
+}: TRecordsSummaryProps) => {
 	const { summary } = useRecordsSummary({ patientId })
 	return (
-		<BaseCard>
-			<Title>Costs</Title>
-			<View className="gap-4 mt-4">
-				<View className="flex-row gap-8 flex-wrap">
-					<View>
-						<Text>Total</Text>
-						<Text className="font-bold">{summary.total} TK</Text>
-					</View>
-					<View>
-						<Text>This Month</Text>
-						<Text className="font-bold">{summary.thisMonth} TK</Text>
-					</View>
-					<View>
-						<Text>This Year</Text>
-						<Text className="font-bold">{summary.thisYear} TK</Text>
-					</View>
-				</View>
-				<View className="flex-row gap-8 flex-wrap">
+		<View {...props}>
+			<Title>Summary</Title>
+			<View className="gap-4 mt-2">
+				<ScrollView
+					horizontal
+					contentContainerClassName="gap-4"
+					showsHorizontalScrollIndicator={false}
+				>
+					<BaseCard>
+						<Subtitle>Total</Subtitle>
+						<Title>{summary.total} TK</Title>
+					</BaseCard>
+					<BaseCard>
+						<Subtitle>Average (Monthly)</Subtitle>
+						<Title>{summary.monthlyAverage} TK</Title>
+					</BaseCard>
+					<BaseCard>
+						<Subtitle>Average (Yearly)</Subtitle>
+						<Title>{summary.yearlyAverage} TK</Title>
+					</BaseCard>
+					<BaseCard>
+						<Subtitle>This Month</Subtitle>
+						<Title>{summary.thisMonth} TK</Title>
+					</BaseCard>
+					<BaseCard>
+						<Subtitle>Last Month</Subtitle>
+						<Title>{summary.lastMonth} TK</Title>
+					</BaseCard>
+					<BaseCard>
+						<Subtitle>Last 6 Months</Subtitle>
+						<Title>{summary.last6Months} TK</Title>
+					</BaseCard>
+					<BaseCard>
+						<Subtitle>Last 12 Months</Subtitle>
+						<Title>{summary.last12Months} TK</Title>
+					</BaseCard>
+					<BaseCard>
+						<Subtitle>This Year</Subtitle>
+						<Title>{summary.thisYear} TK</Title>
+					</BaseCard>
+					<BaseCard>
+						<Subtitle>Last Year</Subtitle>
+						<Title>{summary.lastYear} TK</Title>
+					</BaseCard>
+				</ScrollView>
+				<ScrollView
+					horizontal
+					contentContainerClassName="gap-4"
+					showsHorizontalScrollIndicator={false}
+				>
 					{Object.entries(summary.types).map(([type, amount]) => (
-						<View key={type}>
-							<Text>{type}</Text>
-							<Text className="font-bold">{amount} TK</Text>
-						</View>
+						<BaseCard key={type}>
+							<Subtitle>{type}</Subtitle>
+							<Title>{amount} TK</Title>
+						</BaseCard>
 					))}
-				</View>
+				</ScrollView>
 			</View>
-		</BaseCard>
+		</View>
 	)
 }
