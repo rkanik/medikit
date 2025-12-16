@@ -1,5 +1,13 @@
+import type { TZRecord } from '@/api/records'
+
+import { useCallback, useEffect } from 'react'
+import { View } from 'react-native'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+import { router, Stack, useLocalSearchParams } from 'expo-router'
+import { FormProvider, useForm } from 'react-hook-form'
+
 import { api } from '@/api'
-import { TZRecord } from '@/api/records'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
@@ -8,11 +16,6 @@ import { BaseSelect } from '@/components/base/select'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useCallback, useEffect } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
-import { View } from 'react-native'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()

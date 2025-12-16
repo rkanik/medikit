@@ -1,14 +1,16 @@
 import '@/global.css'
 import 'react-native-reanimated'
 
+import { Fragment, useEffect } from 'react'
+
+import { Stack } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+
 import { Logs } from '@/components/Logs'
 import { Providers } from '@/components/Providers'
 import { useScheme } from '@/hooks/useScheme'
 import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { initializeBackgroundTask } from '@/services/background'
-import { Stack } from 'expo-router'
-import { StatusBar } from 'expo-status-bar'
-import { Fragment, useEffect } from 'react'
 
 export const unstable_settings = {
 	anchor: '(tabs)',

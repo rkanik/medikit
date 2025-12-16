@@ -1,5 +1,14 @@
+import type { TZPatient } from '@/api/patients'
+
+import { useCallback, useEffect } from 'react'
+import { View } from 'react-native'
+
+import { zodResolver } from '@hookform/resolvers/zod'
+import { router, Stack, useLocalSearchParams } from 'expo-router'
+import { FormProvider, useForm } from 'react-hook-form'
+
 import { api } from '@/api'
-import { TZPatient, usePatient } from '@/api/patients'
+import { usePatient } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
@@ -7,11 +16,6 @@ import { BaseInput } from '@/components/base/input'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useCallback, useEffect } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
-import { View } from 'react-native'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
