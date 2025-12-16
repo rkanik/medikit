@@ -1,10 +1,10 @@
 import { webClientId } from '@/const'
-import { TMaybe, TUser } from '@/types'
+import type { TMaybe, TUser } from '@/types'
 import { log } from '@/utils/logs'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
+import type { PropsWithChildren } from 'react'
 import {
 	createContext,
-	PropsWithChildren,
 	useCallback,
 	useContext,
 	useEffect,
