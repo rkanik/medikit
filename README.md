@@ -4,16 +4,24 @@
 
 ## Screenshots
 
-<div style="display: flex; gap: 16px; flex-wrap: wrap;">
-  <div>
-    <img src="./assets/images/home-light.png" alt="Home Screen - Light Mode" width="250" />
-    <p style="text-align: center; margin-top: 8px;"><strong>Light Mode</strong></p>
-  </div>
-  <div>
-    <img src="./assets/images/home-dark.png" alt="Home Screen - Dark Mode" width="250" />
-    <p style="text-align: center; margin-top: 8px;"><strong>Dark Mode</strong></p>
-  </div>
-</div>
+<table>
+<tr>
+<td width="50%">
+
+**Light Mode**
+
+<img src="./assets/images/home-light.png" alt="Home Screen - Light Mode" width="250" />
+
+</td>
+<td width="50%">
+
+**Dark Mode**
+
+<img src="./assets/images/home-dark.png" alt="Home Screen - Dark Mode" width="250" />
+
+</td>
+</tr>
+</table>
 
 ## Features
 
