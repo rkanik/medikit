@@ -1,6 +1,6 @@
-import { File, FileInfo } from 'expo-file-system'
-import { ImagePickerAsset } from 'expo-image-picker'
-import { TMaybe } from '.'
+import type { TMaybe } from '@/types'
+import type { File, FileInfo } from 'expo-file-system'
+import type { ImagePickerAsset } from 'expo-image-picker'
 
 export type TAsset = File | FileInfo | ImagePickerAsset
 
@@ -15,7 +15,7 @@ export type TPatient = {
 
 export type TRecord = {
 	id: number
-	type: string
+	// type: string
 	text: string
 	date: string
 	amount: number
@@ -23,4 +23,5 @@ export type TRecord = {
 	attachments: TAsset[]
 	createdAt: string
 	updatedAt: string
+	tags?: string[]
 }

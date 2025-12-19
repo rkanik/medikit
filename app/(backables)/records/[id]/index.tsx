@@ -1,21 +1,24 @@
-import { api } from '@/api'
+import type { GestureResponderEvent } from 'react-native'
+
+import { Fragment, useCallback, useMemo } from 'react'
+import { Alert, ScrollView, View } from 'react-native'
+
+import { router, Stack, useLocalSearchParams } from 'expo-router'
+
+import { useRecordById } from '@/api/records'
 import { BaseActions } from '@/components/base/actions'
 import { BaseCard } from '@/components/base/card'
 import { BaseImage } from '@/components/base/image'
+import { RecordCardHeader } from '@/components/RecordCard'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Pressable } from '@/components/ui/pressable'
-import { Subtitle, Text, Title } from '@/components/ui/text'
+import { Text } from '@/components/ui/text'
 import { useImageViewer } from '@/context/ImageViewerProvider'
-import { $df } from '@/utils/dayjs'
-// import { Image } from 'expo-image'
-import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { Fragment, useCallback, useMemo } from 'react'
-import { Alert, GestureResponderEvent, ScrollView, View } from 'react-native'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
 
-	const { data, remove } = api.records.useRecordById(Number(id))
+	const { data, remove } = useRecordById(Number(id))
 
 	const onDelete = useCallback(() => {
 		Alert.alert(
@@ -67,15 +70,7 @@ export default function Screen() {
 				contentContainerStyle={{ flexGrow: 1 }}
 			>
 				<BaseCard>
-					<Subtitle className="uppercase text-sm">
-						{$df(data.date, 'DD MMM, YYYY')} | {data.type}
-					</Subtitle>
-					<Title>{data.text}</Title>
-					{data.amount > 0 && (
-						<Text className="font-bold text-green-500 dark:text-green-300">
-							{data.amount} TK
-						</Text>
-					)}
+					<RecordCardHeader data={data} />
 				</BaseCard>
 				<Grid cols={attachments.length > 1 ? 2 : 1} gap={16} className="mt-4">
 					{attachments.map((attachment, index) => (

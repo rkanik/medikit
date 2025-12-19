@@ -1,14 +1,16 @@
-import { api } from '@/api'
+import { View } from 'react-native'
+
+import { router } from 'expo-router'
+import { cn } from 'tailwind-variants'
+
+import { usePatients } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { FlashList } from '@/components/FlashList'
 import { NoPatients } from '@/components/NoPatients'
 import { PatientCard } from '@/components/PatientCard'
-import { router } from 'expo-router'
-import { View } from 'react-native'
-import { cn } from 'tailwind-variants'
 
 export default function PatientsScreen() {
-	const { data } = api.patients.usePatients()
+	const { data } = usePatients()
 	return (
 		<View className="flex-1 relative">
 			<FlashList

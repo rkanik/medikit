@@ -1,19 +1,25 @@
+import type { TRecord } from '@/types/database'
+import type { GestureResponderEvent, ViewProps } from 'react-native'
+
+import { useCallback, useMemo } from 'react'
+import { View } from 'react-native'
+
+import { cn } from 'tailwind-variants'
+
 import { usePatient } from '@/api/patients'
 import { useImageViewer } from '@/context/ImageViewerProvider'
-import { TRecord } from '@/types/database'
 import { $df } from '@/utils/dayjs'
-import { useCallback, useMemo } from 'react'
-import { GestureResponderEvent, View } from 'react-native'
-import { cn } from 'tailwind-variants'
+
 import { BaseCard } from './base/card'
 import { BaseImage } from './base/image'
 import { Avatar } from './ui/avatar'
+import { Badge } from './ui/badge'
 import { Divider } from './ui/divider'
 import { Grid, GridItem } from './ui/grid'
 import { Pressable } from './ui/pressable'
 import { Subtitle, Text, Title } from './ui/text'
 
-type TRecordCardPatientProps = {
+export type TRecordCardPatientProps = {
 	patientId: number
 }
 
@@ -26,6 +32,34 @@ export const RecordCardPatient = ({ patientId }: TRecordCardPatientProps) => {
 				<Subtitle>{patient?.name}</Subtitle>
 			</View>
 			<Divider className="my-2" />
+		</View>
+	)
+}
+
+export const RecordCardHeader = ({
+	data,
+	...props
+}: ViewProps & {
+	data: Pick<TRecord, 'date' | 'text' | 'amount' | 'tags'>
+}) => {
+	return (
+		<View {...props}>
+			<Subtitle className="uppercase text-sm">
+				{$df(data.date, 'DD MMMM, YYYY')}
+			</Subtitle>
+			<Title>{data.text}</Title>
+			{data.amount > 0 && (
+				<Text className="font-bold text-green-500 dark:text-green-300">
+					{data.amount} TK
+				</Text>
+			)}
+			{!!data.tags?.length && (
+				<View className="flex-row flex-wrap gap-1">
+					{data.tags.map(tag => (
+						<Badge key={tag} text={tag} />
+					))}
+				</View>
+			)}
 		</View>
 	)
 }
@@ -62,17 +96,7 @@ export const RecordCard = ({
 		<BaseCard className={cn('p-4', className)} onPress={onPress}>
 			{showPatient && <RecordCardPatient patientId={data.patientId} />}
 			<View className="flex-row justify-between">
-				<View className="flex-1 gap-1">
-					<Subtitle className="uppercase text-sm">
-						{$df(data.date, 'DD MMM, YYYY')} | {data.type}
-					</Subtitle>
-					<Title>{data.text}</Title>
-					{data.amount > 0 && (
-						<Text className="font-bold text-green-500 dark:text-green-300">
-							{data.amount} TK
-						</Text>
-					)}
-				</View>
+				<RecordCardHeader className="flex-1 gap-1" data={data} />
 				<View className="flex-none"></View>
 			</View>
 			{attachments.length > 0 && (

@@ -1,10 +1,15 @@
-import { useCurrentForm } from '@/components/ui/form'
-import { Input, TInputProps } from '@/components/ui/input'
+import type { TBaseControllerProps } from '@/components/base/controller'
+import type { TInputProps } from '@/components/ui/input'
 import type { Ref } from 'react'
-import { forwardRef } from 'react'
 import type { FieldPath, FieldValues } from 'react-hook-form'
-import { TextInput } from 'react-native'
-import { BaseController, TBaseControllerProps } from '../controller'
+import type { TextInput } from 'react-native'
+
+import { forwardRef } from 'react'
+
+import { useCurrentForm } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+
+import { BaseController } from '../controller'
 
 type TProps<
 	TFieldValues extends FieldValues = FieldValues,

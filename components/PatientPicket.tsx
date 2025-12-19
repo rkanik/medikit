@@ -1,9 +1,13 @@
-import { api } from '@/api'
-import { FlashList } from '@/components/FlashList'
-import { TMaybe } from '@/types'
-import { TPatient } from '@/types/database'
+import type { TBaseModalProps } from '@/components/base/modal'
+import type { TMaybe } from '@/types'
+import type { TPatient } from '@/types/database'
+
 import { useState } from 'react'
-import { BaseModal, TBaseModalProps } from './base/modal'
+
+import { usePatients } from '@/api/patients'
+import { FlashList } from '@/components/FlashList'
+
+import { BaseModal } from './base/modal'
 import { PatientCard } from './PatientCard'
 
 export type TPatientPickerProps = TBaseModalProps & {
@@ -12,7 +16,7 @@ export type TPatientPickerProps = TBaseModalProps & {
 }
 
 const PatientItems = ({ value, onChange }: TPatientPickerProps) => {
-	const { data } = api.patients.usePatients()
+	const { data } = usePatients()
 	return (
 		<FlashList
 			data={data}

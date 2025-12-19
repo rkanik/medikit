@@ -7,8 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { api } from '@/api'
-import { usePatient } from '@/api/patients'
+import { usePatient, usePatientsActions, zPatient } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
@@ -22,7 +21,7 @@ export default function Screen() {
 	const { data } = usePatient(Number(id))
 
 	const form = useForm({
-		resolver: zodResolver(api.patients.zPatient),
+		resolver: zodResolver(zPatient),
 		defaultValues: {
 			id: null,
 			name: '',
@@ -31,7 +30,7 @@ export default function Screen() {
 		},
 	})
 
-	const { submit } = api.patients.usePatientsActions()
+	const { submit } = usePatientsActions()
 
 	const onSubmit = useCallback(
 		(data: TZPatient) => {

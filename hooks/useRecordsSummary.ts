@@ -1,6 +1,7 @@
-import { recordTypes, useRecords } from '@/api/records'
-import { $d } from '@/utils/dayjs'
 import { useMemo } from 'react'
+
+import { useRecords } from '@/api/records'
+import { $d } from '@/utils/dayjs'
 
 export const useRecordsSummary = ({
 	patientId,
@@ -37,21 +38,19 @@ export const useRecordsSummary = ({
 				}
 				acc.total += record.amount
 
-				recordTypes.forEach(type => {
-					if (record.type === type.value) {
-						acc.types[type.value] = (acc.types[type.value] ?? 0) + record.amount
-					}
+				record.tags?.forEach(tag => {
+					acc.tags[tag] = (acc.tags[tag] ?? 0) + record.amount
 				})
 
 				if (index === records.length - 1) {
-					const totalMonths = $d().diff(
-						records[records.length - 1].date,
-						'month',
+					const totalMonths = Math.ceil(
+						$d().diff(records[records.length - 1].date, 'month', true),
 					)
-					acc.monthlyAverage = acc.total / totalMonths
-
-					const totalYears = $d().diff(records[records.length - 1].date, 'year')
-					acc.yearlyAverage = acc.total / totalYears
+					const totalYears = Math.ceil(
+						$d().diff(records[records.length - 1].date, 'year', true),
+					)
+					acc.monthlyAverage = Math.round(acc.total / totalMonths)
+					acc.yearlyAverage = Math.round(acc.total / totalYears)
 				}
 
 				return acc
@@ -66,7 +65,7 @@ export const useRecordsSummary = ({
 				thisYear: 0,
 				lastYear: 0,
 				yearlyAverage: 0,
-				types: {} as Record<string, number>,
+				tags: {} as Record<string, number>,
 			},
 		)
 	}, [records])

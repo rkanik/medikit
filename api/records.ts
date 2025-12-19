@@ -1,19 +1,23 @@
-import { useMMKVArray } from '@/hooks/useMMKVArray'
-import { TMaybe } from '@/types'
-import { TRecord } from '@/types/database'
-import { fs } from '@/utils/fs'
+import type { TMaybe } from '@/types'
+import type { TRecord } from '@/types/database'
+
 import { useCallback, useMemo } from 'react'
 import { Alert } from 'react-native'
+
 import { z } from 'zod'
-import { useCurrentPatient } from './patients'
+
+import { useMMKVArray } from '@/hooks/useMMKVArray'
+import { fs } from '@/utils/fs'
 
 export type TZRecord = z.infer<typeof zRecord>
-const zRecord = z.object({
+export const zRecord = z.object({
 	id: z.number().nullish(),
-	type: z.string().min(1, 'Type is required!'),
+	patientId: z.number(),
+	// type: z.string().min(1, 'Type is required!'),
 	text: z.string().min(1, 'Text is required!'),
 	date: z.string().min(1, 'Date is required!'),
 	amount: z.number().default(0),
+	tags: z.array(z.string()).default([]),
 	attachments: z.array(z.any()).default([]),
 })
 
@@ -48,23 +52,16 @@ export const useRecords = ({ patientId }: { patientId?: number } = {}) => {
 	return { data }
 }
 
-const useRecordsActions = () => {
+export const useRecordsActions = () => {
 	const { push, update, getByKey } = useRecordsStorage()
-	const { data: patient } = useCurrentPatient()
 
 	const submit = useCallback(
 		async (id: TMaybe<number>, item: TZRecord) => {
-			if (!patient) {
-				Alert.alert('Error', 'Please select a patient first')
-				return
-			}
-
 			const existingRecord = getByKey(id)
 			if (id && !existingRecord) {
 				Alert.alert('Error', 'Record not found')
 				return
 			}
-
 			if (id) {
 				const removedAttachments = existingRecord?.attachments?.filter(
 					attachment => {
@@ -99,18 +96,17 @@ const useRecordsActions = () => {
 			push({
 				...item,
 				id: Date.now(),
-				patientId: patient.id,
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString(),
 			})
 		},
-		[patient, push, update, getByKey],
+		[push, update, getByKey],
 	)
 
 	return { submit }
 }
 
-const useRecordById = (id: number) => {
+export const useRecordById = (id: number) => {
 	const { remove: removeData, getByKey } = useRecordsStorage()
 	const data = useMemo(() => getByKey(id), [id, getByKey])
 
@@ -124,12 +120,4 @@ const useRecordById = (id: number) => {
 	}, [data, removeData])
 
 	return { data, remove }
-}
-
-export const records = {
-	types: recordTypes,
-	zRecord,
-	useRecords,
-	useRecordById,
-	useRecordsActions,
 }

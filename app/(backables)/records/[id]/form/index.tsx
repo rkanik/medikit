@@ -7,33 +7,40 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { api } from '@/api'
+import { useCurrentPatientIdStorage, usePatients } from '@/api/patients'
+import { useRecordById, useRecordsActions, zRecord } from '@/api/records'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
 import { BaseSelect } from '@/components/base/select'
+import { BaseTagInput } from '@/components/base/TagInput'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
+import { useTags } from '@/hooks/useTags'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
-	const { data } = api.records.useRecordById(Number(id))
+	const { data } = useRecordById(Number(id))
+	const { data: tags } = useTags()
+	const { data: patients } = usePatients()
+	const [currentPatientId] = useCurrentPatientIdStorage()
 
 	const form = useForm({
-		resolver: zodResolver(api.records.zRecord),
+		resolver: zodResolver(zRecord),
 		defaultValues: {
 			id: null,
-			type: '',
+			// type: '',
 			text: '',
 			amount: 0,
+			patientId: currentPatientId,
 			date: new Date().toISOString(),
 			attachments: [],
 		},
 	})
 
-	const { submit } = api.records.useRecordsActions()
+	const { submit } = useRecordsActions()
 
 	const onSubmit = useCallback(
 		(data: TZRecord) => {
@@ -57,7 +64,7 @@ export default function Screen() {
 		return (
 			<View className="flex-1 px-5">
 				<Stack.Screen options={{ title: 'Not Found!' }} />
-				<Text>Patient not found!</Text>
+				<Text>Record not found!</Text>
 			</View>
 		)
 	}
@@ -90,15 +97,25 @@ export default function Screen() {
 						multiline={true}
 						numberOfLines={4}
 					/>
-
-					<BaseSelect
-						name="type"
-						label="Type"
-						placeholder="Select type..."
+					<BaseTagInput
+						name="tags"
+						label="Tags"
+						tags={tags}
 						control={form.control}
-						required={true}
-						options={api.records.types}
+						placeholder="Enter record tags..."
 					/>
+					{!data?.id && (
+						<BaseSelect
+							name="patientId"
+							label="Patient"
+							placeholder="Select patient..."
+							control={form.control}
+							required={true}
+							options={patients}
+							getOptionLabel={item => item?.name}
+							getOptionValue={item => item?.id}
+						/>
+					)}
 					<BaseDatePicker
 						name="date"
 						label="Date"

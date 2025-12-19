@@ -1,16 +1,17 @@
-import { BaseActions } from '@/components/base/actions'
-import { RecordCard } from '@/components/RecordCard'
-import { router } from 'expo-router'
+import { Fragment } from 'react'
 import { ScrollView, View } from 'react-native'
+
+import { router } from 'expo-router'
+import { cn } from 'tailwind-variants'
 
 import { useCurrentPatient } from '@/api/patients'
 import { useRecords } from '@/api/records'
+import { BaseActions } from '@/components/base/actions'
 import { NoRecords } from '@/components/NoRecords'
 import { PatientCard } from '@/components/PatientCard'
+import { RecordCard } from '@/components/RecordCard'
 import { RecordsSummary } from '@/components/RecordsSummary'
 import { Title } from '@/components/ui/text'
-import { Fragment } from 'react'
-import { cn } from 'tailwind-variants'
 
 export default function Screen() {
 	const { data: currentPatient } = useCurrentPatient()

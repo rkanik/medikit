@@ -1,14 +1,18 @@
-import { useMMKVArray } from '@/hooks/useMMKVArray'
-import { TMaybe } from '@/types'
-import { TPatient } from '@/types/database'
-import { fs } from '@/utils/fs'
+import type { TMaybe } from '@/types'
+import type { TPatient } from '@/types/database'
+
 import { useCallback, useMemo } from 'react'
+
 import { useMMKVNumber } from 'react-native-mmkv'
 import { z } from 'zod'
+
+import { useMMKVArray } from '@/hooks/useMMKVArray'
+import { fs } from '@/utils/fs'
+
 import { useRecordsStorage } from './records'
 
 export type TZPatient = z.infer<typeof zPatient>
-const zPatient = z.object({
+export const zPatient = z.object({
 	id: z.number().nullable(),
 	dob: z.string().nullable(),
 	name: z.string().min(1, 'Name is required!'),
@@ -21,7 +25,7 @@ export const usePatientsStorage = () => {
 	})
 }
 
-const useCurrentPatientIdStorage = () => {
+export const useCurrentPatientIdStorage = () => {
 	return useMMKVNumber('currentPatientId')
 }
 
@@ -42,7 +46,7 @@ export const usePatients = () => {
 	return { data }
 }
 
-const usePatientsActions = () => {
+export const usePatientsActions = () => {
 	const { push, update, getByKey } = usePatientsStorage()
 
 	const submit = useCallback(
@@ -104,12 +108,4 @@ export const usePatientActions = (id: number) => {
 	return {
 		remove,
 	}
-}
-
-export const patients = {
-	zPatient,
-	usePatient,
-	usePatients,
-	useCurrentPatient,
-	usePatientsActions,
 }

@@ -1,5 +1,9 @@
+import type { ViewProps } from 'react-native'
+
+import { ScrollView, View } from 'react-native'
+
 import { useRecordsSummary } from '@/hooks/useRecordsSummary'
-import { ScrollView, View, ViewProps } from 'react-native'
+
 import { BaseCard } from './base/card'
 import { Subtitle, Title } from './ui/text'
 
@@ -63,9 +67,9 @@ export const RecordsSummary = ({
 					contentContainerClassName="gap-4"
 					showsHorizontalScrollIndicator={false}
 				>
-					{Object.entries(summary.types).map(([type, amount]) => (
-						<BaseCard key={type}>
-							<Subtitle>{type}</Subtitle>
+					{Object.entries(summary.tags).map(([tag, amount]) => (
+						<BaseCard key={tag}>
+							<Subtitle>{tag}</Subtitle>
 							<Title>{amount} TK</Title>
 						</BaseCard>
 					))}

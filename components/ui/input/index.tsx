@@ -1,7 +1,12 @@
-import { useSchemeColors } from '@/hooks/useSchemeColors'
+import type { TextInputProps } from 'react-native'
+import type { VariantProps } from 'tailwind-variants'
+
 import { forwardRef, useState } from 'react'
-import { TextInput, TextInputProps } from 'react-native'
-import { tv, VariantProps } from 'tailwind-variants'
+import { TextInput } from 'react-native'
+
+import { tv } from 'tailwind-variants'
+
+import { useSchemeColors } from '@/hooks/useSchemeColors'
 
 export const inputVariants = tv({
 	base: 'rounded-lg flex-row items-center justify-between overflow-hidden',
