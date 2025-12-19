@@ -10,14 +10,14 @@
 
 **Light Mode**
 
-<img src="./assets/images/home-light.png" alt="Home Screen - Light Mode" width="250" />
+<img src="./assets/images/home-light.png" alt="Home Screen - Light Mode" width="300" />
 
 </td>
 <td width="50%">
 
 **Dark Mode**
 
-<img src="./assets/images/home-dark.png" alt="Home Screen - Dark Mode" width="250" />
+<img src="./assets/images/home-dark.png" alt="Home Screen - Dark Mode" width="300" />
 
 </td>
 </tr>
