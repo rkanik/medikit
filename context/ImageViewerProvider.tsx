@@ -1,14 +1,14 @@
-import { BaseActions } from '@/components/base/actions'
+import type { PropsWithChildren } from 'react'
+
+import { createContext, useCallback, useContext, useState } from 'react'
+import { Modal, ScrollView, StyleSheet, ToastAndroid, View } from 'react-native'
+
 import { Image } from 'expo-image'
-import {
-	createContext,
-	PropsWithChildren,
-	useCallback,
-	useContext,
-	useState,
-} from 'react'
-import { Modal, ScrollView, StyleSheet, View } from 'react-native'
+import { saveToLibraryAsync } from 'expo-media-library'
+import { shareAsync } from 'expo-sharing'
 import { GestureViewer } from 'react-native-gesture-image-viewer'
+
+import { BaseActions } from '@/components/base/actions'
 
 type TAsset = { uri?: string }
 
@@ -47,6 +47,24 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 		[],
 	)
 
+	const onShare = useCallback(() => {
+		shareAsync(urls[index])
+	}, [urls, index])
+
+	const onDownload = useCallback(() => {
+		saveToLibraryAsync(urls[index])
+			.then(() => {
+				ToastAndroid.show('Saved to gallery', ToastAndroid.SHORT)
+			})
+			.catch(() => {
+				ToastAndroid.show('Failed to save to gallery', ToastAndroid.SHORT)
+			})
+	}, [urls, index])
+
+	// const onDelete = useCallback(() => {
+	// 	setUrls(urls.filter((_, i) => i !== index))
+	// }, [urls, index])
+
 	return (
 		<Context.Provider value={{ openImageViewer }}>
 			{children}
@@ -69,6 +87,18 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 								<BaseActions
 									className="bottom-12"
 									data={[
+										// {
+										// 	icon: 'trash-2',
+										// 	onPress: onDelete,
+										// },
+										{
+											icon: 'share-2',
+											onPress: onShare,
+										},
+										{
+											icon: 'download',
+											onPress: onDownload,
+										},
 										{
 											icon: 'chevron-down',
 											text: 'Close',

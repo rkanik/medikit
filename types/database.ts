@@ -15,8 +15,7 @@ export type TPatient = {
 
 export type TRecord = {
 	id: number
-	// type: string
-	text: string
+	text?: TMaybe<string>
 	date: string
 	amount: number
 	patientId: number

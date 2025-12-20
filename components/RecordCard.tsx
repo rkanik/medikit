@@ -16,6 +16,7 @@ import { Avatar } from './ui/avatar'
 import { Badge } from './ui/badge'
 import { Divider } from './ui/divider'
 import { Grid, GridItem } from './ui/grid'
+import { Icon } from './ui/icon'
 import { Pressable } from './ui/pressable'
 import { Subtitle, Text, Title } from './ui/text'
 
@@ -44,15 +45,17 @@ export const RecordCardHeader = ({
 }) => {
 	return (
 		<View {...props}>
-			<Subtitle className="uppercase text-sm">
-				{$df(data.date, 'DD MMMM, YYYY')}
-			</Subtitle>
-			<Title>{data.text}</Title>
-			{data.amount > 0 && (
-				<Text className="font-bold text-green-500 dark:text-green-300">
-					{data.amount} TK
-				</Text>
-			)}
+			<View className="flex-row justify-between items-center">
+				<Subtitle className="text-sm">
+					<Icon name="calendar" /> {$df(data.date, 'DD MMM, YYYY')}
+				</Subtitle>
+				{data.amount > 0 && (
+					<Text className="font-bold text-green-500 dark:text-green-300">
+						{data.amount} TK
+					</Text>
+				)}
+			</View>
+			{data.text && <Title>{data.text}</Title>}
 			{!!data.tags?.length && (
 				<View className="flex-row flex-wrap gap-1">
 					{data.tags.map(tag => (

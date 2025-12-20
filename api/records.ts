@@ -13,8 +13,7 @@ export type TZRecord = z.infer<typeof zRecord>
 export const zRecord = z.object({
 	id: z.number().nullish(),
 	patientId: z.number(),
-	// type: z.string().min(1, 'Type is required!'),
-	text: z.string().min(1, 'Text is required!'),
+	text: z.string().nullish(),
 	date: z.string().min(1, 'Date is required!'),
 	amount: z.number().default(0),
 	tags: z.array(z.string()).default([]),

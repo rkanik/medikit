@@ -17,6 +17,7 @@ import { BaseSelect } from '@/components/base/select'
 import { BaseTagInput } from '@/components/base/TagInput'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
+import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
 import { useTags } from '@/hooks/useTags'
 
@@ -31,7 +32,6 @@ export default function Screen() {
 		resolver: zodResolver(zRecord),
 		defaultValues: {
 			id: null,
-			// type: '',
 			text: '',
 			amount: 0,
 			patientId: currentPatientId,
@@ -81,55 +81,66 @@ export default function Screen() {
 					className="px-4 pt-4 pb-32 flex justify-end flex-1 gap-4"
 					onSubmit={form.handleSubmit(onSubmit)}
 				>
-					<BaseImagePicker
-						name="attachments"
-						label="Attachments"
-						control={form.control}
-						scanner={true}
-						multiple={true}
-					/>
-					<BaseInput
-						name="text"
-						label="Description"
-						placeholder="Enter description..."
-						control={form.control}
-						required={true}
-						multiline={true}
-						numberOfLines={4}
-					/>
-					<BaseTagInput
-						name="tags"
-						label="Tags"
-						tags={tags}
-						control={form.control}
-						placeholder="Enter record tags..."
-					/>
-					{!data?.id && (
-						<BaseSelect
-							name="patientId"
-							label="Patient"
-							placeholder="Select patient..."
-							control={form.control}
-							required={true}
-							options={patients}
-							getOptionLabel={item => item?.name}
-							getOptionValue={item => item?.id}
-						/>
-					)}
-					<BaseDatePicker
-						name="date"
-						label="Date"
-						placeholder="Select date..."
-						control={form.control}
-						required={true}
-					/>
-					<BaseInput
-						name="amount"
-						label="Cost (TK)"
-						keyboardType="numeric"
-						placeholder="Cost..."
-						control={form.control}
-					/>
+					<Grid cols={2} gap={16}>
+						<GridItem colSpan={2}>
+							<BaseImagePicker
+								name="attachments"
+								label="Attachments"
+								control={form.control}
+								scanner={true}
+								multiple={true}
+							/>
+						</GridItem>
+						<GridItem colSpan={2}>
+							<BaseSelect
+								name="patientId"
+								label="Patient"
+								placeholder="Select patient..."
+								control={form.control}
+								required={true}
+								options={patients}
+								getOptionLabel={item => item?.name}
+								getOptionValue={item => item?.id}
+							/>
+						</GridItem>
+						<GridItem>
+							<BaseDatePicker
+								name="date"
+								label="Date"
+								placeholder="Select date..."
+								control={form.control}
+								required={true}
+							/>
+						</GridItem>
+						<GridItem>
+							<BaseInput
+								name="amount"
+								label="Cost (TK)"
+								keyboardType="numeric"
+								placeholder="Cost..."
+								control={form.control}
+							/>
+						</GridItem>
+						<GridItem colSpan={2}>
+							<BaseTagInput
+								name="tags"
+								label="Tags"
+								tags={tags}
+								control={form.control}
+								placeholder="Enter record tags..."
+							/>
+						</GridItem>
+						<GridItem colSpan={2}>
+							<BaseInput
+								name="text"
+								label="Description"
+								placeholder="Enter description..."
+								control={form.control}
+								multiline={true}
+								numberOfLines={4}
+							/>
+						</GridItem>
+					</Grid>
 					<BaseActions
 						className="relative justify-end px-0"
 						data={[
