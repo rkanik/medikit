@@ -1,6 +1,10 @@
+import { ScrollView, View } from 'react-native'
+
+import { Stack } from 'expo-router'
+
 import { BaseCard } from '@/components/base/card'
 import { FlashList } from '@/components/FlashList'
-import { Badge, BadgeText } from '@/components/ui/badge'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Text } from '@/components/ui/text'
@@ -8,8 +12,6 @@ import { useDownloader } from '@/hooks/useDownloader'
 import { useUpdater } from '@/hooks/useUpdater'
 import { $df } from '@/utils/dayjs'
 import { open } from '@/utils/open'
-import { Stack } from 'expo-router'
-import { ScrollView, View } from 'react-native'
 
 export default function Screen() {
 	const { checkForUpdates, loading, lastChecked } = useUpdater()
@@ -43,23 +45,7 @@ export default function Screen() {
 							<Text className="font-bold">
 								{item.destination.split('/').pop()}
 							</Text>
-							<Badge
-								size="sm"
-								className="ml-1"
-								action={
-									(
-										{
-											completed: 'success',
-											downloading: 'info',
-											paused: 'info',
-											'auto-paused': 'info',
-											failed: 'error',
-										} as const
-									)[item.status]
-								}
-							>
-								<BadgeText>{item.status}</BadgeText>
-							</Badge>
+							<Badge text={item.status} className="ml-1" />
 						</View>
 						<View className="flex-row items-center gap-2">
 							<Progress
