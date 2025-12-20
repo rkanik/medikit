@@ -7,6 +7,7 @@ import { Alert } from 'react-native'
 import { z } from 'zod'
 
 import { useMMKVArray } from '@/hooks/useMMKVArray'
+import { $d } from '@/utils/dayjs'
 import { fs } from '@/utils/fs'
 
 export type TZRecord = z.infer<typeof zRecord>
@@ -50,9 +51,13 @@ export const useRecords = (query: TRecordsQuery = {}) => {
 					(q
 						? record.text?.toLowerCase().includes(q) ||
 							record.tags?.some(tag => {
-								return q.split(' ').some(word => {
-									return tag.toLowerCase().includes(word)
-								})
+								return tag.toLowerCase().includes(q)
+								// return q.split(' ').some(word => {
+								// 	return tag.toLowerCase().includes(word)
+								// })
+							}) ||
+							['DD-MM-YYYY', 'YYYY-MM-DD'].some(format => {
+								return $d(record.date).format(format).includes(q)
 							})
 						: true)
 				)
