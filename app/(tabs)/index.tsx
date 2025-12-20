@@ -1,4 +1,6 @@
-import { Fragment } from 'react'
+import type { TRecordsQuery } from '@/api/records'
+
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { ScrollView, View } from 'react-native'
 
 import { router } from 'expo-router'
@@ -11,13 +13,42 @@ import { NoRecords } from '@/components/NoRecords'
 import { PatientCard } from '@/components/PatientCard'
 import { RecordCard } from '@/components/RecordCard'
 import { RecordsSummary } from '@/components/RecordsSummary'
+import { Input } from '@/components/ui/input'
 import { Title } from '@/components/ui/text'
+import { useApp } from '@/context/AppContext'
 
 export default function Screen() {
+	const [q, setQ] = useState('')
 	const { data: currentPatient } = useCurrentPatient()
-	const { data } = useRecords({ patientId: currentPatient?.id })
+
+	const query = useMemo<TRecordsQuery>(() => {
+		return {
+			q,
+			patientId: currentPatient?.id,
+		}
+	}, [q, currentPatient?.id])
+
+	const { data } = useRecords(query)
+
+	const { isSearching } = useApp()
+	useEffect(() => {
+		if (!isSearching) {
+			setQ('')
+		}
+	}, [isSearching])
+
 	return (
 		<View className="flex-1 relative">
+			{isSearching && (
+				<View className="px-4 pb-2">
+					<Input
+						autoFocus
+						value={q}
+						placeholder="Search..."
+						onChangeText={setQ}
+					/>
+				</View>
+			)}
 			<ScrollView
 				contentContainerClassName={cn('flex-grow justify-end px-4 gap-4 pb-8', {
 					'pb-4': data.length === 0,
@@ -33,7 +64,7 @@ export default function Screen() {
 							</View>
 						)}
 
-						<RecordsSummary patientId={currentPatient?.id} />
+						<RecordsSummary query={query} />
 
 						{/* Records */}
 						<View>

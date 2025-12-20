@@ -107,7 +107,9 @@ export default function Screen() {
 							<BaseDatePicker
 								name="date"
 								label="Date"
+								display="spinner"
 								placeholder="Select date..."
+								inputFormat="DD MMM, YYYY"
 								control={form.control}
 								required={true}
 							/>

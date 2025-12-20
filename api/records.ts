@@ -33,20 +33,34 @@ export const useRecordsStorage = () => {
 	})
 }
 
-export const useRecords = ({ patientId }: { patientId?: number } = {}) => {
+export type TRecordsQuery = {
+	q?: string
+	patientId?: number
+}
+
+export const useRecords = (query: TRecordsQuery = {}) => {
 	const { data: records } = useRecordsStorage()
 
 	const data = useMemo(() => {
-		return (
-			patientId
-				? records.filter(record => {
-						return record.patientId === patientId
-					})
-				: records
-		).sort((a, b) => {
-			return new Date(b.date).getTime() - new Date(a.date).getTime()
-		})
-	}, [records, patientId])
+		return records
+			.filter(record => {
+				const q = query.q?.trim().toLowerCase() ?? ''
+				return (
+					(query.patientId ? record.patientId === query.patientId : true) &&
+					(q
+						? record.text?.toLowerCase().includes(q) ||
+							record.tags?.some(tag => {
+								return q.split(' ').some(word => {
+									return tag.toLowerCase().includes(word)
+								})
+							})
+						: true)
+				)
+			})
+			.sort((a, b) => {
+				return new Date(b.date).getTime() - new Date(a.date).getTime()
+			})
+	}, [records, query])
 
 	return { data }
 }

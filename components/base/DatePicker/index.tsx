@@ -1,22 +1,27 @@
-import { Icon } from '@/components/ui/icon'
-import { inputVariants } from '@/components/ui/input'
-import { Pressable } from '@/components/ui/pressable'
-import { $df } from '@/utils/dayjs'
-import { isAndroid } from '@/utils/is'
-import {
-	AndroidNativeProps,
-	DateTimePickerAndroid,
-} from '@react-native-community/datetimepicker'
+import type { TBaseControllerProps } from '@/components/base/controller'
+import type { AndroidNativeProps } from '@react-native-community/datetimepicker'
 import type { Ref } from 'react'
-import { forwardRef, useCallback } from 'react'
 import type {
 	ControllerRenderProps,
 	FieldPath,
 	FieldValues,
 } from 'react-hook-form'
-import { Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { cn, VariantProps } from 'tailwind-variants'
-import { BaseController, TBaseControllerProps } from '../controller'
+import type { TextInput } from 'react-native'
+import type { VariantProps } from 'tailwind-variants'
+
+import { forwardRef, useCallback } from 'react'
+import { Text, TouchableOpacity, View } from 'react-native'
+
+import { DateTimePickerAndroid } from '@react-native-community/datetimepicker'
+import { cn } from 'tailwind-variants'
+
+import { Icon } from '@/components/ui/icon'
+import { inputVariants } from '@/components/ui/input'
+import { Pressable } from '@/components/ui/pressable'
+import { $df } from '@/utils/dayjs'
+import { isAndroid } from '@/utils/is'
+
+import { BaseController } from '../controller'
 
 type TBaseDatePickerProps<
 	TFieldValues extends FieldValues = FieldValues,
@@ -44,11 +49,11 @@ const BaseDatePickerInner = <
 		display,
 		required,
 		className,
-		inputFormat,
 		placeholder,
-		maximumDate,
 		initialValue,
-		outputFormat,
+		maximumDate = new Date(),
+		inputFormat = 'DD-MM-YYYY',
+		outputFormat = 'YYYY-MM-DD',
 	}: TBaseDatePickerProps<TFieldValues, TName>,
 	ref: Ref<TextInput>,
 ) => {
@@ -64,9 +69,7 @@ const BaseDatePickerInner = <
 						: initialValue || new Date(),
 					onChange(event, date) {
 						if (event.type !== 'set') return
-						field.onChange(
-							date ? $df(date, outputFormat ?? 'YYYY-MM-DD') : date,
-						)
+						field.onChange(date ? $df(date, outputFormat) : date)
 					},
 				})
 			}
@@ -93,9 +96,7 @@ const BaseDatePickerInner = <
 							'text-neutral-500 dark:text-neutral-400': !v.field.value,
 						})}
 					>
-						{v.field.value
-							? $df(v.field.value, inputFormat ?? 'YYYY-MM-DD')
-							: placeholder}
+						{v.field.value ? $df(v.field.value, inputFormat) : placeholder}
 					</Text>
 					<View className="flex-none flex-row items-center gap-2">
 						{v.field.value ? (

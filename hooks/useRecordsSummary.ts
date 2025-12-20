@@ -1,23 +1,16 @@
+import type { TRecordsQuery } from '@/api/records'
+
 import { useMemo } from 'react'
 
 import { useRecords } from '@/api/records'
 import { $d } from '@/utils/dayjs'
 
-export const useRecordsSummary = ({
-	patientId,
-}: { patientId?: number } = {}) => {
-	const { data } = useRecords()
-
-	const records = useMemo(() => {
-		if (!patientId) return data
-		return data.filter(record => {
-			return record.patientId === patientId
-		})
-	}, [data, patientId])
+export const useRecordsSummary = (query: TRecordsQuery) => {
+	const { data } = useRecords(query)
 
 	const summary = useMemo(() => {
-		return records.reduce(
-			(acc, record, index, records) => {
+		return data.reduce(
+			(acc, record, index) => {
 				if ($d().isSame(record.date, 'month')) {
 					acc.thisMonth += record.amount
 				}
@@ -42,12 +35,12 @@ export const useRecordsSummary = ({
 					acc.tags[tag] = (acc.tags[tag] ?? 0) + record.amount
 				})
 
-				if (index === records.length - 1) {
+				if (index === data.length - 1) {
 					const totalMonths = Math.ceil(
-						$d().diff(records[records.length - 1].date, 'month', true),
+						$d().diff(data[data.length - 1].date, 'month', true),
 					)
 					const totalYears = Math.ceil(
-						$d().diff(records[records.length - 1].date, 'year', true),
+						$d().diff(data[data.length - 1].date, 'year', true),
 					)
 					acc.monthlyAverage = Math.round(acc.total / totalMonths)
 					acc.yearlyAverage = Math.round(acc.total / totalYears)
@@ -68,7 +61,7 @@ export const useRecordsSummary = ({
 				tags: {} as Record<string, number>,
 			},
 		)
-	}, [records])
+	}, [data])
 
 	return {
 		summary,

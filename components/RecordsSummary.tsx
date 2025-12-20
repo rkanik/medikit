@@ -1,3 +1,4 @@
+import type { TRecordsQuery } from '@/api/records'
 import type { ViewProps } from 'react-native'
 
 import { ScrollView, View } from 'react-native'
@@ -8,14 +9,11 @@ import { BaseCard } from './base/card'
 import { Subtitle, Title } from './ui/text'
 
 export type TRecordsSummaryProps = ViewProps & {
-	patientId?: number
+	query: TRecordsQuery
 }
 
-export const RecordsSummary = ({
-	patientId,
-	...props
-}: TRecordsSummaryProps) => {
-	const { summary } = useRecordsSummary({ patientId })
+export const RecordsSummary = ({ query, ...props }: TRecordsSummaryProps) => {
+	const { summary } = useRecordsSummary(query)
 	return (
 		<View {...props}>
 			<Title>Summary</Title>

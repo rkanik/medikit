@@ -1,6 +1,10 @@
-import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
+import type { PropsWithChildren } from 'react'
+
+import { useEffect } from 'react'
+
 import { useColorScheme } from 'nativewind'
-import { PropsWithChildren, useEffect } from 'react'
+
+import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
 
 export type TThemeProviderProps = PropsWithChildren
 

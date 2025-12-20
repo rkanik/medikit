@@ -1,15 +1,19 @@
+import { View } from 'react-native'
+
+import { Image } from 'expo-image'
+import { Tabs, usePathname } from 'expo-router'
+import { cn } from 'tailwind-variants'
+
 import { CurrentPatientPicker } from '@/components/CurrentPatientPicker'
+import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { appName } from '@/const'
 import { colors } from '@/const/colors'
+import { useApp } from '@/context/AppContext'
 import { useScheme } from '@/hooks/useScheme'
 import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { useUpdater } from '@/hooks/useUpdater'
-import { Image } from 'expo-image'
-import { Tabs, usePathname } from 'expo-router'
-import { View } from 'react-native'
-import { cn } from 'tailwind-variants'
 
 const items = [
 	{
@@ -30,12 +34,13 @@ const items = [
 ]
 
 export default function TabLayout() {
-	const { scheme } = useScheme()
-	const { borderColor, textColor } = useSchemeColors()
+	useUpdater()
 
 	const pathname = usePathname()
+	const { scheme } = useScheme()
+	const { borderColor, textColor } = useSchemeColors()
+	const { isSearching, setSearching } = useApp()
 
-	useUpdater()
 	return (
 		<Tabs
 			screenOptions={{
@@ -60,7 +65,7 @@ export default function TabLayout() {
 				},
 				headerTitle: () => (
 					<View className="flex-row items-center gap-2">
-						<View className="w-12 h-12 bg-white dark:bg-neutral-700 p-3 rounded-full items-center justify-center">
+						<View className="w-12 h-12 bg-white p-3 rounded-full items-center justify-center">
 							<Image
 								source={require('@/assets/images/icon2.png')}
 								style={{ width: '100%', aspectRatio: 1 }}
@@ -73,7 +78,15 @@ export default function TabLayout() {
 				),
 				headerRight: () => (
 					<View className="mr-5">
-						{pathname === '/' && <CurrentPatientPicker />}
+						{pathname === '/' && (
+							<View className="flex-row items-center gap-2">
+								<Button
+									icon={isSearching ? 'x' : 'search'}
+									onPress={() => setSearching(v => !v)}
+								/>
+								<CurrentPatientPicker />
+							</View>
+						)}
 					</View>
 				),
 			}}

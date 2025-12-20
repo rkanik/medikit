@@ -1,11 +1,13 @@
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
+import { setNotificationHandler } from 'expo-notifications'
+
 import { GestureHandlerRootView } from '@/components/GestureHandlerRootView'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { TextProvider } from '@/components/ui/text'
+import { AppProvider } from '@/context/AppContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { ImageViewerProvider } from '@/context/ImageViewerProvider'
 import { Downloader } from '@/hooks/useDownloader'
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
-import { setNotificationHandler } from 'expo-notifications'
 
 setNotificationHandler({
 	handleNotification: async () => ({
@@ -24,7 +26,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
 					<BottomSheetModalProvider>
 						<AuthProvider>
 							<ImageViewerProvider>
-								<Downloader>{children}</Downloader>
+								<Downloader>
+									<AppProvider>{children}</AppProvider>
+								</Downloader>
 							</ImageViewerProvider>
 						</AuthProvider>
 					</BottomSheetModalProvider>
