@@ -1,10 +1,11 @@
+import { createRef, Fragment, useCallback, useEffect } from 'react'
+
 import {
 	BottomSheetBackdrop,
 	BottomSheetModal,
 	BottomSheetScrollView,
 } from '@gorhom/bottom-sheet'
 import { cssInterop } from 'nativewind'
-import { createRef, Fragment, useCallback, useEffect } from 'react'
 
 cssInterop(BottomSheetModal, {
 	className: {

@@ -58,8 +58,8 @@ export const RecordCardHeader = ({
 			{data.text && <Title>{data.text}</Title>}
 			{!!data.tags?.length && (
 				<View className="flex-row flex-wrap gap-1">
-					{data.tags.map(tag => (
-						<Badge key={tag} text={tag} />
+					{data.tags.map((tag, index) => (
+						<Badge key={index} text={tag} />
 					))}
 				</View>
 			)}

@@ -1,7 +1,7 @@
 import { View } from 'react-native'
 
 import { Image } from 'expo-image'
-import { Tabs, usePathname } from 'expo-router'
+import { Link, Tabs, usePathname } from 'expo-router'
 import { cn } from 'tailwind-variants'
 
 import { CurrentPatientPicker } from '@/components/CurrentPatientPicker'
@@ -64,17 +64,19 @@ export default function TabLayout() {
 					}),
 				},
 				headerTitle: () => (
-					<View className="flex-row items-center gap-2">
-						<View className="w-12 h-12 bg-white p-3 rounded-full items-center justify-center">
-							<Image
-								source={require('@/assets/images/icon2.png')}
-								style={{ width: '100%', aspectRatio: 1 }}
-							/>
+					<Link href="/">
+						<View className="flex-row items-center gap-2">
+							<View className="w-12 h-12 bg-white p-3 rounded-full items-center justify-center">
+								<Image
+									source={require('@/assets/images/icon2.png')}
+									style={{ width: '100%', aspectRatio: 1 }}
+								/>
+							</View>
+							<Text className="text-green-600 font-semibold text-xl">
+								{appName}
+							</Text>
 						</View>
-						<Text className="text-green-600 font-semibold text-xl">
-							{appName}
-						</Text>
-					</View>
+					</Link>
 				),
 				headerRight: () => (
 					<View className="mr-5">

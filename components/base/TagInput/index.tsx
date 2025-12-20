@@ -134,7 +134,7 @@ const BaseTagInputInner = <
 									</TouchableOpacity>
 								)}
 							>
-								<View className="px-4">
+								<View className="px-4 pb-8">
 									<Title>Select Tags</Title>
 									<View className="flex-row flex-wrap gap-2 mt-2">
 										{tags.map(tag => {
