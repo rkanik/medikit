@@ -1,13 +1,14 @@
-import { appName } from '@/const'
-import { TMaybe } from '@/types'
-import { log } from '@/utils/logs'
-import {
-	GetTokensResponse,
-	GoogleSignin,
-} from '@react-native-google-signin/google-signin'
-import { Directory, File } from 'expo-file-system'
+import type { TMaybe } from '@/types'
+import type { GetTokensResponse } from '@react-native-google-signin/google-signin'
+import type { Directory } from 'expo-file-system'
+
+import { GoogleSignin } from '@react-native-google-signin/google-signin'
+import { File } from 'expo-file-system'
 import mime from 'mime/lite'
 import ReactNativeBlobUtil from 'react-native-blob-util'
+
+import { appName } from '@/const'
+import { log } from '@/utils/logs'
 
 const GET_API = 'https://www.googleapis.com/drive/v3'
 const POST_API = 'https://www.googleapis.com/upload/drive/v3'
