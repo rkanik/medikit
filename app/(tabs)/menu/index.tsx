@@ -1,8 +1,10 @@
+import { ScrollView } from 'react-native'
+
+import { router } from 'expo-router'
+
 import { ColorSchemePicker } from '@/components/ColorSchemePicker'
 import { IconCard } from '@/components/IconCard'
 import { Grid, GridItem } from '@/components/ui/grid'
-import { router } from 'expo-router'
-import { ScrollView } from 'react-native'
 
 export default function Screen() {
 	return (

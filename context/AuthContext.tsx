@@ -1,8 +1,6 @@
-import { webClientId } from '@/const'
 import type { TMaybe, TUser } from '@/types'
-import { log } from '@/utils/logs'
-import { GoogleSignin } from '@react-native-google-signin/google-signin'
 import type { PropsWithChildren } from 'react'
+
 import {
 	createContext,
 	useCallback,
@@ -10,6 +8,11 @@ import {
 	useEffect,
 	useState,
 } from 'react'
+
+import { GoogleSignin } from '@react-native-google-signin/google-signin'
+
+import { webClientId } from '@/const'
+import { log } from '@/utils/logs'
 
 export type TAuthContext = {
 	user: TMaybe<TUser>

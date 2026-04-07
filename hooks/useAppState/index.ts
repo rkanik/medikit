@@ -1,5 +1,7 @@
+import type { AppStateStatus } from 'react-native'
+
 import { useEffect, useRef } from 'react'
-import { AppState, AppStateStatus } from 'react-native'
+import { AppState } from 'react-native'
 
 export const useAppState = (
 	onForeground?: () => void,
