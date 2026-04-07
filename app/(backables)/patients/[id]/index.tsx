@@ -1,3 +1,8 @@
+import { Fragment, useCallback } from 'react'
+import { Alert, ScrollView, View } from 'react-native'
+
+import { router, Stack, useLocalSearchParams } from 'expo-router'
+
 import { usePatient, usePatientActions } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
@@ -5,9 +10,6 @@ import { Avatar } from '@/components/ui/avatar'
 import { Divider } from '@/components/ui/divider'
 import { Subtitle, Text, Title } from '@/components/ui/text'
 import { $d, $df } from '@/utils/dayjs'
-import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { Fragment, useCallback } from 'react'
-import { Alert, ScrollView, View } from 'react-native'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
@@ -64,11 +66,11 @@ export default function Screen() {
 					<Text className="uppercase text-sm tracking-wide ml-2">
 						Basic Information
 					</Text>
-					<View className="dark:bg-neutral-900 rounded-lg mt-2">
+					<View className="dark:bg-neutral-800 rounded-lg mt-2">
 						<BaseListItem text={data.name} icon="user" label="Name" />
 						{data.dob && (
 							<Fragment>
-								<Divider className="dark:bg-neutral-700" />
+								<Divider />
 								<BaseListItem
 									text={$df(data.dob, 'DD MMMM, YYYY')}
 									icon="calendar"
@@ -76,6 +78,19 @@ export default function Screen() {
 								/>
 							</Fragment>
 						)}
+					</View>
+				</View>
+
+				<View className="mt-8">
+					<Text className="uppercase text-sm tracking-wide ml-2">
+						Medicines
+					</Text>
+					<View className="dark:bg-neutral-800 rounded-lg mt-2">
+						<BaseListItem text="Medicine 1" />
+						<Divider />
+						<BaseListItem text="Medicine 2" />
+						<Divider />
+						<BaseListItem text="Medicine 3" />
 					</View>
 				</View>
 			</ScrollView>

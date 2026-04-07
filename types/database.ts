@@ -24,3 +24,12 @@ export type TRecord = {
 	updatedAt: string
 	tags?: string[]
 }
+
+export type TMedicine = {
+	id: number
+	name: string
+	status: 'active' | 'inactive' | 'completed'
+	startDate?: string
+	endDate?: string
+	completedAt?: string
+}

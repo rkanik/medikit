@@ -60,7 +60,10 @@ export default function Screen() {
 						{currentPatient && (
 							<View className="gap-2">
 								<Title>Patient</Title>
-								<PatientCard data={currentPatient} />
+								<PatientCard
+									data={currentPatient}
+									onPress={() => router.push(`/patients/${currentPatient.id}`)}
+								/>
 							</View>
 						)}
 
