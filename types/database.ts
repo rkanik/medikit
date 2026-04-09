@@ -28,8 +28,14 @@ export type TRecord = {
 export type TMedicine = {
 	id: number
 	name: string
-	status: 'active' | 'inactive' | 'completed'
-	startDate?: string
-	endDate?: string
-	completedAt?: string
+	thumbnail?: TMaybe<TAsset>
+}
+
+export type TPatientMedicine = {
+	id: number
+	patientId: number
+	medicineId: number
+	startDate?: TMaybe<string>
+	endDate?: TMaybe<string>
+	medicine?: TMaybe<TMedicine>
 }

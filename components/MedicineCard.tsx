@@ -1,33 +1,31 @@
-import type { TPatient } from '@/types/database'
+import type { TMedicine } from '@/types/database'
 import type { GestureResponderEvent } from 'react-native'
 
 import { View } from 'react-native'
 
 import { cn } from 'tailwind-variants'
 
-import { $d, $df } from '@/utils/dayjs'
-
 import { BaseCard } from './base/card'
 import { Avatar } from './ui/avatar'
-import { Subtitle, Title } from './ui/text'
+import { Title } from './ui/text'
 
-type TPatientCardProps = {
-	data: TPatient
+type TMedicineCardProps = {
+	data: TMedicine
 	selected?: boolean
 	className?: string
 	onPress?: (e: GestureResponderEvent) => void
 }
 
-export const PatientCard = ({
+export const MedicineCard = ({
 	data,
 	selected,
 	className,
 	onPress,
-}: TPatientCardProps) => {
+}: TMedicineCardProps) => {
 	return (
 		<BaseCard
 			onPress={onPress}
-			className={cn('p-5', className, {
+			className={cn('px-5 py-2', className, {
 				'border-2 border-green-500 dark:border-green-300': selected,
 			})}
 		>
@@ -36,16 +34,10 @@ export const PatientCard = ({
 					variant="secondary"
 					className="w-16 h-16"
 					text={data.name}
-					image={data.avatar?.uri}
+					image={data.thumbnail?.uri}
 				/>
 				<View>
 					<Title>{data.name}</Title>
-					{data.dob && (
-						<Subtitle>
-							{$df(data.dob, 'DD MMMM, YYYY')}({$d().diff(data.dob, 'years')}{' '}
-							yrs)
-						</Subtitle>
-					)}
 				</View>
 			</View>
 		</BaseCard>

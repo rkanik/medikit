@@ -1,4 +1,4 @@
-import type { TZPatient } from '@/api/patients'
+import type { TZMedicine } from '@/api/medicines'
 
 import { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
@@ -7,32 +7,32 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 
+import { useMedicine, useMedicinesActions, zMedicine } from '@/api/medicines'
 import { BaseActions } from '@/components/base/actions'
-import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
+import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
-	const { data } = usePatient(Number(id))
+	const { data } = useMedicine(Number(id))
 
 	const form = useForm({
-		resolver: zodResolver(zPatient),
+		resolver: zodResolver(zMedicine),
 		defaultValues: {
 			id: null,
 			name: '',
-			dob: null,
-			avatar: null,
+			thumbnail: null,
 		},
 	})
 
-	const { submit } = usePatientsActions()
+	const { submit } = useMedicinesActions()
 
 	const onSubmit = useCallback(
-		(data: TZPatient) => {
+		(data: TZMedicine) => {
 			const promise = submit(data.id, data)
 			promise
 				.then(() => router.back())
@@ -57,7 +57,7 @@ export default function Screen() {
 		return (
 			<View className="flex-1 px-4">
 				<Stack.Screen options={{ title: 'Not Found!' }} />
-				<Text>Patient not found!</Text>
+				<Text>Medicine not found!</Text>
 			</View>
 		)
 	}
@@ -66,56 +66,50 @@ export default function Screen() {
 		<KeyboardAvoidingScrollView>
 			<Stack.Screen
 				options={{
-					title: data ? `Update Patient` : `New Patient`,
+					title: data ? `Update Medicine` : `New Medicine`,
 				}}
 			/>
 			<FormProvider {...form}>
 				<Form
 					onSubmit={form.handleSubmit(onSubmit)}
-					className="px-4 pt-4 pb-32 flex justify-end flex-1"
+					className="px-4 pt-4 pb-32 flex justify-end flex-1 gap-4"
 				>
-					<View className="gap-4">
-						<BaseImagePicker
-							name="avatar"
-							label="Avatar"
-							control={form.control}
-							aspect={[1, 1]}
-							multiple={false}
-						/>
-						<BaseInput
-							name="name"
-							label="Name"
-							placeholder="Write name here..."
-							control={form.control}
-							required={true}
-							autoFocus={true}
-						/>
-						<BaseDatePicker
-							name="dob"
-							display="spinner"
-							inputFormat="DD MMMM, YYYY"
-							initialValue={new Date('2000-01-01')}
-							label="Date of Birth"
-							placeholder="Select date of birth..."
-							control={form.control}
-						/>
-						<BaseActions
-							className="relative justify-end px-0"
-							data={[
-								{
-									icon: 'x',
-									onPress: () => router.back(),
+					<Grid cols={2} gap={16}>
+						<GridItem colSpan={2}>
+							<BaseImagePicker
+								name="thumbnail"
+								label="Thumbnail"
+								control={form.control}
+								aspect={[1, 1]}
+								multiple={false}
+							/>
+						</GridItem>
+						<GridItem colSpan={2}>
+							<BaseInput
+								name="name"
+								label="Name"
+								control={form.control}
+								required={true}
+								autoFocus={true}
+							/>
+						</GridItem>
+					</Grid>
+					<BaseActions
+						className="relative justify-end px-0"
+						data={[
+							{
+								icon: 'x',
+								onPress: () => router.back(),
+							},
+							{
+								icon: 'check-circle',
+								text: 'Submit',
+								onPress(e) {
+									form.handleSubmit(onSubmit)(e)
 								},
-								{
-									icon: 'check-circle',
-									text: 'Submit',
-									onPress(e) {
-										form.handleSubmit(onSubmit)(e)
-									},
-								},
-							]}
-						/>
-					</View>
+							},
+						]}
+					/>
 				</Form>
 			</FormProvider>
 		</KeyboardAvoidingScrollView>

@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+
 import { useMMKVObject } from 'react-native-mmkv'
 
 export const useMMKVArray = <T, K = any>(
