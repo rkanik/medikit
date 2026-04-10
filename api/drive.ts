@@ -169,9 +169,13 @@ export class GoogleDrive {
 				error: null,
 			}
 		}
-		const { data, error } =
-			(await this.findFolderId(name, parent)) ||
-			(await this.createFolder(name, parent ? [parent] : []))
+
+		let res = await this.findFolderId(name, parent)
+		if (!res.data) {
+			res = await this.createFolder(name, parent ? [parent] : [])
+		}
+
+		const { data, error } = res
 		if (data) {
 			this.folderIds.set(key, data)
 			return {

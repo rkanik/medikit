@@ -1,8 +1,16 @@
+import type {
+	TMedicine,
+	TPatient,
+	TPatientMedicine,
+	TRecord,
+} from '@/types/database'
+
+import { Directory, File, Paths } from 'expo-file-system'
+
 import { GoogleDrive } from '@/api/drive'
-import { TPatient, TRecord } from '@/types/database'
 import { fs } from '@/utils/fs'
 import { storage } from '@/utils/storage'
-import { Directory, File, Paths } from 'expo-file-system'
+
 import { createNotification } from './notification'
 
 export const restore = async () => {
@@ -45,6 +53,24 @@ export const restore = async () => {
 			await drive.download(patients.id, patientsFile)
 		}
 
+		let medicinesArray: TMedicine[] = []
+		const medicines = driveFiles.data?.find(v => v.name === 'medicines.json')
+		const medicinesFile = new File(Paths.cache, 'medicines.json')
+		if (medicines?.id) {
+			n.update({ body: `Downloading medicines...` })
+			await drive.download(medicines.id, medicinesFile)
+		}
+
+		let patientMedicinesArray: TPatientMedicine[] = []
+		const patientMedicines = driveFiles.data?.find(
+			v => v.name === 'patient-medicines.json',
+		)
+		const patientMedicinesFile = new File(Paths.cache, 'patient-medicines.json')
+		if (patientMedicines?.id) {
+			n.update({ body: `Downloading patient medicines...` })
+			await drive.download(patientMedicines.id, patientMedicinesFile)
+		}
+
 		try {
 			const recordsData = await recordsFile.text()
 			const records = JSON.parse(recordsData)
@@ -71,13 +97,39 @@ export const restore = async () => {
 			}
 		} catch {}
 
+		try {
+			const medicinesData = await medicinesFile.text()
+			const medicines = JSON.parse(medicinesData)
+			if (Array.isArray(medicines)) {
+				medicinesArray = medicines.map(v => ({
+					...v,
+					thumbnail: v.thumbnail
+						? new File(Paths.document, v.thumbnail).info()
+						: undefined,
+				}))
+			}
+		} catch {}
+
+		try {
+			const patientMedicinesData = await patientMedicinesFile.text()
+			const patientMedicines = JSON.parse(patientMedicinesData)
+			if (Array.isArray(patientMedicines)) {
+				patientMedicinesArray = patientMedicines
+			}
+		} catch {}
+
 		storage.set('records', JSON.stringify(recordsArray))
 		storage.set('patients', JSON.stringify(patientsArray))
+		storage.set('medicines', JSON.stringify(medicinesArray))
+		storage.set('patient-medicines', JSON.stringify(patientMedicinesArray))
 
 		const downloadFiles =
 			driveFiles.data?.filter(v => {
 				return (
 					patientsArray.some(p => p.avatar?.uri!.split('/').pop() === v.name) ||
+					medicinesArray.some(
+						m => m.thumbnail?.uri!.split('/').pop() === v.name,
+					) ||
 					recordsArray.some(r =>
 						r.attachments?.some(a => a.uri!.split('/').pop() === v.name),
 					)

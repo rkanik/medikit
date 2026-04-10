@@ -1,10 +1,18 @@
+import type {
+	TMedicine,
+	TPatient,
+	TPatientMedicine,
+	TRecord,
+} from '@/types/database'
+
+import { useMMKVNumber } from 'react-native-mmkv'
+
 import { GoogleDrive } from '@/api/drive'
-import { TPatient, TRecord } from '@/types/database'
 import { $df } from '@/utils/dayjs'
 import { fs } from '@/utils/fs'
 import { log } from '@/utils/logs'
 import { storage } from '@/utils/storage'
-import { useMMKVNumber } from 'react-native-mmkv'
+
 import { createNotification } from './notification'
 
 export const useBackup = () => {
@@ -33,6 +41,9 @@ export const backup = async () => {
 
 		const records = storage.getArray<TRecord>('records')
 		const patients = storage.getArray<TPatient>('patients')
+		const medicines = storage.getArray<TMedicine>('medicines')
+		const patientMedicines =
+			storage.getArray<TPatientMedicine>('patient-medicines')
 
 		const files = fs.getFiles('files')
 
@@ -40,9 +51,12 @@ export const backup = async () => {
 		const drive = new GoogleDrive()
 		const driveFiles = await drive.find()
 
+		console.log('driveFiles', JSON.stringify(driveFiles, null, 2))
+
 		const relatedFiles = files.filter(v => {
 			return (
 				patients.some(p => p.avatar?.uri === v.uri) ||
+				medicines.some(m => m.thumbnail?.uri === v.uri) ||
 				records.some(r => r.attachments?.some(a => a.uri === v.uri))
 			)
 		})
@@ -68,6 +82,14 @@ export const backup = async () => {
 				})),
 				'patients.json',
 			),
+			fs.createJsonFile(
+				medicines.map(v => ({
+					...v,
+					thumbnail: (v.thumbnail?.uri || '').replace(base, ''),
+				})),
+				'medicines.json',
+			),
+			fs.createJsonFile(patientMedicines, 'patient-medicines.json'),
 		].map(v => ({
 			uri: v.uri!,
 			size: v.size,
@@ -95,10 +117,11 @@ export const backup = async () => {
 			},
 		})
 
-		if (patients.length && records.length) {
+		if (patients.length && records.length && medicines.length) {
 			const extraFiles = files.filter(v => {
 				return (
 					!patients.some(p => p.avatar?.uri === v.uri) &&
+					!medicines.some(m => m.thumbnail?.uri === v.uri) &&
 					!records.some(r => r.attachments?.some(a => a.uri === v.uri))
 				)
 			})
@@ -109,6 +132,9 @@ export const backup = async () => {
 					) &&
 					!patients.some(patient => {
 						return patient.avatar?.uri?.split('/').pop() === v.name
+					}) &&
+					!medicines.some(medicine => {
+						return medicine.thumbnail?.uri?.split('/').pop() === v.name
 					}) &&
 					!records.some(record => {
 						return record.attachments?.some(attachment => {
