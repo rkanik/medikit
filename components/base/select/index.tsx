@@ -1,4 +1,5 @@
 import type { TBaseControllerProps } from '@/components/base/controller'
+import type { TBaseModalProps } from '@/components/base/modal'
 import type { ReactNode, Ref } from 'react'
 import type { FieldPath, FieldValues } from 'react-hook-form'
 import type { TextInput } from 'react-native'
@@ -24,8 +25,10 @@ type TProps<
 	TOption = any,
 > = Omit<TBaseControllerProps<TFieldValues, TName>, 'render'> &
 	VariantProps<typeof inputVariants> & {
-		placeholder?: string
 		options?: TOption[]
+		placeholder?: string
+		trigger?: TBaseModalProps['trigger']
+		onChange?: (value?: any) => void
 		getOptionLabel?: (option?: TOption) => any
 		getOptionValue?: (option?: TOption) => any
 	}
@@ -49,6 +52,8 @@ const BaseSelectInner = <
 		focus,
 		variant,
 		options = [],
+		trigger,
+		onChange,
 		getOptionValue = v => v,
 		getOptionLabel = v => v as ReactNode,
 		...props
@@ -70,43 +75,46 @@ const BaseSelectInner = <
 							CONTAINER_PADDING +
 							40
 						}
-						trigger={trigger => (
-							<Pressable
-								className={inputVariants({
-									size,
-									variant,
-									focus: false,
-									error: !!v.fieldState.error,
-								})}
-								onPress={() => {
-									trigger.onPress()
-									Keyboard.dismiss()
-								}}
-							>
-								<Text
-									className={cn('text-lg', {
-										'text-neutral-500 dark:text-neutral-400': !v.field.value,
+						trigger={
+							trigger ||
+							(({ onPress }) => (
+								<Pressable
+									className={inputVariants({
+										size,
+										variant,
+										focus: false,
+										error: !!v.fieldState.error,
 									})}
+									onPress={() => {
+										onPress()
+										Keyboard.dismiss()
+									}}
 								>
-									{getOptionLabel(option) || props.placeholder}
-								</Text>
-								<View className="flex-none flex-row items-center gap-2">
-									{v.field.value ? (
-										<TouchableOpacity onPress={() => v.field.onChange(null)}>
+									<Text
+										className={cn('text-lg', {
+											'text-neutral-500 dark:text-neutral-400': !v.field.value,
+										})}
+									>
+										{getOptionLabel(option) || props.placeholder}
+									</Text>
+									<View className="flex-none flex-row items-center gap-2">
+										{v.field.value ? (
+											<TouchableOpacity onPress={() => v.field.onChange(null)}>
+												<Icon
+													name="x"
+													className="text-lg text-neutral-500 dark:text-neutral-400"
+												/>
+											</TouchableOpacity>
+										) : (
 											<Icon
-												name="x"
-												className="text-lg text-neutral-500 dark:text-neutral-400"
+												name="chevron-down"
+												className="text-xl text-neutral-500 dark:text-neutral-400"
 											/>
-										</TouchableOpacity>
-									) : (
-										<Icon
-											name="chevron-down"
-											className="text-xl text-neutral-500 dark:text-neutral-400"
-										/>
-									)}
-								</View>
-							</Pressable>
-						)}
+										)}
+									</View>
+								</Pressable>
+							))
+						}
 					>
 						<FlashList
 							data={options}
@@ -128,7 +136,9 @@ const BaseSelectInner = <
 											},
 										)}
 										onPress={() => {
-											v.field.onChange(getOptionValue(item))
+											const value = getOptionValue(item)
+											v.field.onChange(value)
+											onChange?.(value)
 											setVisible(false)
 										}}
 									>

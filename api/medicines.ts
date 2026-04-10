@@ -78,5 +78,5 @@ export const useMedicinesActions = () => {
 		[push, update, getByKey],
 	)
 
-	return { submit }
+	return { submit, getByKey }
 }

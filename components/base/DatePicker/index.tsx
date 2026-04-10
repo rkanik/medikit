@@ -51,7 +51,8 @@ const BaseDatePickerInner = <
 		className,
 		placeholder,
 		initialValue,
-		maximumDate = new Date(),
+		maximumDate,
+		minimumDate,
 		inputFormat = 'DD-MM-YYYY',
 		outputFormat = 'YYYY-MM-DD',
 	}: TBaseDatePickerProps<TFieldValues, TName>,
@@ -64,6 +65,7 @@ const BaseDatePickerInner = <
 					mode,
 					display,
 					maximumDate,
+					minimumDate,
 					value: field.value
 						? new Date(field.value)
 						: initialValue || new Date(),
@@ -74,7 +76,7 @@ const BaseDatePickerInner = <
 				})
 			}
 		},
-		[mode, initialValue, display, maximumDate, outputFormat],
+		[mode, initialValue, display, maximumDate, minimumDate, outputFormat],
 	)
 	return (
 		<BaseController

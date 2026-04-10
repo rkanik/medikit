@@ -11,6 +11,7 @@ import { Icon } from '../icon'
 export type TBadgeProps = PressableProps & {
 	text?: string
 	selected?: boolean
+	textClassName?: string
 	onPressRemove?: () => void
 }
 
@@ -18,6 +19,7 @@ export const Badge = ({
 	text,
 	selected,
 	className,
+	textClassName,
 	onPressRemove,
 	...props
 }: TBadgeProps) => {
@@ -33,7 +35,12 @@ export const Badge = ({
 			)}
 		>
 			{text && (
-				<Text className="text-base text-neutral-600 dark:text-neutral-300">
+				<Text
+					className={cn(
+						'text-base text-neutral-600 dark:text-neutral-300',
+						textClassName,
+					)}
+				>
 					{text}
 				</Text>
 			)}

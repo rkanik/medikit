@@ -32,6 +32,7 @@ const BaseInputInner = <
 		keyboardType,
 		onBlur,
 		onFocus,
+		onChangeText,
 		...props
 	}: TProps<TFieldValues, TName>,
 	ref: Ref<TextInput>,
@@ -45,14 +46,19 @@ const BaseInputInner = <
 					{...props}
 					ref={ref}
 					error={!!v.fieldState.error}
-					value={String(v.field.value)}
+					value={
+						['number'].includes(typeof v.field.value)
+							? String(v.field.value)
+							: v.field.value
+					}
 					keyboardType={keyboardType}
 					onChangeText={text => {
+						let value: any = text
 						if (keyboardType === 'numeric') {
-							v.field.onChange(Number(text))
-						} else {
-							v.field.onChange(text)
+							value = text ? Number(text) : null
 						}
+						v.field.onChange(value)
+						onChangeText?.(value)
 					}}
 					onFocus={e => {
 						onFocus?.(e)

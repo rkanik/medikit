@@ -37,5 +37,7 @@ export type TPatientMedicine = {
 	medicineId: number
 	startDate?: TMaybe<string>
 	endDate?: TMaybe<string>
+	schedule?: TMaybe<string>
+	stock?: TMaybe<number>
 	medicine?: TMaybe<TMedicine>
 }

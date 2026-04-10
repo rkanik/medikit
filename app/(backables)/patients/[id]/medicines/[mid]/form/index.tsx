@@ -1,21 +1,22 @@
 import type { TZPatientMedicine } from '@/api/patient-medicines'
 
 import { useCallback, useEffect } from 'react'
-import { View } from 'react-native'
+import { Alert, View } from 'react-native'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { useMedicines } from '@/api/medicines'
+import { useMedicines, useMedicinesActions } from '@/api/medicines'
 import {
 	usePatientMedicine,
 	usePatientMedicineActions,
 	zPatientMedicine,
 } from '@/api/patient-medicines'
-import { usePatients } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
+import { BaseImagePicker } from '@/components/base/ImagePicker'
+import { BaseInput } from '@/components/base/input'
 import { BaseSelect } from '@/components/base/select'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Button } from '@/components/ui/button'
@@ -27,21 +28,20 @@ export default function Screen() {
 	const { id, mid } = useLocalSearchParams()
 	const { data } = usePatientMedicine(Number(mid))
 
-	const { data: patients } = usePatients()
 	const { data: medicines } = useMedicines()
+	const { getByKey: getMedicineByKey } = useMedicinesActions()
 
 	const form = useForm({
 		resolver: zodResolver(zPatientMedicine),
 		defaultValues: {
-			id: null,
 			patientId: Number(id),
-			medicineId: Number(mid),
-			startDate: null,
-			endDate: null,
+			medicine: {
+				name: '',
+			},
 		},
 	})
 
-	const { submit } = usePatientMedicineActions()
+	const { submit, remove } = usePatientMedicineActions()
 
 	const onSubmit = useCallback(
 		(data: TZPatientMedicine) => {
@@ -56,6 +56,39 @@ export default function Screen() {
 		},
 		[form, submit],
 	)
+
+	const onChangeMedicineId = useCallback(
+		(key?: number) => {
+			const medicine = getMedicineByKey(key)
+			if (medicine) {
+				form.setValue('medicine.name', medicine.name)
+				form.setValue('medicine.thumbnail', medicine.thumbnail)
+			}
+		},
+		[form, getMedicineByKey],
+	)
+
+	const onChangeMedicineName = useCallback(
+		(name: string) => {
+			const medicine = medicines.find(v => v.name === name)
+			form.setValue('medicine.id', medicine?.id)
+			form.setValue('medicine.thumbnail', medicine?.thumbnail)
+		},
+		[form, medicines],
+	)
+
+	const onRemove = useCallback(() => {
+		Alert.alert('Remove', 'Are you sure you want to remove this medicine?', [
+			{ text: 'Cancel', style: 'cancel' },
+			{
+				text: 'Remove',
+				onPress: () => {
+					remove(data?.id)
+					router.back()
+				},
+			},
+		])
+	}, [remove, data?.id])
 
 	useEffect(() => {
 		if (data) {
@@ -86,45 +119,62 @@ export default function Screen() {
 					onSubmit={form.handleSubmit(onSubmit)}
 					className="px-4 pt-4 pb-32 flex justify-end flex-1 gap-4"
 				>
+					{/* <BaseJson data={values} /> */}
 					<Grid cols={2} gap={16}>
-						{/* <GridItem colSpan={2}>
-							<BaseSelect
-								name="patientId"
-								label="Patient"
-								placeholder="Select patient..."
+						<GridItem colSpan={2}>
+							<BaseImagePicker
+								name="medicine.thumbnail"
+								label="Thumbnail"
 								control={form.control}
-								required={true}
-								options={patients}
+								aspect={[1, 1]}
+								multiple={false}
+							/>
+						</GridItem>
+						<GridItem colSpan={2} className="flex-row gap-2">
+							<BaseInput
+								required
+								name="medicine.name"
+								label="Medicine"
+								control={form.control}
+								className="flex-1"
+								onChangeText={onChangeMedicineName}
+							/>
+							<BaseSelect
+								name="medicine.id"
+								control={form.control}
+								options={medicines}
 								getOptionLabel={item => item?.name}
 								getOptionValue={item => item?.id}
+								onChange={onChangeMedicineId}
+								trigger={v => (
+									<Button
+										{...v}
+										icon="chevron-down"
+										className="rounded-lg p-2 h-14 mt-7"
+									/>
+								)}
 							/>
-						</GridItem> */}
-						<GridItem colSpan={2}>
-							<View className="flex-row items-end gap-2 ">
-								<BaseSelect
-									name="medicineId"
-									label="Medicine"
-									className="flex-1"
-									control={form.control}
-									required={true}
-									options={medicines}
-									getOptionLabel={item => item?.name}
-									getOptionValue={item => item?.id}
-								/>
-								<Button
-									icon="plus"
-									className="rounded-lg p-2 h-14"
-									onPress={() => router.push(`/medicines/new/form`)}
-								/>
-							</View>
+						</GridItem>
+						<GridItem>
+							<BaseInput
+								name="schedule"
+								label="Schedule"
+								control={form.control}
+							/>
+						</GridItem>
+						<GridItem>
+							<BaseInput
+								name="stock"
+								label="Stock"
+								keyboardType="numeric"
+								control={form.control}
+							/>
 						</GridItem>
 						<GridItem>
 							<BaseDatePicker
 								name="startDate"
 								display="spinner"
 								inputFormat="DD MMMM, YYYY"
-								initialValue={new Date()}
-								minimumDate={new Date()}
 								label="Start Date"
 								control={form.control}
 							/>
@@ -134,8 +184,6 @@ export default function Screen() {
 								name="endDate"
 								display="spinner"
 								inputFormat="DD MMMM, YYYY"
-								initialValue={new Date()}
-								minimumDate={new Date()}
 								label="End Date"
 								control={form.control}
 							/>
@@ -147,6 +195,11 @@ export default function Screen() {
 							{
 								icon: 'x',
 								onPress: () => router.back(),
+							},
+							{
+								icon: 'trash',
+								hidden: !data?.id,
+								onPress: onRemove,
 							},
 							{
 								icon: 'check-circle',

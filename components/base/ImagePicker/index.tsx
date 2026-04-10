@@ -1,6 +1,12 @@
-import { Button } from '@/components/ui/button'
-import { Image } from 'expo-image'
+import type { TBaseControllerProps } from '@/components/base/controller'
+import type { ImagePickerOptions } from 'expo-image-picker'
 import type { Ref } from 'react'
+import type {
+	ControllerRenderProps,
+	FieldPath,
+	FieldValues,
+} from 'react-hook-form'
+
 import {
 	forwardRef,
 	Fragment,
@@ -9,27 +15,21 @@ import {
 	useRef,
 	useState,
 } from 'react'
-import type {
-	ControllerRenderProps,
-	FieldPath,
-	FieldValues,
-} from 'react-hook-form'
 import { Keyboard, Pressable, View } from 'react-native'
-import { BaseController, TBaseControllerProps } from '../controller'
 
-import { Grid, GridItem } from '@/components/ui/grid'
-import { useImageViewer } from '@/context/ImageViewerProvider'
 import { launchScanner } from '@dariyd/react-native-document-scanner'
 import { getDocumentAsync } from 'expo-document-picker'
 import { File } from 'expo-file-system'
-
-import { Icon } from '@/components/ui/icon'
-import {
-	ImagePickerOptions,
-	launchCameraAsync,
-	launchImageLibraryAsync,
-} from 'expo-image-picker'
+import { Image } from 'expo-image'
+import { launchCameraAsync, launchImageLibraryAsync } from 'expo-image-picker'
 import { convert as convertPdfToImage } from 'react-native-pdf-to-image'
+
+import { Button } from '@/components/ui/button'
+import { Grid, GridItem } from '@/components/ui/grid'
+import { Icon } from '@/components/ui/icon'
+import { useImageViewer } from '@/context/ImageViewerProvider'
+
+import { BaseController } from '../controller'
 import { BaseModal } from '../modal'
 
 type TBaseImagePickerProps<

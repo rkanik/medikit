@@ -1,5 +1,9 @@
-import { createContext, forwardRef, PropsWithChildren, useContext } from 'react'
-import { Text as RNText, TextProps } from 'react-native'
+import type { PropsWithChildren } from 'react'
+import type { TextProps } from 'react-native'
+
+import { createContext, forwardRef, useContext } from 'react'
+import { Text as RNText } from 'react-native'
+
 import { cn } from 'tailwind-variants'
 
 type TTextContext = {
