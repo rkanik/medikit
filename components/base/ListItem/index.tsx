@@ -1,7 +1,11 @@
+import type { GestureResponderEvent } from 'react-native'
+
+import { TouchableOpacity, View } from 'react-native'
+
+import { cn } from 'tailwind-variants'
+
 import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
-import { GestureResponderEvent, TouchableOpacity, View } from 'react-native'
-import { cn } from 'tailwind-variants'
 
 export type TBaseListItemProps = {
 	className?: string

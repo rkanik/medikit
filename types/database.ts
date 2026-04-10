@@ -8,7 +8,9 @@ export type TPatient = {
 	id: number
 	name: string
 	dob?: TMaybe<string>
+	gender?: TMaybe<string>
 	avatar?: TMaybe<TAsset>
+	edd?: TMaybe<string>
 	createdAt?: TMaybe<string>
 	updatedAt?: TMaybe<string>
 }

@@ -12,9 +12,12 @@ import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
+import { BaseSelect } from '@/components/base/select'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
+
+const GENDER_OPTIONS = ['Male', 'Female']
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
@@ -23,12 +26,11 @@ export default function Screen() {
 	const form = useForm({
 		resolver: zodResolver(zPatient),
 		defaultValues: {
-			id: null,
 			name: '',
-			dob: null,
-			avatar: null,
 		},
 	})
+
+	const gender = form.watch('gender')
 
 	const { submit } = usePatientsActions()
 
@@ -100,6 +102,23 @@ export default function Screen() {
 							placeholder="Select date of birth..."
 							control={form.control}
 						/>
+						<BaseSelect
+							name="gender"
+							label="Gender"
+							control={form.control}
+							options={GENDER_OPTIONS}
+							getOptionLabel={item => item}
+							getOptionValue={item => item}
+						/>
+						{gender === 'Female' && (
+							<BaseDatePicker
+								name="edd"
+								display="spinner"
+								inputFormat="DD MMMM, YYYY"
+								label="Expected Delivery Date"
+								control={form.control}
+							/>
+						)}
 						<BaseActions
 							className="relative justify-end px-0"
 							data={[

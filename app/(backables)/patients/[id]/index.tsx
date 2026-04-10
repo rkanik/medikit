@@ -15,6 +15,23 @@ import { Divider } from '@/components/ui/divider'
 import { Subtitle, Text, Title } from '@/components/ui/text'
 import { $d, $df } from '@/utils/dayjs'
 
+/** Gestational age from EDD (40 weeks from LMP ≈ 280 days). */
+function gestationalAgeParts(edd: string) {
+	const today = $d().startOf('day')
+	const due = $d(edd).startOf('day')
+	const daysUntilDue = due.diff(today, 'day')
+	const gestationalDays = Math.max(0, 280 - daysUntilDue)
+	const weeks = Math.floor(gestationalDays / 7)
+	const weekDays = gestationalDays % 7
+	const months = Math.floor(gestationalDays / 30)
+	const monthDays = gestationalDays % 30
+	return { weeks, weekDays, months, monthDays }
+}
+
+function plural(n: number, one: string, many: string) {
+	return `${n} ${n === 1 ? one : many}`
+}
+
 export default function Screen() {
 	const { id } = useLocalSearchParams()
 	const { data } = usePatient(Number(id))
@@ -43,6 +60,14 @@ export default function Screen() {
 				</View>
 			</Fragment>
 		)
+	}
+
+	let eddListText: string | undefined
+	if (data.edd) {
+		const { weeks, weekDays, months, monthDays } = gestationalAgeParts(data.edd)
+		const weeksStr = `${plural(weeks, 'week', 'weeks')} ${plural(weekDays, 'day', 'days')}`
+		const monthsStr = `${plural(months, 'month', 'months')} ${plural(monthDays, 'day', 'days')}`
+		eddListText = `${$df(data.edd, 'DD MMMM, YYYY')} (${weeksStr}, ${monthsStr})`
 	}
 
 	return (
@@ -78,6 +103,22 @@ export default function Screen() {
 									text={$df(data.dob, 'DD MMMM, YYYY')}
 									icon="calendar"
 									label="Date of Birth"
+								/>
+							</Fragment>
+						)}
+						{data.gender && (
+							<Fragment>
+								<Divider />
+								<BaseListItem text={data.gender} icon="user" label="Gender" />
+							</Fragment>
+						)}
+						{eddListText && (
+							<Fragment>
+								<Divider />
+								<BaseListItem
+									text={eddListText}
+									icon="calendar"
+									label="Expected Delivery Date"
 								/>
 							</Fragment>
 						)}
