@@ -19,6 +19,7 @@ import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
 import { BaseSelect } from '@/components/base/select'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
+import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
@@ -29,7 +30,8 @@ export default function Screen() {
 	const { data } = usePatientMedicine(Number(mid))
 
 	const { data: medicines } = useMedicines()
-	const { getByKey: getMedicineByKey } = useMedicinesActions()
+	const { getByKey: getMedicineByKey, remove: removeMedicine } =
+		useMedicinesActions()
 
 	const form = useForm({
 		resolver: zodResolver(zPatientMedicine),
@@ -90,6 +92,15 @@ export default function Screen() {
 		])
 	}, [remove, data?.id])
 
+	const onRemoveMedicine = useCallback(
+		(id?: number) => {
+			return (e?: any) => {
+				removeMedicine(id, e)
+			}
+		},
+		[removeMedicine],
+	)
+
 	useEffect(() => {
 		if (data) {
 			form.reset({
@@ -143,7 +154,24 @@ export default function Screen() {
 								name="medicine.id"
 								control={form.control}
 								options={medicines}
-								getOptionLabel={item => item?.name}
+								getOptionLabel={item => (
+									<View className="flex-row items-center gap-4 overflow-hidden">
+										<Avatar
+											className="w-8 h-8 flex-none"
+											image={item?.thumbnail?.uri}
+										/>
+										<Text className="text-lg flex-1" numberOfLines={1}>
+											{item?.name}
+										</Text>
+										<Button
+											icon="trash"
+											size="xs"
+											className="flex-none"
+											variant="transparent"
+											onPress={onRemoveMedicine(item?.id)}
+										/>
+									</View>
+								)}
 								getOptionValue={item => item?.id}
 								onChange={onChangeMedicineId}
 								trigger={v => (

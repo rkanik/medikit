@@ -38,7 +38,7 @@ export type TPatientMedicinesQuery = {
 }
 
 export const usePatientMedicines = (query: TPatientMedicinesQuery = {}) => {
-	const { data: medicines } = useMedicines()
+	const { data: medicines } = useMedicinesStorage()
 	const { data: patientMedicines } = usePatientMedicinesStorage()
 	const data = useMemo(() => {
 		const today = $d()

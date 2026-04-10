@@ -2,11 +2,14 @@ import type { TMaybe } from '@/types'
 import type { TMedicine } from '@/types/database'
 
 import { useCallback, useMemo } from 'react'
+import { Alert } from 'react-native'
 
 import { z } from 'zod'
 
 import { useMMKVArray } from '@/hooks/useMMKVArray'
 import { fs } from '@/utils/fs'
+
+import { usePatientMedicinesStorage } from './patient-medicines'
 
 export type TZMedicine = z.infer<typeof zMedicine>
 export const zMedicine = z.object({
@@ -49,7 +52,8 @@ export const useMedicine = (id: number) => {
 }
 
 export const useMedicinesActions = () => {
-	const { push, update, getByKey } = useMedicinesStorage()
+	const { data: patientMedicines } = usePatientMedicinesStorage()
+	const { push, update, getByKey, remove: removeData } = useMedicinesStorage()
 
 	const submit = useCallback(
 		async (id: TMaybe<number>, item: TZMedicine) => {
@@ -78,5 +82,35 @@ export const useMedicinesActions = () => {
 		[push, update, getByKey],
 	)
 
-	return { submit, getByKey }
+	const remove = useCallback(
+		async (id?: number, e?: any) => {
+			e?.preventDefault()
+			e?.stopPropagation()
+			if (!id) return
+
+			if (patientMedicines.some(item => item.medicineId === id)) {
+				return Alert.alert(
+					'Error',
+					'This medicine is assigned to a patient and cannot be removed.',
+				)
+			}
+
+			Alert.alert('Remove', 'Are you sure you want to remove this medicine?', [
+				{ text: 'Cancel', style: 'cancel' },
+				{
+					text: 'Remove',
+					onPress: () => {
+						const data = getByKey(id)
+						if (data?.thumbnail?.uri) {
+							fs.remove(data.thumbnail.uri)
+						}
+						removeData(id)
+					},
+				},
+			])
+		},
+		[getByKey, removeData, patientMedicines],
+	)
+
+	return { submit, getByKey, remove }
 }
