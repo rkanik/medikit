@@ -30,8 +30,11 @@ export default function Screen() {
 	const { data } = usePatientMedicine(Number(mid))
 
 	const { data: medicines } = useMedicines()
-	const { getByKey: getMedicineByKey, remove: removeMedicine } =
-		useMedicinesActions()
+	const {
+		remove: removeMedicine,
+		getByKey: getMedicineByKey,
+		isRemoveable,
+	} = useMedicinesActions()
 
 	const form = useForm({
 		resolver: zodResolver(zPatientMedicine),
@@ -163,13 +166,15 @@ export default function Screen() {
 										<Text className="text-lg flex-1" numberOfLines={1}>
 											{item?.name}
 										</Text>
-										<Button
-											icon="trash"
-											size="xs"
-											className="flex-none"
-											variant="transparent"
-											onPress={onRemoveMedicine(item?.id)}
-										/>
+										{isRemoveable(item?.id) && (
+											<Button
+												icon="trash"
+												size="xs"
+												className="flex-none"
+												variant="transparent"
+												onPress={onRemoveMedicine(item?.id)}
+											/>
+										)}
 									</View>
 								)}
 								getOptionValue={item => item?.id}

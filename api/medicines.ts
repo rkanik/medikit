@@ -40,7 +40,7 @@ export const useMedicines = (query: TMedicinesQuery = {}) => {
 			.sort((a, b) => {
 				return b.name.localeCompare(a.name)
 			})
-	}, [medicines, query])
+	}, [query, medicines])
 
 	return { data }
 }
@@ -112,5 +112,13 @@ export const useMedicinesActions = () => {
 		[getByKey, removeData, patientMedicines],
 	)
 
-	return { submit, getByKey, remove }
+	const isRemoveable = useCallback(
+		(id?: number) => {
+			if (!id) return false
+			return !patientMedicines.some(v => v.medicineId === id)
+		},
+		[patientMedicines],
+	)
+
+	return { submit, getByKey, remove, isRemoveable }
 }
