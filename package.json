@@ -3,6 +3,29 @@
 	"main": "expo-router/entry",
 	"version": "1.2.5",
 	"private": true,
+	"description": "Privacy-first medical records app: histories, prescriptions, and receipts on-device (MMKV), optional backup to your Google Drive. No shared backend.",
+	"author": {
+		"name": "Md Rasel Khandkar",
+		"email": "rkanik.me@gmail.com",
+		"url": "https://github.com/rkanik"
+	},
+	"homepage": "https://github.com/rkanik/medikit#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rkanik/medikit.git"
+	},
+	"bugs": {
+		"url": "https://github.com/rkanik/medikit/issues"
+	},
+	"keywords": [
+		"medikit",
+		"react-native",
+		"expo",
+		"medical",
+		"privacy",
+		"mmkv",
+		"google-drive"
+	],
 	"scripts": {
 		"start": "expo start",
 		"android": "npm run pba && expo run:android --device",

@@ -14,11 +14,30 @@ export default function Screen() {
 		>
 			<Grid cols={3} gap={16}>
 				<GridItem></GridItem>
+				<GridItem></GridItem>
+				<GridItem>
+					<IconCard
+						icon="lock"
+						title="Privacy Policy"
+						titleClassName="text-sm"
+						iconClassName="text-3xl text-purple-500 dark:text-purple-400"
+						onPress={() => router.push('/privacy-policy')}
+					/>
+				</GridItem>
+				<GridItem>
+					<IconCard
+						icon="info"
+						title="About"
+						titleClassName="text-sm"
+						iconClassName="text-3xl text-blue-500 dark:text-blue-400"
+						onPress={() => router.push('/about')}
+					/>
+				</GridItem>
 				<GridItem>
 					<IconCard
 						icon="download"
 						title="Updates"
-						titleClassName="text-lg"
+						titleClassName="text-sm"
 						iconClassName="text-3xl text-teal-500 dark:text-teal-400"
 						onPress={() => router.push('/updates')}
 					/>
@@ -27,7 +46,7 @@ export default function Screen() {
 					<IconCard
 						icon="clock"
 						title="Temp"
-						titleClassName="text-lg"
+						titleClassName="text-sm"
 						iconClassName="text-3xl text-red-500 dark:text-red-400"
 						onPress={() => router.push('/temp')}
 					/>
@@ -36,8 +55,8 @@ export default function Screen() {
 					<IconCard
 						icon="upload-cloud"
 						title="Backup"
-						titleClassName="text-lg"
-						iconClassName="text-3xl text-blue-500 dark:text-blue-400"
+						titleClassName="text-sm"
+						iconClassName="text-3xl text-cyan-500 dark:text-cyan-400"
 						onPress={() => router.push('/backup')}
 					/>
 				</GridItem>
@@ -45,7 +64,7 @@ export default function Screen() {
 					<IconCard
 						icon="folder"
 						title="Files"
-						titleClassName="text-lg"
+						titleClassName="text-sm"
 						iconClassName="text-3xl text-orange-500 dark:text-orange-400"
 						onPress={() => router.push('/files')}
 					/>
@@ -56,7 +75,7 @@ export default function Screen() {
 							<IconCard
 								icon="sun"
 								title="Theme"
-								titleClassName="text-lg"
+								titleClassName="text-sm"
 								iconClassName="text-3xl text-green-500 dark:text-green-400"
 								onPress={v.onPress}
 							/>

@@ -2,6 +2,7 @@
   "expo": {
     "name": "MediKit Dev",
     "slug": "medikit",
+    "description": "Privacy-first medical records on your phone—local storage with optional Google Drive backup. No shared backend.",
     "version": "1.2.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -86,7 +87,9 @@
       "router": {},
       "eas": {
         "projectId": "0cdbdddc-655f-4eb8-9f54-23d0651ae1fd"
-      }
+      },
+      "githubUrl": "https://github.com/rkanik/medikit",
+      "githubProfileUrl": "https://github.com/rkanik"
     },
     "owner": "rkanik"
   }

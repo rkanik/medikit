@@ -2,11 +2,12 @@ import type { TBaseControllerProps } from '@/components/base/controller'
 import type { Ref } from 'react'
 import type { FieldPath, FieldValues } from 'react-hook-form'
 
-import { forwardRef, useRef, useState } from 'react'
+import { forwardRef, useMemo, useRef, useState } from 'react'
 import { TextInput, TouchableOpacity, View } from 'react-native'
 
 import { cn } from 'tailwind-variants'
 
+import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { useCurrentForm } from '@/components/ui/form'
 import { Icon } from '@/components/ui/icon'
@@ -49,6 +50,26 @@ const BaseTagInputInner = <
 
 	const [value, setValue] = useState('')
 	const { textColorSecondary } = useSchemeColors()
+
+	const groupedTags = useMemo(() => {
+		const grouped = tags.reduce(
+			(acc, tag) => {
+				const firstLetter = tag[0].toUpperCase()
+				if (!acc[firstLetter]) {
+					acc[firstLetter] = []
+				}
+				acc[firstLetter].push(tag)
+				return acc
+			},
+			{} as Record<string, string[]>,
+		)
+		return Object.entries(grouped)
+			.map(([name, children]) => ({
+				name,
+				children,
+			}))
+			.sort((a, b) => a.name.localeCompare(b.name))
+	}, [tags])
 
 	return (
 		<BaseController
@@ -135,27 +156,36 @@ const BaseTagInputInner = <
 								)}
 							>
 								<View className="px-4 pb-8">
-									<Title>Select Tags</Title>
-									<View className="flex-row flex-wrap gap-2 mt-2">
-										{tags.map(tag => {
-											const selected = items.includes(tag)
-											return (
-												<Badge
-													key={tag}
-													text={tag}
-													selected={selected}
-													className="px-4 py-2 rounded-lg"
-													onPress={() => {
-														if (selected) {
-															field.onChange(items.filter(i => i !== tag))
-														} else {
-															field.onChange([...items, tag])
-														}
-													}}
-												/>
-											)
-										})}
-									</View>
+									<Title className="mb-4">Select Tags</Title>
+									{groupedTags.map(v => (
+										<View key={v.name} className="flex-row gap-2 mb-2">
+											<Avatar
+												text={v.name}
+												textClassName="text-neutral-500 dark:text-neutral-300 text-sm font-normal"
+												className="w-8 h-8 bg-neutral-100 dark:bg-neutral-900"
+											/>
+											<View className="flex-row flex-wrap gap-2">
+												{v.children.map(tag => {
+													const selected = items.includes(tag)
+													return (
+														<Badge
+															key={tag}
+															text={tag}
+															selected={selected}
+															className="px-4 py-2 rounded-lg"
+															onPress={() => {
+																if (selected) {
+																	field.onChange(items.filter(i => i !== tag))
+																} else {
+																	field.onChange([...items, tag])
+																}
+															}}
+														/>
+													)
+												})}
+											</View>
+										</View>
+									))}
 								</View>
 							</BaseModal>
 						)}

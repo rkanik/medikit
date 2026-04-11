@@ -27,9 +27,10 @@ export const Badge = ({
 		<Pressable
 			{...props}
 			className={cn(
-				'bg-neutral-100 dark:bg-neutral-900 rounded-md px-2 py-0.5 flex-row items-center gap-1',
+				'bg-neutral-100 dark:bg-neutral-900 rounded-md px-2 py-0.5 flex-row items-center gap-1 border',
 				{
-					'border border-green-500 dark:border-green-500': selected,
+					'border-green-500 dark:border-green-500': selected,
+					'border-transparent': !selected,
 				},
 				className,
 			)}

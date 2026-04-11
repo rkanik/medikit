@@ -233,7 +233,7 @@ medikit/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/rkanik/medikit.git
    cd medikit
    ```
 
@@ -445,10 +445,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 
-For issues, questions, or feature requests, please open an issue on the GitHub repository.
+For issues, questions, or feature requests, see [GitHub Issues](https://github.com/rkanik/medikit/issues).
+
+**Repository**: [github.com/rkanik/medikit](https://github.com/rkanik/medikit)
 
 ---
 
-**Version**: 1.2.4  
+**Version**: 1.2.5  
 **Package**: com.rkanik.medikit  
 **Platform**: Android, iOS, Web
