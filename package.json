@@ -1,31 +1,7 @@
 {
 	"name": "medikit",
 	"main": "expo-router/entry",
-	"version": "1.2.5",
-	"private": true,
-	"description": "Privacy-first medical records app: histories, prescriptions, and receipts on-device (MMKV), optional backup to your Google Drive. No shared backend.",
-	"author": {
-		"name": "Md Rasel Khandkar",
-		"email": "rkanik.me@gmail.com",
-		"url": "https://github.com/rkanik"
-	},
-	"homepage": "https://github.com/rkanik/medikit#readme",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/rkanik/medikit.git"
-	},
-	"bugs": {
-		"url": "https://github.com/rkanik/medikit/issues"
-	},
-	"keywords": [
-		"medikit",
-		"react-native",
-		"expo",
-		"medical",
-		"privacy",
-		"mmkv",
-		"google-drive"
-	],
+	"version": "1.2.6",
 	"scripts": {
 		"start": "expo start",
 		"android": "npm run pba && expo run:android --device",
@@ -37,7 +13,7 @@
 		"lint": "expo lint",
 		"build": "eas build",
 		"build:apk": "eas build -p android --profile apk",
-		"build:apk:local": "node scripts/build-apk.js",
+		"build:apk:local": "expo prebuild --platform android --clean && node scripts/build-apk.js",
 		"generate-keystore": "node scripts/generate-keystore.js",
 		"jobs": "adb shell dumpsys jobscheduler | grep -A 40 -m 1 -E \"JOB #.* com.rkanik.medikit\"",
 		"job": "adb shell cmd jobscheduler run -f com.rkanik.medikit"
@@ -108,5 +84,29 @@
 		"prettier": "^3.8.1",
 		"prettier-plugin-tailwindcss": "^0.5.11",
 		"typescript": "~5.9.2"
-	}
+	},
+	"private": true,
+	"description": "Privacy-first medical records app: histories, prescriptions, and receipts on-device (MMKV), optional backup to your Google Drive. No shared backend.",
+	"author": {
+		"name": "Md Rasel Khandkar",
+		"email": "rkanik.me@gmail.com",
+		"url": "https://github.com/rkanik"
+	},
+	"homepage": "https://github.com/rkanik/medikit#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rkanik/medikit.git"
+	},
+	"bugs": {
+		"url": "https://github.com/rkanik/medikit/issues"
+	},
+	"keywords": [
+		"medikit",
+		"react-native",
+		"expo",
+		"medical",
+		"privacy",
+		"mmkv",
+		"google-drive"
+	]
 }
