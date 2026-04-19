@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1776589177541,
+      "tag": "0000_crazy_king_bedlam",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1776596368400,
+      "tag": "0001_calm_gamma_corps",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1776597088257,
+      "tag": "0002_mushy_rick_jones",
+      "breakpoints": true
+    }
+  ]
+}

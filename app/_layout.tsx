@@ -2,12 +2,16 @@ import '@/global.css'
 import 'react-native-reanimated'
 
 import { Fragment, useEffect } from 'react'
+import { Alert } from 'react-native'
 
+import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 
 import { Logs } from '@/components/Logs'
 import { Providers } from '@/components/Providers'
+import { db } from '@/drizzle/db'
+import migrations from '@/drizzle/migrations'
 import { useScheme } from '@/hooks/useScheme'
 import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { initializeBackgroundTask } from '@/services/background'
@@ -29,7 +33,18 @@ initializeBackgroundTask(promise)
 
 const RootLayoutInner = () => {
 	const { scheme } = useScheme()
+	const { error, success } = useMigrations(db, migrations)
 	const { backgroundColor } = useSchemeColors()
+
+	useEffect(() => {
+		if (error) {
+			Alert.alert('Error', error.message || 'An unknown error occurred')
+		}
+		if (success) {
+			console.log('Migrations completed successfully')
+		}
+	}, [error, success])
+
 	return (
 		<Fragment>
 			<Logs />
@@ -62,7 +77,6 @@ export default function RootLayout() {
 			resolver()
 		}
 	}, [])
-
 	return (
 		<Providers>
 			<RootLayoutInner />

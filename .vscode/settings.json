@@ -11,6 +11,7 @@
 		"typescriptreact"
 	],
 	"cSpell.words": [
+		"attachables",
 		"bottomsheet",
 		"dariyd",
 		"datetimepicker",
@@ -28,6 +29,7 @@
 		"Removeable",
 		"rkanik",
 		"Schedulable",
+		"taggables",
 		"worklets"
 	]
 }
