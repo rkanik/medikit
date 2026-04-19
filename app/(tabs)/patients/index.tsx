@@ -1,3 +1,6 @@
+import type { TPatient } from '@/types/database'
+
+import { useEffect, useState } from 'react'
 import { View } from 'react-native'
 
 import { router } from 'expo-router'
@@ -8,13 +11,25 @@ import { BaseActions } from '@/components/base/actions'
 import { FlashList } from '@/components/FlashList'
 import { NoPatients } from '@/components/NoPatients'
 import { PatientCard } from '@/components/PatientCard'
+import { db } from '@/drizzle/db'
+import { patientsTable } from '@/drizzle/schema'
 
 export default function PatientsScreen() {
 	const { data } = usePatients()
+
+	const [patients, setPatients] = useState<TPatient[]>([])
+	useEffect(() => {
+		db.select()
+			.from(patientsTable)
+			.then(result => {
+				setPatients(result)
+			})
+	}, [])
+
 	return (
 		<View className="flex-1 relative">
 			<FlashList
-				data={data}
+				data={patients}
 				keyExtractor={item => item.id?.toString() ?? ''}
 				contentContainerStyle={{ flexGrow: 1 }}
 				contentContainerClassName={cn('flex-grow flex-col-reverse px-4', {

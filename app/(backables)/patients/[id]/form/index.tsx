@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { eq } from 'drizzle-orm'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 
@@ -16,6 +17,8 @@ import { BaseSelect } from '@/components/base/select'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
+import { db } from '@/drizzle/db'
+import { patientsTable } from '@/drizzle/schema'
 
 const GENDER_OPTIONS = ['Male', 'Female']
 
@@ -34,19 +37,32 @@ export default function Screen() {
 
 	const { submit } = usePatientsActions()
 
-	const onSubmit = useCallback(
-		(data: TZPatient) => {
-			const promise = submit(data.id, data)
-			promise
-				.then(() => router.back())
-				.catch(error => {
-					form.setError('root', {
-						message: error.message,
-					})
+	const onSubmit = useCallback(async (data: TZPatient) => {
+		if (data.id) {
+			const result = await db
+				.update(patientsTable)
+				.set({
+					name: data.name,
+					dob: data.dob,
+					gender: data.gender,
+					edd: data.edd,
 				})
-		},
-		[form, submit],
-	)
+				.where(eq(patientsTable.id, data.id))
+			console.log(result)
+			return router.back()
+		}
+		const result = await db
+			.insert(patientsTable)
+			.values({
+				name: data.name,
+				dob: data.dob,
+				gender: data.gender,
+				edd: data.edd,
+			})
+			.returning()
+		console.log(result)
+		return router.back()
+	}, [])
 
 	useEffect(() => {
 		if (data) {
