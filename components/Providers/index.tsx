@@ -7,6 +7,7 @@ import { TextProvider } from '@/components/ui/text'
 import { AppProvider } from '@/context/AppContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { ImageViewerProvider } from '@/context/ImageViewerProvider'
+import { QueryProvider } from '@/context/QueryProvider'
 import { Downloader } from '@/hooks/useDownloader'
 
 setNotificationHandler({
@@ -21,19 +22,21 @@ setNotificationHandler({
 export const Providers = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<GestureHandlerRootView>
-			<ThemeProvider>
-				<TextProvider className="text-black dark:text-white">
-					<BottomSheetModalProvider>
-						<AuthProvider>
-							<ImageViewerProvider>
-								<Downloader>
-									<AppProvider>{children}</AppProvider>
-								</Downloader>
-							</ImageViewerProvider>
-						</AuthProvider>
-					</BottomSheetModalProvider>
-				</TextProvider>
-			</ThemeProvider>
+			<QueryProvider>
+				<ThemeProvider>
+					<TextProvider className="text-black dark:text-white">
+						<BottomSheetModalProvider>
+							<AuthProvider>
+								<ImageViewerProvider>
+									<Downloader>
+										<AppProvider>{children}</AppProvider>
+									</Downloader>
+								</ImageViewerProvider>
+							</AuthProvider>
+						</BottomSheetModalProvider>
+					</TextProvider>
+				</ThemeProvider>
+			</QueryProvider>
 		</GestureHandlerRootView>
 	)
 }

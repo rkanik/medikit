@@ -8,7 +8,7 @@ import { eq } from 'drizzle-orm'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { usePatient, usePatientsActions, zPatient } from '@/api/patients'
+import { zPatient } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
@@ -18,13 +18,14 @@ import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollV
 import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
 import { db } from '@/drizzle/db'
-import { patientsTable } from '@/drizzle/schema'
+import { patients } from '@/drizzle/schema'
+import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
 
 const GENDER_OPTIONS = ['Male', 'Female']
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
-	const { data } = usePatient(Number(id))
+	const { data } = usePatientByIdQuery(Number(id))
 
 	const form = useForm({
 		resolver: zodResolver(zPatient),
@@ -35,24 +36,22 @@ export default function Screen() {
 
 	const gender = form.watch('gender')
 
-	const { submit } = usePatientsActions()
-
 	const onSubmit = useCallback(async (data: TZPatient) => {
 		if (data.id) {
 			const result = await db
-				.update(patientsTable)
+				.update(patients)
 				.set({
 					name: data.name,
 					dob: data.dob,
 					gender: data.gender,
 					edd: data.edd,
 				})
-				.where(eq(patientsTable.id, data.id))
+				.where(eq(patients.id, data.id))
 			console.log(result)
 			return router.back()
 		}
 		const result = await db
-			.insert(patientsTable)
+			.insert(patients)
 			.values({
 				name: data.name,
 				dob: data.dob,

@@ -4,7 +4,7 @@ import { Alert, ScrollView, View } from 'react-native'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 
 import { usePatientMedicines } from '@/api/patient-medicines'
-import { usePatient, usePatientActions } from '@/api/patients'
+import { usePatientActions } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
 import { FlashList } from '@/components/FlashList'
@@ -13,6 +13,7 @@ import { PatientMedicineCard } from '@/components/PatientMedicineCard'
 import { Avatar } from '@/components/ui/avatar'
 import { Divider } from '@/components/ui/divider'
 import { Subtitle, Text, Title } from '@/components/ui/text'
+import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
 import { $d, $df } from '@/utils/dayjs'
 
 /** Gestational age from EDD (40 weeks from LMP ≈ 280 days). */
@@ -34,7 +35,7 @@ function plural(n: number, one: string, many: string) {
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
-	const { data } = usePatient(Number(id))
+	const { data } = usePatientByIdQuery(Number(id))
 	const { remove } = usePatientActions(Number(id))
 	const { data: medicines } = usePatientMedicines({ patientId: Number(id) })
 

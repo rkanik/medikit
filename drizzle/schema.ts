@@ -1,7 +1,7 @@
 import { relations, sql } from 'drizzle-orm'
 import { index, int, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-export const tagsTable = sqliteTable(
+export const tags = sqliteTable(
 	'tags',
 	{
 		id: int().primaryKey({ autoIncrement: true }),
@@ -10,13 +10,13 @@ export const tagsTable = sqliteTable(
 	table => [index('name_idx').on(table.name)],
 )
 
-export const patientsTable = sqliteTable('patients', {
+export const patients = sqliteTable('patients', {
 	id: int().primaryKey({ autoIncrement: true }),
 	name: text().notNull(),
 	dob: text(),
 	gender: text(),
 	edd: text(),
-	avatarId: int().references(() => attachmentsTable.id),
+	avatarId: int().references(() => attachments.id),
 	createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 	updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 })
@@ -28,7 +28,7 @@ export const recordsTable = sqliteTable(
 		text: text(),
 		date: text().notNull(),
 		amount: int().default(0).notNull(),
-		patientId: int().references(() => patientsTable.id, {
+		patientId: int().references(() => patients.id, {
 			onDelete: 'cascade',
 		}),
 		createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
@@ -40,20 +40,20 @@ export const recordsTable = sqliteTable(
 	],
 )
 
-export const medicinesTable = sqliteTable('medicines', {
+export const medicines = sqliteTable('medicines', {
 	id: int().primaryKey({ autoIncrement: true }),
 	name: text().notNull(),
-	thumbnailId: int().references(() => attachmentsTable.id),
+	thumbnailId: int().references(() => attachments.id),
 	createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 	updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 })
 
-export const patientMedicinesTable = sqliteTable('patient_medicines', {
+export const patientMedicines = sqliteTable('patient_medicines', {
 	id: int().primaryKey({ autoIncrement: true }),
-	patientId: int().references(() => patientsTable.id, {
+	patientId: int().references(() => patients.id, {
 		onDelete: 'cascade',
 	}),
-	medicineId: int().references(() => medicinesTable.id, {
+	medicineId: int().references(() => medicines.id, {
 		onDelete: 'cascade',
 	}),
 	startDate: text(),
@@ -62,7 +62,7 @@ export const patientMedicinesTable = sqliteTable('patient_medicines', {
 	stock: int(),
 })
 
-export const attachmentsTable = sqliteTable('attachments', {
+export const attachments = sqliteTable('attachments', {
 	id: int().primaryKey({ autoIncrement: true }),
 	uri: text().notNull(),
 	name: text().notNull(),
@@ -70,27 +70,27 @@ export const attachmentsTable = sqliteTable('attachments', {
 	updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 })
 
-export const attachablesTable = sqliteTable('attachables', {
+export const attachables = sqliteTable('attachables', {
 	id: int().primaryKey({ autoIncrement: true }),
 	attachmentId: int()
 		.notNull()
-		.references(() => attachmentsTable.id, {
+		.references(() => attachments.id, {
 			onDelete: 'cascade',
 		}),
 	recordId: int().references(() => recordsTable.id, {
 		onDelete: 'cascade',
 	}),
-	patientId: int().references(() => patientsTable.id, {
+	patientId: int().references(() => patients.id, {
 		onDelete: 'cascade',
 	}),
-	medicineId: int().references(() => medicinesTable.id, {
+	medicineId: int().references(() => medicines.id, {
 		onDelete: 'cascade',
 	}),
 })
 
 export const taggablesTable = sqliteTable('taggables', {
 	id: int().primaryKey({ autoIncrement: true }),
-	tagId: int().references(() => tagsTable.id, {
+	tagId: int().references(() => tags.id, {
 		onDelete: 'cascade',
 	}),
 	recordId: int().references(() => recordsTable.id, {
@@ -102,62 +102,62 @@ export const taggablesTable = sqliteTable('taggables', {
 
 export const recordRelations = relations(recordsTable, ({ many, one }) => ({
 	taggables: many(taggablesTable),
-	attachables: many(attachablesTable),
-	patient: one(patientsTable, {
+	attachables: many(attachables),
+	patient: one(patients, {
 		fields: [recordsTable.patientId],
-		references: [patientsTable.id],
+		references: [patients.id],
 	}),
 }))
 
-export const attachableRelations = relations(attachablesTable, ({ one }) => ({
-	attachment: one(attachmentsTable, {
-		fields: [attachablesTable.attachmentId],
-		references: [attachmentsTable.id],
+export const attachableRelations = relations(attachables, ({ one }) => ({
+	attachment: one(attachments, {
+		fields: [attachables.attachmentId],
+		references: [attachments.id],
 	}),
 	record: one(recordsTable, {
-		fields: [attachablesTable.recordId],
+		fields: [attachables.recordId],
 		references: [recordsTable.id],
 	}),
-	patient: one(patientsTable, {
-		fields: [attachablesTable.patientId],
-		references: [patientsTable.id],
+	patient: one(patients, {
+		fields: [attachables.patientId],
+		references: [patients.id],
 	}),
-	medicine: one(medicinesTable, {
-		fields: [attachablesTable.medicineId],
-		references: [medicinesTable.id],
-	}),
-}))
-
-export const patientRelations = relations(patientsTable, ({ one, many }) => ({
-	attachables: many(attachablesTable),
-	avatar: one(attachmentsTable, {
-		fields: [patientsTable.avatarId],
-		references: [attachmentsTable.id],
+	medicine: one(medicines, {
+		fields: [attachables.medicineId],
+		references: [medicines.id],
 	}),
 }))
 
-export const medicineRelations = relations(medicinesTable, ({ one, many }) => ({
-	attachables: many(attachablesTable),
-	thumbnail: one(attachmentsTable, {
-		fields: [medicinesTable.thumbnailId],
-		references: [attachmentsTable.id],
+export const patientRelations = relations(patients, ({ one, many }) => ({
+	attachables: many(attachables),
+	avatar: one(attachments, {
+		fields: [patients.avatarId],
+		references: [attachments.id],
+	}),
+}))
+
+export const medicineRelations = relations(medicines, ({ one, many }) => ({
+	attachables: many(attachables),
+	thumbnail: one(attachments, {
+		fields: [medicines.thumbnailId],
+		references: [attachments.id],
 	}),
 }))
 
 export const patientMedicineRelations = relations(
-	patientMedicinesTable,
+	patientMedicines,
 	({ one }) => ({
-		patient: one(patientsTable, {
-			fields: [patientMedicinesTable.patientId],
-			references: [patientsTable.id],
+		patient: one(patients, {
+			fields: [patientMedicines.patientId],
+			references: [patients.id],
 		}),
-		medicine: one(medicinesTable, {
-			fields: [patientMedicinesTable.medicineId],
-			references: [medicinesTable.id],
+		medicine: one(medicines, {
+			fields: [patientMedicines.medicineId],
+			references: [medicines.id],
 		}),
 	}),
 )
 
-export const attachmentRelations = relations(attachmentsTable, ({ many }) => ({
-	attachables: many(attachablesTable),
+export const attachmentRelations = relations(attachments, ({ many }) => ({
+	attachables: many(attachables),
 }))
