@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Icon } from '@/components/ui/icon'
 import { useImageViewer } from '@/context/ImageViewerProvider'
+import { paths } from '@/utils/paths'
 
 import { BaseController } from '../controller'
 import { BaseModal } from '../modal'
@@ -178,7 +179,7 @@ const BaseImagePickerInner = <
 										}}
 									>
 										<Image
-											source={{ uri: asset?.uri }}
+											source={{ uri: paths.document(asset?.uri) }}
 											style={{ width: '100%', aspectRatio: 1 }}
 											contentFit="cover"
 											contentPosition="center"

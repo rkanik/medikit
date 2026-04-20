@@ -21,7 +21,7 @@ export const patients = sqliteTable('patients', {
 	updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 })
 
-export const recordsTable = sqliteTable(
+export const records = sqliteTable(
 	'records',
 	{
 		id: int().primaryKey({ autoIncrement: true }),
@@ -65,7 +65,9 @@ export const patientMedicines = sqliteTable('patient_medicines', {
 export const attachments = sqliteTable('attachments', {
 	id: int().primaryKey({ autoIncrement: true }),
 	uri: text().notNull(),
-	name: text().notNull(),
+	name: text(),
+	mime: text(),
+	size: int(),
 	createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 	updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 })
@@ -77,7 +79,7 @@ export const attachables = sqliteTable('attachables', {
 		.references(() => attachments.id, {
 			onDelete: 'cascade',
 		}),
-	recordId: int().references(() => recordsTable.id, {
+	recordId: int().references(() => records.id, {
 		onDelete: 'cascade',
 	}),
 	patientId: int().references(() => patients.id, {
@@ -93,18 +95,18 @@ export const taggablesTable = sqliteTable('taggables', {
 	tagId: int().references(() => tags.id, {
 		onDelete: 'cascade',
 	}),
-	recordId: int().references(() => recordsTable.id, {
+	recordId: int().references(() => records.id, {
 		onDelete: 'cascade',
 	}),
 })
 
 // Relations
 
-export const recordRelations = relations(recordsTable, ({ many, one }) => ({
+export const recordRelations = relations(records, ({ many, one }) => ({
 	taggables: many(taggablesTable),
 	attachables: many(attachables),
 	patient: one(patients, {
-		fields: [recordsTable.patientId],
+		fields: [records.patientId],
 		references: [patients.id],
 	}),
 }))
@@ -114,9 +116,9 @@ export const attachableRelations = relations(attachables, ({ one }) => ({
 		fields: [attachables.attachmentId],
 		references: [attachments.id],
 	}),
-	record: one(recordsTable, {
+	record: one(records, {
 		fields: [attachables.recordId],
-		references: [recordsTable.id],
+		references: [records.id],
 	}),
 	patient: one(patients, {
 		fields: [attachables.patientId],

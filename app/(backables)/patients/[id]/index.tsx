@@ -15,6 +15,7 @@ import { Divider } from '@/components/ui/divider'
 import { Subtitle, Text, Title } from '@/components/ui/text'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
 import { $d, $df } from '@/utils/dayjs'
+import { paths } from '@/utils/paths'
 
 /** Gestational age from EDD (40 weeks from LMP ≈ 280 days). */
 function gestationalAgeParts(edd: string) {
@@ -83,7 +84,7 @@ export default function Screen() {
 						className="h-24 w-24"
 						textClassName="text-2xl"
 						text={data.name}
-						image={data.avatar?.uri}
+						image={paths.document(data.avatar?.uri)}
 					/>
 					<Title className="mt-5 text-2xl">{data.name}</Title>
 					{data.dob && (
@@ -151,6 +152,8 @@ export default function Screen() {
 						}}
 					/>
 				</View>
+
+				{/* <BaseJson data={data} /> */}
 			</ScrollView>
 			<BaseActions
 				className="bottom-12"

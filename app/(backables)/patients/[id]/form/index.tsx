@@ -4,7 +4,6 @@ import { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { eq } from 'drizzle-orm'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 
@@ -17,8 +16,7 @@ import { BaseSelect } from '@/components/base/select'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
-import { db } from '@/drizzle/db'
-import { patients } from '@/drizzle/schema'
+import { usePatientsMutation } from '@/mutations/usePatientsMutation'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
 
 const GENDER_OPTIONS = ['Male', 'Female']
@@ -26,6 +24,7 @@ const GENDER_OPTIONS = ['Male', 'Female']
 export default function Screen() {
 	const { id } = useLocalSearchParams()
 	const { data } = usePatientByIdQuery(Number(id))
+	const { mutate } = usePatientsMutation()
 
 	const form = useForm({
 		resolver: zodResolver(zPatient),
@@ -36,32 +35,21 @@ export default function Screen() {
 
 	const gender = form.watch('gender')
 
-	const onSubmit = useCallback(async (data: TZPatient) => {
-		if (data.id) {
-			const result = await db
-				.update(patients)
-				.set({
-					name: data.name,
-					dob: data.dob,
-					gender: data.gender,
-					edd: data.edd,
-				})
-				.where(eq(patients.id, data.id))
-			console.log(result)
-			return router.back()
-		}
-		const result = await db
-			.insert(patients)
-			.values({
-				name: data.name,
-				dob: data.dob,
-				gender: data.gender,
-				edd: data.edd,
+	const onSubmit = useCallback(
+		async (data: TZPatient) => {
+			mutate(data, {
+				onSuccess: () => {
+					router.back()
+				},
+				onError: error => {
+					form.setError('root', {
+						message: error.message,
+					})
+				},
 			})
-			.returning()
-		console.log(result)
-		return router.back()
-	}, [])
+		},
+		[form, mutate],
+	)
 
 	useEffect(() => {
 		if (data) {
@@ -134,6 +122,7 @@ export default function Screen() {
 								control={form.control}
 							/>
 						)}
+						{/* <BaseJson data={form.getValues()} /> */}
 						<BaseActions
 							className="relative justify-end px-0"
 							data={[

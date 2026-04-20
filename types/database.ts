@@ -1,33 +1,42 @@
 import type {
-	attachablesTable,
-	attachmentsTable,
-	medicinesTable,
-	patientMedicinesTable,
-	patientsTable,
-	recordsTable,
+	attachables,
+	attachments,
+	medicines,
+	patientMedicines,
+	patients,
+	records,
 } from '@/drizzle/schema'
 import type { File, FileInfo } from 'expo-file-system'
 import type { ImagePickerAsset } from 'expo-image-picker'
 
 export type TAsset = File | FileInfo | ImagePickerAsset
 
-export type TPatient = typeof patientsTable.$inferSelect & {
-	avatar?: typeof attachmentsTable.$inferSelect
-}
-
-export type TRecord = typeof recordsTable.$inferSelect & {
-	patient?: typeof patientsTable.$inferSelect
-	attachables?: typeof attachablesTable.$inferSelect &
+export type TAttachment = typeof attachments.$inferSelect & {
+	attachables?: typeof attachables.$inferSelect &
 		{
-			attachment?: typeof attachmentsTable.$inferSelect
+			record?: typeof records.$inferSelect
+			patient?: typeof patients.$inferSelect
+			medicine?: typeof medicines.$inferSelect
 		}[]
 }
 
-export type TMedicine = typeof medicinesTable.$inferSelect & {
-	thumbnail?: typeof attachmentsTable.$inferSelect
+export type TPatient = typeof patients.$inferSelect & {
+	avatar?: typeof attachments.$inferSelect | null
 }
 
-export type TPatientMedicine = typeof patientMedicinesTable.$inferSelect & {
-	patient?: typeof patientsTable.$inferSelect
-	medicine?: typeof medicinesTable.$inferSelect
+export type TRecord = typeof records.$inferSelect & {
+	patient?: typeof patients.$inferSelect
+	attachables?: typeof attachables.$inferSelect &
+		{
+			attachment?: typeof attachments.$inferSelect
+		}[]
+}
+
+export type TMedicine = typeof medicines.$inferSelect & {
+	thumbnail?: typeof attachments.$inferSelect
+}
+
+export type TPatientMedicine = typeof patientMedicines.$inferSelect & {
+	patient?: typeof patients.$inferSelect
+	medicine?: typeof medicines.$inferSelect
 }

@@ -1,12 +1,8 @@
+import type { DirectoryCreateOptions } from 'expo-file-system'
+
+import { Directory, File, Paths } from 'expo-file-system'
+
 import { log } from '@/utils/logs'
-import {
-	Directory,
-	DirectoryCreateOptions,
-	File,
-	FileInfo,
-	Paths,
-} from 'expo-file-system'
-import { ImagePickerAsset } from 'expo-image-picker'
 
 /**
  * Get a directory instance for the given path
@@ -139,7 +135,7 @@ const deleteItem = (item: File | Directory): void => {
 	}
 }
 
-const copyAssetTo = (path: string, asset: ImagePickerAsset | FileInfo) => {
+const copyAssetTo = (path: string, asset: { uri: string }) => {
 	try {
 		if (!asset.uri) {
 			return {

@@ -6,7 +6,11 @@ export const usePatientsQuery = () => {
 		queryKey: ['patients'],
 		initialData: [],
 		queryFn() {
-			return db.query.patients.findMany()
+			return db.query.patients.findMany({
+				with: {
+					avatar: true,
+				},
+			})
 		},
 	})
 }
