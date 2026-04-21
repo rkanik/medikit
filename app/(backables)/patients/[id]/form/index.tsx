@@ -18,6 +18,7 @@ import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
 import { usePatientsMutation } from '@/mutations/usePatientsMutation'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
+import { useInvalidatePatientsQuery } from '@/queries/usePatientsQuery'
 
 const GENDER_OPTIONS = ['Male', 'Female']
 
@@ -25,6 +26,7 @@ export default function Screen() {
 	const { id } = useLocalSearchParams()
 	const { data } = usePatientByIdQuery(Number(id))
 	const { mutate } = usePatientsMutation()
+	const invalidatePatientsQuery = useInvalidatePatientsQuery()
 
 	const form = useForm({
 		resolver: zodResolver(zPatient),
@@ -36,19 +38,20 @@ export default function Screen() {
 	const gender = form.watch('gender')
 
 	const onSubmit = useCallback(
-		async (data: TZPatient) => {
+		(data: TZPatient) => {
 			mutate(data, {
-				onSuccess: () => {
+				onSuccess() {
+					invalidatePatientsQuery()
 					router.back()
 				},
-				onError: error => {
+				onError(error) {
 					form.setError('root', {
 						message: error.message,
 					})
 				},
 			})
 		},
-		[form, mutate],
+		[form, mutate, invalidatePatientsQuery],
 	)
 
 	useEffect(() => {

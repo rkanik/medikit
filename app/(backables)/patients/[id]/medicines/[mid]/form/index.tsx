@@ -124,7 +124,7 @@ export default function Screen() {
 				}
 			}
 		},
-		[deleteMedicine],
+		[deleteMedicine, refetchMedicines],
 	)
 
 	useEffect(() => {
@@ -199,7 +199,7 @@ export default function Screen() {
 										<Text className="text-lg flex-1" numberOfLines={1}>
 											{item?.name}
 										</Text>
-										{item?.isRemoveable && (
+										{!item?.patientMedicines?.length ? (
 											<Button
 												icon="trash"
 												size="xs"
@@ -207,7 +207,7 @@ export default function Screen() {
 												variant="transparent"
 												onPress={onRemoveMedicine(item?.id)}
 											/>
-										)}
+										) : null}
 									</View>
 								)}
 								getOptionValue={item => item?.id}

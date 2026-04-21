@@ -10,6 +10,7 @@ export const useAttachmentsDeleteMutation = () => {
 	return useMutation({
 		mutationFn: async (id: number | number[]) => {
 			const ids = Array.isArray(id) ? id : [id]
+			if (!ids.length) return
 			const items = await db.query.attachments.findMany({
 				where: (v, { inArray }) => inArray(v.id, ids),
 			})

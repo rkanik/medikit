@@ -14,7 +14,15 @@ export default function Screen() {
 		>
 			<Grid cols={3} gap={16}>
 				<GridItem></GridItem>
-				<GridItem></GridItem>
+				<GridItem>
+					<IconCard
+						icon="list"
+						title="Medicines"
+						titleClassName="text-sm"
+						iconClassName="text-3xl text-purple-500 dark:text-purple-400"
+						onPress={() => router.push('/medicines')}
+					/>
+				</GridItem>
 				<GridItem>
 					<IconCard
 						icon="lock"

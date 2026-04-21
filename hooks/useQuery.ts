@@ -23,6 +23,12 @@ export const useQuery = ((options, queryClient) => {
 				console.log('⌚', options.queryKey)
 				return (options as any)?.queryFn?.(...args)
 			},
+			meta: {
+				onError: (...args: any[]) => {
+					console.log('🚨', options.queryKey, ...args)
+					;(options as any)?.meta?.onError?.(...args)
+				},
+			},
 		},
 		queryClient,
 	)

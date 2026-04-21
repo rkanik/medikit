@@ -3,7 +3,6 @@ import { Alert, ScrollView, View } from 'react-native'
 
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 
-import { usePatientActions } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
 import { FlashList } from '@/components/FlashList'
@@ -12,8 +11,10 @@ import { PatientMedicineCard } from '@/components/PatientMedicineCard'
 import { Avatar } from '@/components/ui/avatar'
 import { Divider } from '@/components/ui/divider'
 import { Subtitle, Text, Title } from '@/components/ui/text'
+import { useDeletePatientsMutation } from '@/mutations/useDeletePatientsMutation'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
 import { usePatientMedicinesQuery } from '@/queries/usePatientMedicinesQuery'
+import { useInvalidatePatientsQuery } from '@/queries/usePatientsQuery'
 import { $d, $df } from '@/utils/dayjs'
 import { paths } from '@/utils/paths'
 
@@ -37,10 +38,11 @@ function plural(n: number, one: string, many: string) {
 export default function Screen() {
 	const { id } = useLocalSearchParams()
 	const { data } = usePatientByIdQuery(Number(id))
-	const { remove } = usePatientActions(Number(id))
+	const { mutate: deletePatient } = useDeletePatientsMutation()
 	const { data: medicinesData } = usePatientMedicinesQuery({
 		patientId: Number(id),
 	})
+	const invalidatePatientsQuery = useInvalidatePatientsQuery()
 	const medicines = medicinesData.filter(item => !!item.medicine)
 
 	const onDelete = useCallback(() => {
@@ -49,12 +51,16 @@ export default function Screen() {
 			{
 				text: 'Delete',
 				onPress: () => {
-					remove()
-					router.back()
+					deletePatient(Number(id), {
+						onSuccess() {
+							invalidatePatientsQuery()
+							router.back()
+						},
+					})
 				},
 			},
 		])
-	}, [remove])
+	}, [id, deletePatient, invalidatePatientsQuery])
 
 	if (!data) {
 		return (
