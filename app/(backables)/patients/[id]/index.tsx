@@ -2,6 +2,7 @@ import { Fragment, useCallback } from 'react'
 import { Alert, ScrollView, View } from 'react-native'
 
 import { router, Stack, useLocalSearchParams } from 'expo-router'
+import { cn } from 'tailwind-variants'
 
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
@@ -9,7 +10,6 @@ import { FlashList } from '@/components/FlashList'
 import { NoPatientMedicines } from '@/components/NoPatientMedicines'
 import { PatientMedicineCard } from '@/components/PatientMedicineCard'
 import { Avatar } from '@/components/ui/avatar'
-import { Divider } from '@/components/ui/divider'
 import { Subtitle, Text, Title } from '@/components/ui/text'
 import { useDeletePatientsMutation } from '@/mutations/useDeletePatientsMutation'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
@@ -103,33 +103,43 @@ export default function Screen() {
 						</Subtitle>
 					)}
 				</View>
+
 				<View className="mt-8">
 					<Text className="uppercase text-sm tracking-wide ml-2">Basic</Text>
-					<View className="dark:bg-neutral-800 rounded-lg mt-2">
-						<BaseListItem text={data.name} icon="user" label="Name" />
+					<View className="rounded-3xl mt-2 gap-1 overflow-hidden ">
+						<BaseListItem
+							text={data.name}
+							icon="user"
+							label="Name"
+							className="dark:bg-neutral-800 rounded-lg"
+						/>
 						{data.dob && (
 							<Fragment>
-								<Divider />
 								<BaseListItem
 									text={$df(data.dob, 'DD MMMM, YYYY')}
 									icon="calendar"
 									label="Date of Birth"
+									className="dark:bg-neutral-800 rounded-lg"
 								/>
 							</Fragment>
 						)}
 						{data.gender && (
 							<Fragment>
-								<Divider />
-								<BaseListItem text={data.gender} icon="user" label="Gender" />
+								<BaseListItem
+									text={data.gender}
+									icon="user"
+									label="Gender"
+									className="dark:bg-neutral-800 rounded-lg"
+								/>
 							</Fragment>
 						)}
 						{eddListText && (
 							<Fragment>
-								<Divider />
 								<BaseListItem
 									text={eddListText}
 									icon="calendar"
 									label="Expected Delivery Date"
+									className="dark:bg-neutral-800 rounded-lg"
 								/>
 							</Fragment>
 						)}
@@ -148,7 +158,11 @@ export default function Screen() {
 						renderItem={({ item, index }) => (
 							<PatientMedicineCard
 								data={item}
-								className={index ? 'mt-2' : ''}
+								className={cn({
+									'mt-1': index > 0,
+									'rounded-t-3xl': index === 0,
+									'rounded-b-3xl': index === medicines.length - 1,
+								})}
 								onPress={() =>
 									router.push(`/patients/${id}/medicines/${item.id}/form`)
 								}
