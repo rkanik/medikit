@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { RefreshControl, View } from 'react-native'
 
 import { router } from 'expo-router'
+import { cn } from 'tailwind-variants'
 
 import { BaseActions } from '@/components/base/actions'
 import { FlashList } from '@/components/FlashList'
@@ -58,7 +59,11 @@ export default function PatientsScreen() {
 				renderItem={({ item, index }) => (
 					<PatientCard
 						data={item}
-						className={index ? 'mt-4' : ''}
+						className={cn({
+							'mt-1': index > 0,
+							'rounded-t-3xl': index === 0,
+							'rounded-b-3xl': index === patients.length - 1,
+						})}
 						onPress={() => router.push(`/patients/${item.id}`)}
 					/>
 				)}
