@@ -6,37 +6,36 @@ import type {
 	patients,
 	records,
 } from '@/drizzle/schema'
+import type { TMaybe } from '@/types'
 import type { File, FileInfo } from 'expo-file-system'
 import type { ImagePickerAsset } from 'expo-image-picker'
 
 export type TAsset = File | FileInfo | ImagePickerAsset
 
+export type TAttachable = typeof attachables.$inferSelect & {
+	record?: TMaybe<TRecord>
+	patient?: TMaybe<TPatient>
+	medicine?: TMaybe<TMedicine>
+}
+
 export type TAttachment = typeof attachments.$inferSelect & {
-	attachables?: typeof attachables.$inferSelect &
-		{
-			record?: typeof records.$inferSelect
-			patient?: typeof patients.$inferSelect
-			medicine?: typeof medicines.$inferSelect
-		}[]
+	attachables?: TMaybe<TAttachable[]>
 }
 
 export type TPatient = typeof patients.$inferSelect & {
-	avatar?: typeof attachments.$inferSelect | null
+	avatar?: TMaybe<TAttachment>
 }
 
 export type TRecord = typeof records.$inferSelect & {
-	patient?: typeof patients.$inferSelect
-	attachables?: typeof attachables.$inferSelect &
-		{
-			attachment?: typeof attachments.$inferSelect
-		}[]
+	patient?: TMaybe<TPatient>
+	attachables?: TMaybe<TAttachable[]>
 }
 
 export type TMedicine = typeof medicines.$inferSelect & {
-	thumbnail?: typeof attachments.$inferSelect
+	thumbnail?: TMaybe<TAttachment>
 }
 
 export type TPatientMedicine = typeof patientMedicines.$inferSelect & {
-	patient?: typeof patients.$inferSelect
-	medicine?: typeof medicines.$inferSelect
+	patient?: TMaybe<TPatient>
+	medicine?: TMaybe<TMedicine>
 }

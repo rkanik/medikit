@@ -1,5 +1,3 @@
-import type { TZPatientMedicine } from '@/api/patient-medicines'
-
 import { useCallback, useEffect } from 'react'
 import { Alert, View } from 'react-native'
 
@@ -7,12 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { useMedicines, useMedicinesActions } from '@/api/medicines'
-import {
-	usePatientMedicine,
-	usePatientMedicineActions,
-	zPatientMedicine,
-} from '@/api/patient-medicines'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
@@ -24,17 +16,26 @@ import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
+import { useDeleteMedicineMutation } from '@/mutations/useDeleteMedicineMutation'
+import { usePatientMedicineDeleteMutation } from '@/mutations/usePatientMedicineDeleteMutation'
+import {
+	usePatientMedicineMutation,
+	zPatientMedicine,
+	type TZPatientMedicine,
+} from '@/mutations/usePatientMedicineMutation'
+import { useMedicinesQuery } from '@/queries/useMedicinesQuery'
+import { usePatientMedicineByIdQuery } from '@/queries/usePatientMedicineByIdQuery'
+import { paths } from '@/utils/paths'
 
 export default function Screen() {
 	const { id, mid } = useLocalSearchParams()
-	const { data } = usePatientMedicine(Number(mid))
+	const { data } = usePatientMedicineByIdQuery(Number(mid))
 
-	const { data: medicines } = useMedicines()
-	const {
-		remove: removeMedicine,
-		getByKey: getMedicineByKey,
-		isRemoveable,
-	} = useMedicinesActions()
+	const { data: medicines, refetch: refetchMedicines } = useMedicinesQuery()
+	const { mutateAsync: deleteMedicine } = useDeleteMedicineMutation()
+	const { mutateAsync: submitPatientMedicine } = usePatientMedicineMutation()
+	const { mutateAsync: deletePatientMedicine } =
+		usePatientMedicineDeleteMutation()
 
 	const form = useForm({
 		resolver: zodResolver(zPatientMedicine),
@@ -46,31 +47,29 @@ export default function Screen() {
 		},
 	})
 
-	const { submit, remove } = usePatientMedicineActions()
-
 	const onSubmit = useCallback(
-		(data: TZPatientMedicine) => {
-			const promise = submit(data.id, data)
-			promise
-				.then(() => router.back())
-				.catch(error => {
-					form.setError('root', {
-						message: error.message,
-					})
+		async (data: TZPatientMedicine) => {
+			try {
+				await submitPatientMedicine(data)
+				router.back()
+			} catch (error: any) {
+				form.setError('root', {
+					message: error.message,
 				})
+			}
 		},
-		[form, submit],
+		[form, submitPatientMedicine],
 	)
 
 	const onChangeMedicineId = useCallback(
 		(key?: number) => {
-			const medicine = getMedicineByKey(key)
+			const medicine = medicines.find(v => v.id === key)
 			if (medicine) {
 				form.setValue('medicine.name', medicine.name)
 				form.setValue('medicine.thumbnail', medicine.thumbnail)
 			}
 		},
-		[form, getMedicineByKey],
+		[form, medicines],
 	)
 
 	const onChangeMedicineName = useCallback(
@@ -87,30 +86,64 @@ export default function Screen() {
 			{ text: 'Cancel', style: 'cancel' },
 			{
 				text: 'Remove',
-				onPress: () => {
-					remove(data?.id)
+				onPress: async () => {
+					if (!data?.id) return
+					await deletePatientMedicine(data.id)
 					router.back()
 				},
 			},
 		])
-	}, [remove, data?.id])
+	}, [deletePatientMedicine, data?.id])
 
 	const onRemoveMedicine = useCallback(
 		(id?: number) => {
-			return (e?: any) => {
-				removeMedicine(id, e)
+			return async (e?: any) => {
+				e?.preventDefault?.()
+				e?.stopPropagation?.()
+				if (!id) return
+				try {
+					Alert.alert(
+						'Remove',
+						'Are you sure you want to remove this medicine?',
+						[
+							{ text: 'Cancel', style: 'cancel' },
+							{
+								text: 'Remove',
+								onPress() {
+									deleteMedicine(id, {
+										onSuccess() {
+											refetchMedicines()
+										},
+									})
+								},
+							},
+						],
+					)
+				} catch (error: any) {
+					Alert.alert('Error', error?.message ?? 'Failed to remove medicine.')
+				}
 			}
 		},
-		[removeMedicine],
+		[deleteMedicine],
 	)
 
 	useEffect(() => {
 		if (data) {
 			form.reset({
-				...data,
+				id: data.id,
+				patientId: data.patientId ?? Number(id),
+				startDate: data.startDate,
+				endDate: data.endDate,
+				schedule: data.schedule,
+				stock: data.stock,
+				medicine: {
+					id: data.medicine?.id,
+					name: data.medicine?.name ?? '',
+					thumbnail: data.medicine?.thumbnail,
+				},
 			})
 		}
-	}, [form, data])
+	}, [form, data, id])
 
 	if (mid !== 'new' && !data) {
 		return (
@@ -161,12 +194,12 @@ export default function Screen() {
 									<View className="flex-row items-center gap-4 overflow-hidden">
 										<Avatar
 											className="w-8 h-8 flex-none"
-											image={item?.thumbnail?.uri}
+											image={paths.document(item?.thumbnail?.uri)}
 										/>
 										<Text className="text-lg flex-1" numberOfLines={1}>
 											{item?.name}
 										</Text>
-										{isRemoveable(item?.id) && (
+										{item?.isRemoveable && (
 											<Button
 												icon="trash"
 												size="xs"

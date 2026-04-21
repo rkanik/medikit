@@ -140,6 +140,7 @@ export const patientRelations = relations(patients, ({ one, many }) => ({
 
 export const medicineRelations = relations(medicines, ({ one, many }) => ({
 	attachables: many(attachables),
+	patientMedicines: many(patientMedicines),
 	thumbnail: one(attachments, {
 		fields: [medicines.thumbnailId],
 		references: [attachments.id],

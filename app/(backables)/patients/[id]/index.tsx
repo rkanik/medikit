@@ -3,7 +3,6 @@ import { Alert, ScrollView, View } from 'react-native'
 
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 
-import { usePatientMedicines } from '@/api/patient-medicines'
 import { usePatientActions } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
@@ -14,6 +13,7 @@ import { Avatar } from '@/components/ui/avatar'
 import { Divider } from '@/components/ui/divider'
 import { Subtitle, Text, Title } from '@/components/ui/text'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
+import { usePatientMedicinesQuery } from '@/queries/usePatientMedicinesQuery'
 import { $d, $df } from '@/utils/dayjs'
 import { paths } from '@/utils/paths'
 
@@ -38,7 +38,10 @@ export default function Screen() {
 	const { id } = useLocalSearchParams()
 	const { data } = usePatientByIdQuery(Number(id))
 	const { remove } = usePatientActions(Number(id))
-	const { data: medicines } = usePatientMedicines({ patientId: Number(id) })
+	const { data: medicinesData } = usePatientMedicinesQuery({
+		patientId: Number(id),
+	})
+	const medicines = medicinesData.filter(item => !!item.medicine)
 
 	const onDelete = useCallback(() => {
 		Alert.alert('Delete', 'Are you sure you want to delete this item?', [
