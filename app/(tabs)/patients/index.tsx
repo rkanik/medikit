@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { RefreshControl, View } from 'react-native'
 
 import { router } from 'expo-router'
@@ -27,9 +27,9 @@ export default function PatientsScreen() {
 		return (data?.pages ?? []).flatMap(page => page.data ?? [])
 	}, [data?.pages])
 
-	useEffect(() => {
-		refetch()
-	}, [refetch])
+	// useEffect(() => {
+	// 	refetch()
+	// }, [refetch])
 
 	// const onClear = () => {
 	// 	db.delete(patientsTable).execute()

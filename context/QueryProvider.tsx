@@ -25,9 +25,9 @@ const getHandler = (func: string, index = 0) => {
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
-			retry: false,
-			gcTime: Infinity,
-			staleTime: 10000,
+			// retry: false,
+			// gcTime: Infinity,
+			// staleTime: 10000,
 		},
 	},
 	queryCache: new QueryCache({
