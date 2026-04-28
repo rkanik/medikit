@@ -1,5 +1,5 @@
 import type { TButtonProps, TButtonVariants } from '@/components/ui/button'
-import type { TIconLibrary } from '@/components/ui/icon'
+import type { TIconProps } from '@/components/ui/icon'
 import { View } from 'react-native'
 import { cn } from 'tailwind-variants'
 import { Button } from '@/components/ui/button'
@@ -32,11 +32,11 @@ export type TBaseButtonProps = Pick<
 	titleClassName?: string
 	append?: React.ReactNode
 	prepend?: React.ReactNode
-	prependIcon?: string
-	prependIconLibrary?: TIconLibrary
+	prependIcon?: TIconProps['name']
+	prependIconLibrary?: TIconProps['library']
 	prependIconClassName?: string
-	appendIcon?: string
-	appendIconLibrary?: TIconLibrary
+	appendIcon?: TIconProps['name']
+	appendIconLibrary?: TIconProps['library']
 	appendIconClassName?: string
 	loading?: boolean
 	disabled?: boolean

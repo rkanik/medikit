@@ -1,19 +1,13 @@
-import type { GestureResponderEvent } from 'react-native'
-
+import type { TBaseButtonProps } from '../button'
 import { View } from 'react-native'
-
 import { cn } from 'tailwind-variants'
+import { BaseButton } from '../button'
 
-import { Button } from '@/components/ui/button'
-
-type TAction = {
-	icon: any
-	text?: string
+export type TAction = TBaseButtonProps & {
 	hidden?: boolean
-	onPress?: (event: GestureResponderEvent) => void
 }
 
-type TBaseActionsProps = {
+export type TBaseActionsProps = {
 	data: TAction[]
 	className?: string
 }
@@ -27,15 +21,9 @@ export const BaseActions = ({ data, className }: TBaseActionsProps) => {
 			)}
 		>
 			{data
-				.filter(item => !item.hidden)
-				.map((item, index) => (
-					<Button
-						key={index}
-						icon={item.icon}
-						text={item.text}
-						className="rounded-full"
-						onPress={item.onPress}
-					/>
+				.filter(v => !v.hidden)
+				.map((v, key) => (
+					<BaseButton key={key} {...v} />
 				))}
 		</View>
 	)

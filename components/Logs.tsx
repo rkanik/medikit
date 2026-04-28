@@ -1,9 +1,9 @@
 import { FlashList } from '@/components/FlashList'
 import { $df } from '@/utils/dayjs'
 import { useLogs } from '@/utils/logs'
+import { BaseButton } from './base/button'
 import { BaseCard } from './base/card'
 import { BaseModal } from './base/modal'
-import { Button } from './ui/button'
 import { Text } from './ui/text'
 
 export const Logs = () => {
@@ -11,7 +11,14 @@ export const Logs = () => {
 	return (
 		<BaseModal
 			trigger={v => (
-				<Button {...v} icon="info" className="absolute bottom-4 right-4 z-10" />
+				<BaseButton
+					{...v}
+					pill
+					size="icon-lg"
+					prependIcon="info"
+					prependIconClassName="text-xl"
+					wrapperClassName="absolute bottom-4 right-4 z-10"
+				/>
 			)}
 		>
 			<FlashList

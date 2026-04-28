@@ -145,12 +145,14 @@ export default function Screen() {
 						className="relative justify-end px-0"
 						data={[
 							{
-								icon: 'x',
+								pill: true,
+								prependIcon: 'x',
 								onPress: () => router.back(),
 							},
 							{
-								icon: 'check-circle',
-								text: 'Submit',
+								pill: true,
+								prependIcon: 'check-circle',
+								title: 'Submit',
 								onPress(e) {
 									form.handleSubmit(onSubmit)(e)
 								},

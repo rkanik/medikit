@@ -1,11 +1,10 @@
 import { useCallback, useEffect } from 'react'
 import { Alert, View } from 'react-native'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
-
 import { BaseActions } from '@/components/base/actions'
+import { BaseButton } from '@/components/base/button'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
@@ -200,11 +199,12 @@ export default function Screen() {
 											{item?.name}
 										</Text>
 										{!item?.patientMedicines?.length ? (
-											<Button
-												icon="trash"
-												size="xs"
+											<BaseButton
+												pill
+												size="icon-xs"
+												variant="secondary"
 												className="flex-none"
-												variant="transparent"
+												prependIcon="trash"
 												onPress={onRemoveMedicine(item?.id)}
 											/>
 										) : null}
@@ -213,10 +213,12 @@ export default function Screen() {
 								getOptionValue={item => item?.id}
 								onChange={onChangeMedicineId}
 								trigger={v => (
-									<Button
+									<BaseButton
 										{...v}
-										icon="chevron-down"
-										className="rounded-lg p-2 h-14 mt-7"
+										size="icon-lg"
+										className="mt-8"
+										prependIcon="chevron-down"
+										prependIconClassName="text-xl"
 									/>
 								)}
 							/>
@@ -259,17 +261,21 @@ export default function Screen() {
 						className="relative justify-end px-0"
 						data={[
 							{
-								icon: 'x',
+								pill: true,
+								prependIcon: 'x',
 								onPress: () => router.back(),
 							},
 							{
-								icon: 'trash',
+								pill: true,
+								variant: 'destructive',
+								prependIcon: 'trash',
 								hidden: !data?.id,
 								onPress: onRemove,
 							},
 							{
-								icon: 'check-circle',
-								text: 'Submit',
+								pill: true,
+								prependIcon: 'check-circle',
+								title: 'Submit',
 								onPress(e) {
 									form.handleSubmit(onSubmit)(e)
 								},

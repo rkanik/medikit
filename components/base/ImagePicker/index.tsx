@@ -6,7 +6,6 @@ import type {
 	FieldPath,
 	FieldValues,
 } from 'react-hook-form'
-
 import {
 	forwardRef,
 	Fragment,
@@ -16,20 +15,17 @@ import {
 	useState,
 } from 'react'
 import { Keyboard, Pressable, View } from 'react-native'
-
 import { launchScanner } from '@dariyd/react-native-document-scanner'
 import { getDocumentAsync } from 'expo-document-picker'
 import { File } from 'expo-file-system'
 import { Image } from 'expo-image'
 import { launchCameraAsync, launchImageLibraryAsync } from 'expo-image-picker'
 import { convert as convertPdfToImage } from 'react-native-pdf-to-image'
-
-import { Button } from '@/components/ui/button'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Icon } from '@/components/ui/icon'
 import { useImageViewer } from '@/context/ImageViewerProvider'
 import { paths } from '@/utils/paths'
-
+import { BaseButton } from '../button'
 import { BaseController } from '../controller'
 import { BaseModal } from '../modal'
 
@@ -195,11 +191,12 @@ const BaseImagePickerInner = <
 							))}
 							{(multiple || (!multiple && !assets.length)) && (
 								<GridItem className="aspect-square">
-									<Button
+									<BaseButton
 										size="xl"
-										icon="plus"
-										variant="base2"
-										className="h-full rounded-lg"
+										prependIcon="plus"
+										prependIconClassName="text-xl"
+										variant="secondary"
+										className="h-full"
 										onPress={() => onOpenDialog(v.field)}
 									/>
 								</GridItem>
@@ -210,22 +207,28 @@ const BaseImagePickerInner = <
 			/>
 			<BaseModal height={180} visible={visible} setVisible={setVisible}>
 				<View className="flex-1 flex-row gap-4 justify-center px-4 py-8">
-					<Button
-						icon="folder"
-						variant="base2"
-						size="xl"
+					<BaseButton
+						pill
+						size="icon-xl"
+						variant="secondary"
+						prependIcon="folder"
+						prependIconClassName="text-xl"
 						onPress={onPressDocument}
 					/>
-					<Button
-						icon="image"
-						variant="base2"
-						size="xl"
+					<BaseButton
+						pill
+						size="icon-xl"
+						variant="secondary"
+						prependIcon="image"
+						prependIconClassName="text-xl"
 						onPress={onPressImage}
 					/>
-					<Button
-						icon="camera"
-						variant="base2"
-						size="xl"
+					<BaseButton
+						pill
+						size="icon-xl"
+						variant="secondary"
+						prependIcon="camera"
+						prependIconClassName="text-xl"
 						onPress={onPressCamera}
 					/>
 				</View>

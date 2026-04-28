@@ -1,10 +1,7 @@
 import type { GestureResponderEvent } from 'react-native'
-
 import { Fragment, useCallback, useMemo } from 'react'
 import { Alert, ScrollView, View } from 'react-native'
-
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-
 import { useRecordById } from '@/api/records'
 import { BaseActions } from '@/components/base/actions'
 import { BaseCard } from '@/components/base/card'
@@ -88,10 +85,16 @@ export default function Screen() {
 			<BaseActions
 				className="bottom-12"
 				data={[
-					{ icon: 'trash', onPress: onDelete },
 					{
-						icon: 'edit',
-						text: 'Update',
+						pill: true,
+						variant: 'destructive',
+						prependIcon: 'trash',
+						onPress: onDelete,
+					},
+					{
+						pill: true,
+						prependIcon: 'edit',
+						title: 'Update',
 						onPress: () => router.push(`/records/${id}/form`),
 					},
 				]}

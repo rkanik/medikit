@@ -1,12 +1,9 @@
 import type { TZPatient } from '@/api/patients'
-
 import { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
-
 import { zPatient } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
@@ -130,12 +127,14 @@ export default function Screen() {
 							className="relative justify-end px-0"
 							data={[
 								{
-									icon: 'x',
+									pill: true,
+									prependIcon: 'x',
 									onPress: () => router.back(),
 								},
 								{
-									icon: 'check-circle',
-									text: 'Submit',
+									pill: true,
+									prependIcon: 'check-circle',
+									title: 'Submit',
 									onPress(e) {
 										form.handleSubmit(onSubmit)(e)
 									},

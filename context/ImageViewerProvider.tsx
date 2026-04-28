@@ -89,16 +89,19 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 										// 	onPress: onDelete,
 										// },
 										{
-											icon: 'share-2',
+											pill: true,
+											prependIcon: 'share-2',
 											onPress: onShare,
 										},
 										{
-											icon: 'download',
+											pill: true,
+											prependIcon: 'download',
 											onPress: onDownload,
 										},
 										{
-											icon: 'chevron-down',
-											text: 'Close',
+											pill: true,
+											prependIcon: 'chevron-down',
+											title: 'Close',
 											onPress: dismiss,
 										},
 									]}

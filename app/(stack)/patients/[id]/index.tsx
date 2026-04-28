@@ -1,9 +1,7 @@
 import { Fragment, useCallback } from 'react'
 import { Alert, ScrollView, View } from 'react-native'
-
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { cn } from 'tailwind-variants'
-
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
 import { FlashList } from '@/components/FlashList'
@@ -182,18 +180,22 @@ export default function Screen() {
 				className="bottom-12"
 				data={[
 					{
-						icon: 'trash',
+						pill: true,
+						variant: 'destructive',
+						prependIcon: 'trash',
 						onPress: onDelete,
 					},
 					{
-						icon: 'plus',
-						text: 'Medicine',
+						pill: true,
+						prependIcon: 'plus',
+						title: 'Medicine',
 						hidden: !medicines.length,
 						onPress: () => router.push(`/patients/${id}/medicines/new/form`),
 					},
 					{
-						icon: 'edit',
-						text: 'Update',
+						pill: true,
+						prependIcon: 'edit',
+						title: 'Update',
 						onPress: () => router.push(`/patients/${id}/form`),
 					},
 				]}

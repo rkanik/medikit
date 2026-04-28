@@ -122,8 +122,9 @@ export default function Screen() {
 					className="bottom-8"
 					data={[
 						{
-							icon: 'plus',
-							text: 'Add Record',
+							pill: true,
+							prependIcon: 'plus',
+							title: 'Add Record',
 							onPress: () => router.push('/records/new/form'),
 						},
 					]}

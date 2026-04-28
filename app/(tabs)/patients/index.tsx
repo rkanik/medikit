@@ -1,9 +1,7 @@
 import { useMemo } from 'react'
 import { RefreshControl, View } from 'react-native'
-
 import { router } from 'expo-router'
 import { cn } from 'tailwind-variants'
-
 import { BaseActions } from '@/components/base/actions'
 import { FlashList } from '@/components/FlashList'
 import { NoPatients } from '@/components/NoPatients'
@@ -98,8 +96,9 @@ export default function PatientsScreen() {
 						// 	onPress: onGenerate,
 						// },
 						{
-							icon: 'plus',
-							text: 'Add Patient',
+							pill: true,
+							prependIcon: 'plus',
+							title: 'Add Patient',
 							onPress: () => router.push('/patients/new/form'),
 						},
 					]}
