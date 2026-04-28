@@ -42,14 +42,7 @@ const RootLayoutInner = () => {
 	return (
 		<Fragment>
 			<Logs />
-			<Stack
-				screenOptions={{
-					headerShown: false,
-					contentStyle: {
-						backgroundColor: 'transparent',
-					},
-				}}
-			>
+			<Stack screenOptions={{ headerShown: false }}>
 				<Stack.Screen name="(tabs)" />
 			</Stack>
 		</Fragment>

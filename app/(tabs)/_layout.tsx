@@ -41,46 +41,51 @@ export default function TabLayout() {
 			screenOptions={{
 				headerShadowVisible: false,
 				sceneStyle: {
-					backgroundColor: 'transparent',
+					backgroundColor: background,
+				},
+				headerStyle: {
+					backgroundColor: background,
 				},
 				tabBarActiveTintColor: primary,
 				tabBarInactiveTintColor: foreground,
 				tabBarStyle: {
 					height: 96,
 					paddingTop: 8,
-					borderColor: 'transparent',
+					borderColor: background,
 					backgroundColor: background,
 				},
-				header() {
+				headerTitle: () => {
 					return (
-						<View className="flex-row items-center justify-between px-5">
-							<Link href="/">
-								<View className="flex-row items-center gap-2">
-									<View className="w-12 h-12 bg-white p-3 rounded-full items-center justify-center">
-										<Image
-											source={require('@/assets/images/icon2.png')}
-											style={{ width: '100%', aspectRatio: 1 }}
-										/>
-									</View>
-									<Text className="text-green-600 font-semibold text-xl">
-										{appName}
-									</Text>
+						<Link href="/">
+							<View className="flex-row items-center gap-2">
+								<View className="w-12 h-12 bg-white p-3 rounded-full items-center justify-center">
+									<Image
+										source={require('@/assets/images/icon2.png')}
+										style={{ width: '100%', aspectRatio: 1 }}
+									/>
 								</View>
-							</Link>
-							<View>
-								{pathname === '/' && (
-									<View className="flex-row items-center gap-2">
-										<BaseButton
-											pill
-											size="icon"
-											prependIcon={isSearching ? 'x' : 'search'}
-											prependIconClassName="text-lg"
-											onPress={() => setSearching(v => !v)}
-										/>
-										<CurrentPatientPicker />
-									</View>
-								)}
+								<Text className="text-green-600 font-semibold text-xl">
+									{appName}
+								</Text>
 							</View>
+						</Link>
+					)
+				},
+				headerRight: () => {
+					return (
+						<View className="pr-5">
+							{pathname === '/' && (
+								<View className="flex-row items-center gap-2">
+									<BaseButton
+										pill
+										size="icon"
+										prependIcon={isSearching ? 'x' : 'search'}
+										prependIconClassName="text-lg"
+										onPress={() => setSearching(v => !v)}
+									/>
+									<CurrentPatientPicker />
+								</View>
+							)}
 						</View>
 					)
 				},

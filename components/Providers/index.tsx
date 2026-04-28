@@ -1,7 +1,7 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { setNotificationHandler } from 'expo-notifications'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { TextProvider } from '@/components/ui/text'
 import { AppProvider } from '@/context/AppContext'
@@ -25,17 +25,15 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
 		<ThemeProvider>
 			<GestureHandlerRootView className="flex-1">
 				<TextProvider className="text-foreground">
-					<SafeAreaProvider className="">
+					<SafeAreaProvider>
 						<QueryProvider>
 							<BottomSheetModalProvider>
 								<AuthProvider>
 									<ImageViewerProvider>
 										<Downloader>
 											<AppProvider>
-												<SafeAreaView edges={['top']} className="flex-1">
-													<Offline />
-													{children}
-												</SafeAreaView>
+												<Offline />
+												{children}
 											</AppProvider>
 										</Downloader>
 									</ImageViewerProvider>
