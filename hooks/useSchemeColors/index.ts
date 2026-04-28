@@ -1,25 +1,9 @@
+import { useMemo } from 'react'
+import { useColorScheme } from 'react-native'
+import { defaultColorScheme } from '@/const'
 import { colors } from '@/const/colors'
 
-import { useScheme } from '../useScheme'
-
 export const useSchemeColors = () => {
-	const { scheme } = useScheme()
-	return {
-		textColor: scheme({
-			dark: 'white',
-			light: 'black',
-		}),
-		textColorSecondary: scheme({
-			dark: colors.neutral[400],
-			light: colors.neutral[500],
-		}),
-		backgroundColor: scheme({
-			dark: 'black',
-			light: colors.neutral[200],
-		}),
-		borderColor: scheme({
-			dark: colors.neutral[700],
-			light: colors.neutral[300],
-		}),
-	}
+	const colorScheme = useColorScheme() || defaultColorScheme
+	return useMemo(() => colors[colorScheme], [colorScheme])
 }

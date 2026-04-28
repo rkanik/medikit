@@ -1,13 +1,9 @@
 import type { TBaseModalProps } from '@/components/base/modal'
 import type { TColorScheme } from '@/types'
-
 import { useCallback, useState } from 'react'
 import { View } from 'react-native'
-
 import { cn } from 'tailwind-variants'
-
 import { useColorSchemeStorage } from '@/hooks/useColorSchemeStorage'
-
 import { BaseModal } from '../base/modal'
 import { IconCard } from '../IconCard'
 

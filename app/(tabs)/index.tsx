@@ -1,11 +1,8 @@
 import type { TRecordsQuery } from '@/api/records'
-
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { ScrollView, View } from 'react-native'
-
 import { router } from 'expo-router'
 import { cn } from 'tailwind-variants'
-
 import { useCurrentPatient } from '@/api/patients'
 import { useRecords } from '@/api/records'
 import { BaseActions } from '@/components/base/actions'

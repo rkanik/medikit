@@ -1,9 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import type { AppStateStatus } from 'react-native'
-
 import { useEffect } from 'react'
 import { AppState, Platform } from 'react-native'
-
 import NetInfo from '@react-native-community/netinfo'
 import {
 	focusManager,

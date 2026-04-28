@@ -1,12 +1,9 @@
 import type { TZRecord } from '@/api/records'
-
 import { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
-
 import { useCurrentPatientIdStorage, usePatients } from '@/api/patients'
 import { useRecordById, useRecordsActions, zRecord } from '@/api/records'
 import { BaseActions } from '@/components/base/actions'
@@ -143,6 +140,7 @@ export default function Screen() {
 							/>
 						</GridItem>
 					</Grid>
+
 					<BaseActions
 						className="relative justify-end px-0"
 						data={[

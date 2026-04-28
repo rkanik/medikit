@@ -1,35 +1,31 @@
 import { View } from 'react-native'
-
 import { Image } from 'expo-image'
 import { Link, Tabs, usePathname } from 'expo-router'
 import { cn } from 'tailwind-variants'
-
+import { BaseButton } from '@/components/base/button'
 import { CurrentPatientPicker } from '@/components/CurrentPatientPicker'
-import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 import { appName } from '@/const'
-import { colors } from '@/const/colors'
 import { useApp } from '@/context/AppContext'
-import { useScheme } from '@/hooks/useScheme'
-import { useSchemeColors } from '@/hooks/useSchemeColors'
+import { useColors } from '@/hooks/useColors'
 import { useUpdater } from '@/hooks/useUpdater'
 
 const items = [
 	{
 		title: 'Home',
 		name: 'index',
-		icon: 'home',
+		icon: 'home' as const,
 	},
 	{
 		title: 'Patients',
 		name: 'patients/index',
-		icon: 'users',
+		icon: 'users' as const,
 	},
 	{
 		title: 'Menu',
 		name: 'menu/index',
-		icon: 'grid',
+		icon: 'grid' as const,
 	},
 ]
 
@@ -37,60 +33,57 @@ export default function TabLayout() {
 	useUpdater()
 
 	const pathname = usePathname()
-	const { scheme } = useScheme()
-	const { borderColor, textColor } = useSchemeColors()
+	const { foreground, primary, background } = useColors()
 	const { isSearching, setSearching } = useApp()
 
 	return (
 		<Tabs
 			screenOptions={{
-				headerShown: true,
 				headerShadowVisible: false,
-				headerStyle: {
-					backgroundColor: 'transparent',
-				},
 				sceneStyle: {
 					backgroundColor: 'transparent',
 				},
-				tabBarActiveTintColor: colors.green[500],
-				tabBarInactiveTintColor: textColor,
+				tabBarActiveTintColor: primary,
+				tabBarInactiveTintColor: foreground,
 				tabBarStyle: {
 					height: 96,
 					paddingTop: 8,
-					borderColor,
-					backgroundColor: scheme({
-						dark: colors.neutral[800],
-						light: 'white',
-					}),
+					borderColor: 'transparent',
+					backgroundColor: background,
 				},
-				headerTitle: () => (
-					<Link href="/">
-						<View className="flex-row items-center gap-2">
-							<View className="w-12 h-12 bg-white p-3 rounded-full items-center justify-center">
-								<Image
-									source={require('@/assets/images/icon2.png')}
-									style={{ width: '100%', aspectRatio: 1 }}
-								/>
+				header() {
+					return (
+						<View className="flex-row items-center justify-between px-5">
+							<Link href="/">
+								<View className="flex-row items-center gap-2">
+									<View className="w-12 h-12 bg-white p-3 rounded-full items-center justify-center">
+										<Image
+											source={require('@/assets/images/icon2.png')}
+											style={{ width: '100%', aspectRatio: 1 }}
+										/>
+									</View>
+									<Text className="text-green-600 font-semibold text-xl">
+										{appName}
+									</Text>
+								</View>
+							</Link>
+							<View>
+								{pathname === '/' && (
+									<View className="flex-row items-center gap-2">
+										<BaseButton
+											pill
+											size="icon"
+											prependIcon={isSearching ? 'x' : 'search'}
+											prependIconClassName="text-lg"
+											onPress={() => setSearching(v => !v)}
+										/>
+										<CurrentPatientPicker />
+									</View>
+								)}
 							</View>
-							<Text className="text-green-600 font-semibold text-xl">
-								{appName}
-							</Text>
 						</View>
-					</Link>
-				),
-				headerRight: () => (
-					<View className="mr-5">
-						{pathname === '/' && (
-							<View className="flex-row items-center gap-2">
-								<Button
-									icon={isSearching ? 'x' : 'search'}
-									onPress={() => setSearching(v => !v)}
-								/>
-								<CurrentPatientPicker />
-							</View>
-						)}
-					</View>
-				),
+					)
+				},
 			}}
 		>
 			{items.map(item => (

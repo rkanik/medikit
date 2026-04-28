@@ -1,35 +1,40 @@
 import type { PropsWithChildren } from 'react'
-import type { TextProps } from 'react-native'
-
+import type { StyleProp, TextProps, TextStyle } from 'react-native'
 import { createContext, forwardRef, useContext } from 'react'
 import { Text as RNText } from 'react-native'
-
 import { cn } from 'tailwind-variants'
 
 type TTextContext = {
+	style?: StyleProp<TextStyle>
 	className?: string
 }
 
 export const TextContext = createContext<TTextContext>(null!)
 
 export const TextProvider = ({
+	style,
 	className,
 	...props
 }: PropsWithChildren<TTextContext>) => {
-	return <TextContext.Provider {...props} value={{ className }} />
+	return <TextContext.Provider {...props} value={{ style, className }} />
 }
 
-const createText = ({ className: className2, ...props3 }: TextProps) => {
+const createText = ({
+	style: style2,
+	className: className2,
+	...props3
+}: TextProps) => {
 	return forwardRef<RNText, TextProps>(function Text(
-		{ className: className3, ...props2 },
+		{ style: style3, className: className3, ...props2 },
 		ref,
 	) {
-		const { className: className1 } = useContext(TextContext)
+		const { style: style1, className: className1 } = useContext(TextContext)
 		return (
 			<RNText
 				{...props2}
 				{...props3}
 				ref={ref}
+				style={[style1, style2, style3]}
 				className={cn(className1, className2, className3)}
 			/>
 		)

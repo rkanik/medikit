@@ -1,25 +1,27 @@
+import { Fragment } from 'react'
+import { Stack } from 'expo-router'
+import { useColors } from '@/hooks/useColors'
 import { useScheme } from '@/hooks/useScheme'
 import { useSchemeColors } from '@/hooks/useSchemeColors'
-import { Stack } from 'expo-router'
-import { Fragment } from 'react'
 
 export default function Layout() {
 	const { scheme } = useScheme()
-	const { backgroundColor } = useSchemeColors()
+	const { background } = useColors()
 	return (
 		<Fragment>
 			<Stack.Screen
 				options={{
-					headerShown: false,
+					headerShown: true,
 				}}
 			/>
 			<Stack
 				screenOptions={{
+					headerShown: false,
 					contentStyle: {
-						backgroundColor,
+						backgroundColor: background,
 					},
 					headerStyle: {
-						backgroundColor,
+						backgroundColor: background,
 					},
 					headerShadowVisible: false,
 					headerTintColor: scheme({

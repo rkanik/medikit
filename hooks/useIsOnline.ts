@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-
 import NetInfo from '@react-native-community/netinfo'
 
 export const useIsOnline = () => {

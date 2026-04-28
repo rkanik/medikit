@@ -8,6 +8,7 @@ export type TDividerProps = ViewProps & {
 	//
 }
 
+/** @deprecated Use Separator instead */
 export const Divider = ({ className, ...props }: TDividerProps) => {
 	return (
 		<View

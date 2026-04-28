@@ -1,12 +1,9 @@
 import type { TBaseControllerProps } from '@/components/base/controller'
 import type { Ref } from 'react'
 import type { FieldPath, FieldValues } from 'react-hook-form'
-
 import { forwardRef, useMemo, useRef, useState } from 'react'
 import { TextInput, TouchableOpacity, View } from 'react-native'
-
 import { cn } from 'tailwind-variants'
-
 import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { useCurrentForm } from '@/components/ui/form'
@@ -14,8 +11,10 @@ import { Icon } from '@/components/ui/icon'
 import { type TInputProps } from '@/components/ui/input'
 import { Text, Title } from '@/components/ui/text'
 import { useSchemeColors } from '@/hooks/useSchemeColors'
-
+import { useTagsMutation } from '@/mutations/useTagsMutation'
+import { useTagsQuery } from '@/queries/useTagsQuery'
 import { BaseController } from '../controller'
+import { BaseJson } from '../Json'
 import { BaseModal } from '../modal'
 
 export type TBaseTagInputProps<
@@ -49,6 +48,10 @@ const BaseTagInputInner = <
 	const countRef = useRef(0)
 
 	const [value, setValue] = useState('')
+
+	const { data } = useTagsQuery()
+	const { mutate } = useTagsMutation()
+
 	const { textColorSecondary } = useSchemeColors()
 
 	const groupedTags = useMemo(() => {
@@ -108,10 +111,25 @@ const BaseTagInputInner = <
 									className="text-black dark:text-white py-0 text-lg px-0 leading-snug flex-1 min-w-16 overflow-hidden"
 									onChangeText={setValue}
 									onSubmitEditing={e => {
-										if (!e.nativeEvent.text.trim().length) return
-										field.onChange([...items, e.nativeEvent.text.trim()])
-										setValue('')
-										countRef.current = 0
+										const name = e.nativeEvent.text.trim()
+										if (!name.length) return
+
+										console.log('mutate', { name })
+										mutate(
+											{ name },
+											{
+												onSuccess: e => {
+													console.log('onSuccess', e)
+													// field.onChange([...items, text])
+													// setValue('')
+													// countRef.current = 0
+												},
+											},
+										)
+
+										// field.onChange([...items, e.nativeEvent.text.trim()])
+										// setValue('')
+										// countRef.current = 0
 									}}
 									onFocus={e => {
 										onFocus?.(e)
@@ -145,6 +163,7 @@ const BaseTagInputInner = <
 								)}
 							</View>
 						</View>
+						<BaseJson data={data} />
 						{!!tags.length && (
 							<BaseModal
 								trigger={v => (

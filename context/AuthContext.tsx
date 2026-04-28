@@ -1,6 +1,5 @@
 import type { TMaybe, TUser } from '@/types'
 import type { PropsWithChildren } from 'react'
-
 import {
 	createContext,
 	useCallback,
@@ -8,9 +7,7 @@ import {
 	useEffect,
 	useState,
 } from 'react'
-
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
-
 import { webClientId } from '@/const'
 import { log } from '@/utils/logs'
 
