@@ -6,7 +6,11 @@ import { useRecordsQuery } from '@/queries/useRecordsQuery'
 import { $d } from '@/utils/dayjs'
 
 export const useRecordsSummary = (query: TRecordsQuery) => {
-	const { data } = useRecordsQuery(query)
+	const { data } = useRecordsQuery({
+		...query,
+		page: 1,
+		perPage: 100000,
+	})
 
 	const summary = useMemo(() => {
 		return data.reduce(

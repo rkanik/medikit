@@ -60,8 +60,8 @@ export const BaseButton = ({
 	titleClassName,
 	wrapperClassName,
 	prependIconLibrary,
-	prependIconClassName,
-	appendIconClassName,
+	prependIconClassName = 'text-lg',
+	appendIconClassName = 'text-lg',
 	appendIconLibrary,
 	...props
 }: TBaseButtonProps) => {

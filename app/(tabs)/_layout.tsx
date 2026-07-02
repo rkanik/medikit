@@ -79,6 +79,7 @@ export default function TabLayout() {
 									<BaseButton
 										pill
 										size="icon"
+										variant="secondary"
 										prependIcon={isSearching ? 'x' : 'search'}
 										prependIconClassName="text-lg"
 										onPress={() => setSearching(v => !v)}

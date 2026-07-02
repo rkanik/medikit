@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { RefreshControl, View } from 'react-native'
+import { useScrollToTop } from '@react-navigation/native'
 import { router } from 'expo-router'
 import { cn } from 'tailwind-variants'
 import { BaseActions } from '@/components/base/actions'
@@ -25,32 +26,13 @@ export default function PatientsScreen() {
 		return (data?.pages ?? []).flatMap(page => page.data ?? [])
 	}, [data?.pages])
 
-	// useEffect(() => {
-	// 	refetch()
-	// }, [refetch])
+	const listRef = useRef<any>(null)
+	useScrollToTop(listRef)
 
-	// const onClear = () => {
-	// 	db.delete(patientsTable).execute()
-	// 	refetch()
-	// }
-	// const onGenerate = async () => {
-	// 	await db.delete(patientsTable).execute()
-	// 	await db
-	// 		.insert(patientsTable)
-	// 		.values(
-	// 			Array.from({ length: 100 }, (_, index) => ({
-	// 				name: `Patient ${index + 1}`,
-	// 				dob: new Date().toISOString(),
-	// 				gender: 'male',
-	// 				edd: new Date().toISOString(),
-	// 			})),
-	// 		)
-	// 		.execute()
-	// 	refetch()
-	// }
 	return (
 		<View className="flex-1 relative">
 			<FlashList
+				ref={listRef}
 				data={patients}
 				keyExtractor={item => item.id?.toString() ?? ''}
 				contentContainerStyle={{
