@@ -17,10 +17,10 @@ import {
 	type NativeSyntheticEvent,
 } from 'react-native'
 import { Image } from 'expo-image'
-import { saveToLibraryAsync } from 'expo-media-library'
 import { shareAsync } from 'expo-sharing'
 import { GestureViewer } from 'react-native-gesture-image-viewer'
 import { BaseActions } from '@/components/base/actions'
+import { saveToDownloads } from '@/utils/saveToDownloads'
 
 type TAsset = { uri?: string }
 
@@ -67,12 +67,17 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 	}, [urls, currentIndex])
 
 	const onDownload = useCallback(() => {
-		saveToLibraryAsync(urls[currentIndex])
-			.then(() => {
-				ToastAndroid.show('Saved to gallery', ToastAndroid.SHORT)
+		saveToDownloads(urls[currentIndex])
+			.then(result => {
+				ToastAndroid.show(
+					result.skipped
+						? 'Already in Downloads'
+						: 'Saved to Downloads',
+					ToastAndroid.SHORT,
+				)
 			})
 			.catch(() => {
-				ToastAndroid.show('Failed to save to gallery', ToastAndroid.SHORT)
+				ToastAndroid.show('Failed to save to Downloads', ToastAndroid.SHORT)
 			})
 	}, [urls, currentIndex])
 
