@@ -41,7 +41,7 @@ const RootLayoutInner = () => {
 
 	return (
 		<Fragment>
-			<Logs />
+			{__DEV__ && <Logs />}
 			<Stack screenOptions={{ headerShown: false }}>
 				<Stack.Screen name="(tabs)" />
 			</Stack>
