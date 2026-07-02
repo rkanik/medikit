@@ -13,6 +13,7 @@ import { minimumIntervals, useBackgroundTask } from '@/services/background'
 import { backup2, useBackup } from '@/services/backup2'
 import { $export } from '@/services/export'
 import { $import } from '@/services/import'
+import { $importLegacy } from '@/services/import-legacy'
 import { restore2 } from '@/services/restore2'
 import { $df } from '@/utils/dayjs'
 import { Stack } from 'expo-router'
@@ -86,13 +87,68 @@ export default function Screen() {
 		)
 	}, [logout])
 
+	const [isImporting, setImporting] = useState(false)
 	const onImport = useCallback(async () => {
 		RNAlert.alert(
 			'Import from Device',
 			'Are you sure you want to import your data from your device? This will overwrite your existing data.',
 			[
 				{ text: 'Cancel', style: 'cancel' },
-				{ text: 'Import', onPress: $import },
+				{
+					text: 'Import',
+					onPress() {
+						setImporting(true)
+						$import()
+							.then(result => {
+								if (!result.success) {
+									RNAlert.alert('Import failed', result.message)
+								}
+							})
+							.finally(() => {
+								setImporting(false)
+							})
+					},
+				},
+			],
+		)
+	}, [])
+
+	const [isExporting, setExporting] = useState(false)
+	const onExport = useCallback(async () => {
+		setExporting(true)
+		$export()
+			.then(result => {
+				if (!result.success) {
+					RNAlert.alert('Export failed', result.message)
+				}
+			})
+			.finally(() => {
+				setExporting(false)
+			})
+	}, [])
+
+	const [isLegacyImporting, setLegacyImporting] = useState(false)
+	const onLegacyImport = useCallback(async () => {
+		RNAlert.alert(
+			'Import Legacy Backup',
+			'Import legacy backup zip (records.json, patients.json and files). This will overwrite your existing data.',
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{
+					text: 'Import Legacy',
+					onPress() {
+						setLegacyImporting(true)
+						$importLegacy()
+							.then(result => {
+								if (!result.success) {
+									RNAlert.alert('Legacy import failed', result.message)
+								}
+							})
+							.finally(() => {
+								setLegacyImporting(false)
+							})
+					},
+				},
 			],
 		)
 	}, [])
@@ -256,8 +312,29 @@ export default function Screen() {
 				</Subtitle>
 				<Divider className="my-3" />
 				<View className="gap-2 mt-4 flex-row">
-					<BaseButton prependIcon="arrow-down" title="Import" onPress={onImport} />
-					<BaseButton prependIcon="arrow-up" title="Export" onPress={$export} />
+					<BaseButton
+						prependIcon="arrow-down"
+						title="Import"
+						onPress={onImport}
+						loading={isImporting}
+						disabled={isImporting || isExporting || isLegacyImporting}
+					/>
+					<BaseButton
+						prependIcon="arrow-up"
+						title="Export"
+						onPress={onExport}
+						loading={isExporting}
+						disabled={isImporting || isExporting || isLegacyImporting}
+					/>
+				</View>
+				<View className="mt-2 flex-row">
+					<BaseButton
+						prependIcon="download"
+						title="Import Legacy"
+						onPress={onLegacyImport}
+						loading={isLegacyImporting}
+						disabled={isImporting || isExporting || isLegacyImporting}
+					/>
 				</View>
 			</BaseCard>
 

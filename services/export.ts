@@ -1,78 +1,95 @@
 import { appName } from '@/const'
-import { TPatient, TRecord } from '@/types/database'
-import { fs } from '@/utils/fs'
-import { storage } from '@/utils/storage'
+import { db } from '@/drizzle/db'
+import { log } from '@/utils/logs'
+import { paths } from '@/utils/paths'
 import { Directory, File, Paths } from 'expo-file-system'
+import { backupDatabaseSync, openDatabaseSync } from 'expo-sqlite'
 import * as Sharing from 'expo-sharing'
 import { zip } from 'react-native-zip-archive'
 
-export const $export = async () => {
+const DB_FILE_NAME = 'index.db'
+const EXPORT_DIR = 'export'
+
+const getFileName = (uri: string) => uri.split('/').pop() ?? ''
+
+const createDatabaseBackupFile = () => {
+	const backupFile = new File(Paths.cache, DB_FILE_NAME)
+	if (backupFile.exists) {
+		backupFile.delete()
+	}
+
+	const destDb = openDatabaseSync(DB_FILE_NAME, {}, Paths.cache.uri)
 	try {
-		const records = storage.getArray<TRecord>('records')
-		const patients = storage.getArray<TPatient>('patients')
-
-		const directory = new Directory(Paths.cache, 'export')
-		directory.create({
-			overwrite: false,
-			idempotent: true,
-			intermediates: true,
+		backupDatabaseSync({
+			sourceDatabase: db.$client,
+			destDatabase: destDb,
 		})
+	} finally {
+		destDb.closeSync()
+	}
 
-		const recordsFile = new File(Paths.cache, 'export/records.json')
-		const patientsFile = new File(Paths.cache, 'export/patients.json')
+	const info = backupFile.info()
+	if (!info.exists || !info.size) {
+		throw new Error('Database backup file is empty or missing')
+	}
 
-		recordsFile.write(JSON.stringify(records))
-		patientsFile.write(JSON.stringify(patients))
+	return backupFile
+}
 
-		const files = fs.getFiles('files')
-		const relatedFiles = files.filter(v => {
-			return (
-				patients.some(p => p.avatar?.uri === v.uri) ||
-				records.some(r => r.attachments?.some(a => a.uri === v.uri))
-			)
-		})
+export const $export = async () => {
+	const exportDirectory = new Directory(Paths.cache, EXPORT_DIR)
+	let zipFile: File | null = null
 
-		for (const file of relatedFiles) {
-			const destination = new File(
-				Paths.cache,
-				'export',
-				file.uri.split('/').pop()!,
-			)
-			if (destination.exists) continue
-			file.copy(destination)
+	try {
+		if (exportDirectory.exists) {
+			exportDirectory.delete()
 		}
+		exportDirectory.create()
 
-		if (patients.length && records.length) {
-			const extraFiles = files.filter(v => {
-				return (
-					!patients.some(p => p.avatar?.uri === v.uri) &&
-					!records.some(r => r.attachments?.some(a => a.uri === v.uri))
-				)
-			})
-			fs.removeMany(extraFiles.map(v => v.uri))
+		const dbAttachments = await db.query.attachments.findMany()
+		const backupDbFile = createDatabaseBackupFile()
+		backupDbFile.copy(new File(exportDirectory, DB_FILE_NAME))
+
+		for (const attachment of dbAttachments) {
+			const fileName = getFileName(attachment.uri)
+			if (!fileName) continue
+
+			const localFile = new File(paths.document(attachment.uri)!)
+			if (!localFile.exists) continue
+
+			const destination = new File(exportDirectory, fileName)
+			if (destination.exists) continue
+			localFile.copy(destination)
 		}
 
 		const name = `${appName.split(' ').join('-').toLowerCase()}-export-${Date.now()}.zip`
-		await zip(Paths.join(Paths.cache, 'export'), Paths.join(Paths.cache, name))
+		zipFile = new File(Paths.cache, name)
+		await zip(exportDirectory.uri, zipFile.uri)
 
-		const file = new File(Paths.cache, name)
-		console.log(file.size, file.contentUri)
-
-		await Sharing.shareAsync(file.uri, {
+		await Sharing.shareAsync(zipFile.uri, {
 			mimeType: 'application/zip',
 		})
-
-		file.delete()
-		directory.delete()
 
 		return {
 			success: true,
 			message: 'Exported successfully!',
 		}
 	} catch (error) {
+		log('[export]: error', error)
 		return {
 			success: false,
-			message: (error as any)?.message || 'Export failed!',
+			message: error instanceof Error ? error.message : 'Export failed!',
+		}
+	} finally {
+		if (exportDirectory.exists) {
+			exportDirectory.delete()
+		}
+		const cacheDbFile = new File(Paths.cache, DB_FILE_NAME)
+		if (cacheDbFile.exists) {
+			cacheDbFile.delete()
+		}
+		if (zipFile?.exists) {
+			zipFile.delete()
 		}
 	}
 }
