@@ -1,6 +1,6 @@
 import type { TMaybe } from '@/types'
 
-import { Paths } from 'expo-file-system'
+import { File, Paths } from 'expo-file-system'
 
 export const paths = {
 	document<T extends TMaybe<string>>(uri: T) {
@@ -11,7 +11,8 @@ export const paths = {
 		if (['file://', 'content://'].some(v => uri.startsWith(v))) {
 			return uri
 		}
-		return Paths.join(Paths.document, uri)
+		const parts = uri.split('/').filter(Boolean)
+		return new File(Paths.document, ...parts).uri
 	},
 	withoutDocument(uri?: TMaybe<string>) {
 		if (uri?.startsWith(Paths.document.uri)) {

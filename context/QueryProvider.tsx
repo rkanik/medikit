@@ -20,7 +20,7 @@ const getHandler = (func: string, index = 0) => {
 	}
 }
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
 			// retry: false,

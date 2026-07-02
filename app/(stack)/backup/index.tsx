@@ -13,7 +13,7 @@ import { minimumIntervals, useBackgroundTask } from '@/services/background'
 import { backup2, useBackup } from '@/services/backup2'
 import { $export } from '@/services/export'
 import { $import } from '@/services/import'
-import { restore } from '@/services/restore'
+import { restore2 } from '@/services/restore2'
 import { $df } from '@/utils/dayjs'
 import { Stack } from 'expo-router'
 import { Fragment, useCallback, useState } from 'react'
@@ -60,9 +60,15 @@ export default function Screen() {
 					text: 'Restore',
 					onPress() {
 						setRestoring(true)
-						restore().finally(() => {
-							setRestoring(false)
-						})
+						restore2()
+							.then(result => {
+								if (!result.success) {
+									RNAlert.alert('Restore failed', result.message)
+								}
+							})
+							.finally(() => {
+								setRestoring(false)
+							})
 					},
 				},
 			],
