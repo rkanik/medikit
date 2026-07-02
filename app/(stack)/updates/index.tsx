@@ -2,10 +2,10 @@ import { ScrollView, View } from 'react-native'
 
 import { Stack } from 'expo-router'
 
+import { BaseButton } from '@/components/base/button'
 import { BaseCard } from '@/components/base/card'
 import { FlashList } from '@/components/FlashList'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Text } from '@/components/ui/text'
 import { useDownloader } from '@/hooks/useDownloader'
@@ -26,9 +26,9 @@ export default function Screen() {
 
 			<Text>Updates: {$df(lastChecked, 'DD MMM, YYYY hh:mm A')}</Text>
 			<View className="flex-row">
-				<Button
-					text="Check for Updates"
-					icon="refresh-ccw"
+				<BaseButton
+					title="Check for Updates"
+					prependIcon="refresh-ccw"
 					loading={loading}
 					className="mt-4"
 					onPress={() => checkForUpdates()}
@@ -75,37 +75,37 @@ export default function Screen() {
 						</Text>
 						<View className="flex-row gap-2 mt-2">
 							{item.status === 'completed' && (
-								<Button
+								<BaseButton
 									size="sm"
-									icon="external-link"
-									text="Open"
+									prependIcon="external-link"
+									title="Open"
 									onPress={() => open(item.destination)}
 								/>
 							)}
 							{item.status === 'paused' && (
-								<Button
+								<BaseButton
 									size="sm"
-									icon="play"
-									text="Resume"
+									prependIcon="play"
+									title="Resume"
 									onPress={() => {
 										resume(item.source, item.destination)
 									}}
 								/>
 							)}
 							{item.status === 'downloading' && (
-								<Button
+								<BaseButton
 									size="sm"
-									icon="pause"
-									text="Pause"
+									prependIcon="pause"
+									title="Pause"
 									onPress={() => {
 										pause(item.source, item.destination)
 									}}
 								/>
 							)}
-							<Button
+							<BaseButton
 								size="sm"
-								icon="trash"
-								text="Delete"
+								prependIcon="trash"
+								title="Delete"
 								onPress={() => remove(item)}
 							/>
 						</View>

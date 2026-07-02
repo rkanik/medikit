@@ -3,7 +3,7 @@ import { Linking, ScrollView, View } from 'react-native'
 import { Stack } from 'expo-router'
 
 import { BaseCard } from '@/components/base/card'
-import { Button } from '@/components/ui/button'
+import { BaseButton } from '@/components/base/button'
 import { Divider } from '@/components/ui/divider'
 import { Body, Subtitle, Title } from '@/components/ui/text'
 
@@ -80,23 +80,23 @@ export default function Screen() {
 				</Body>
 				<Divider className="my-3" />
 				<View className="flex-row flex-wrap gap-2">
-					<Button
+					<BaseButton
 						className="min-w-[140px] flex-1"
 						size="sm"
-						icon="mail"
-						text="Email"
+						prependIcon="mail"
+						title="Email"
 						onPress={() =>
 							openUrl(
 								`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Medikit privacy')}`,
 							)
 						}
 					/>
-					<Button
+					<BaseButton
 						className="min-w-[140px] flex-1"
 						size="sm"
-						variant="base2"
-						icon="github"
-						text="GitHub"
+						variant="secondary"
+						prependIcon="github"
+						title="GitHub"
 						onPress={() => openUrl(REPO_URL)}
 					/>
 				</View>

@@ -6,7 +6,7 @@ import { Stack } from 'expo-router'
 import { BaseCard } from '@/components/base/card'
 import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { BaseButton } from '@/components/base/button'
 import { Divider } from '@/components/ui/divider'
 import { Body, Subtitle, Title } from '@/components/ui/text'
 import { $df } from '@/utils/dayjs'
@@ -115,16 +115,16 @@ export default function Screen() {
 			</BaseCard>
 
 			<View className="mt-4 flex-row flex-wrap gap-2">
-				<Button
+				<BaseButton
 					className="min-w-[140px] flex-1"
-					icon="github"
-					text="Source on GitHub"
+					prependIcon="github"
+					title="Source on GitHub"
 					onPress={() => openUrl(REPO_URL)}
 				/>
-				<Button
+				<BaseButton
 					className="min-w-[140px] flex-1"
-					icon="git-branch"
-					text="Contribute"
+					prependIcon="git-branch"
+					title="Contribute"
 					onPress={() => openUrl(CONTRIBUTE_URL)}
 				/>
 			</View>
@@ -178,21 +178,21 @@ export default function Screen() {
 						) : null}
 						{blogUrl ? (
 							<View className="mt-3 flex-row">
-								<Button
+								<BaseButton
 									size="sm"
-									variant="base2"
-									icon="external-link"
-									text="Website"
+									variant="secondary"
+									prependIcon="external-link"
+									title="Website"
 									onPress={() => openUrl(blogUrl)}
 								/>
 							</View>
 						) : null}
 						<Divider className="my-3" />
-						<Button
+						<BaseButton
 							size="sm"
-							icon="github"
-							text="View GitHub profile"
-							variant="base2"
+							prependIcon="github"
+							title="View GitHub profile"
+							variant="secondary"
 							className="self-start"
 							onPress={() => openUrl(resolved.html_url)}
 						/>
@@ -202,24 +202,24 @@ export default function Screen() {
 
 			<Title className="mt-6 mb-2">Contact</Title>
 			<View className="flex-row flex-wrap gap-2">
-				<Button
+				<BaseButton
 					className="min-w-[140px] flex-1"
-					icon="mail"
-					text="Email"
+					prependIcon="mail"
+					title="Email"
 					onPress={() =>
 						openUrl(`mailto:${EMAIL}?subject=${encodeURIComponent('Medikit')}`)
 					}
 				/>
-				<Button
+				<BaseButton
 					className="min-w-[140px] flex-1"
-					icon="github"
-					text="GitHub"
+					prependIcon="github"
+					title="GitHub"
 					onPress={() => openUrl(PROFILE_URL)}
 				/>
-				<Button
+				<BaseButton
 					className="min-w-[140px] flex-1"
-					icon="message-circle"
-					text="WhatsApp"
+					prependIcon="message-circle"
+					title="WhatsApp"
 					onPress={() => openUrl(WHATSAPP_URL)}
 				/>
 			</View>

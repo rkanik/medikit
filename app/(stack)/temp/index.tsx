@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { BaseButton } from '@/components/base/button'
 import { useNotification } from '@/services/notification'
 import { log } from '@/utils/logs'
 import { sleep } from '@/utils/sleep'
@@ -42,10 +42,10 @@ export default function Screen() {
 		>
 			<Stack.Screen options={{ title: 'Temp' }} />
 			<View className="flex-1 items-center justify-center">
-				<Button
+				<BaseButton
 					onPress={showNotification}
-					icon="bell"
-					text="Show Notification"
+					prependIcon="bell"
+					title="Show Notification"
 				/>
 			</View>
 		</ScrollView>

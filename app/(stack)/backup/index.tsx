@@ -5,7 +5,7 @@ import { BaseModal } from '@/components/base/modal'
 import { FlashList } from '@/components/FlashList'
 import { Alert } from '@/components/ui/alert'
 import { Avatar } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { BaseButton } from '@/components/base/button'
 import { Divider } from '@/components/ui/divider'
 import { Body, Subtitle, Text, Title } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
@@ -128,11 +128,11 @@ export default function Screen() {
 							</View>
 						</View>
 						<View className="flex-row">
-							<Button
+							<BaseButton
 								disabled={isLoading}
 								className="mt-3"
-								icon="log-out"
-								text="Disconnect"
+								prependIcon="log-out"
+								title="Disconnect"
 								loading={isLoading}
 								onPress={onDisconnect}
 							/>
@@ -162,24 +162,24 @@ export default function Screen() {
 							</Body>
 						</View>
 						<View className="gap-2 mt-4 flex-row">
-							<Button
+							<BaseButton
 								disabled={isUploading}
-								icon="upload"
-								text="Backup"
+								prependIcon="upload"
+								title="Backup"
 								loading={isUploading}
 								onPress={onBackup}
 							/>
-							<Button
+							<BaseButton
 								disabled={isRestoring}
-								icon="download"
-								text="Restore"
+								prependIcon="download"
+								title="Restore"
 								loading={isRestoring}
 								onPress={onRestore}
 							/>
 							<BaseModal
 								visible={minimumIntervalDialog}
 								setVisible={setMinimumIntervalDialog}
-								trigger={v => <Button {...v} icon="clock" />}
+								trigger={v => <BaseButton {...v} prependIcon="clock" />}
 							>
 								<FlashList
 									contentContainerClassName="px-4 pt-4 pb-16"
@@ -231,9 +231,9 @@ export default function Screen() {
 						</Subtitle>
 						<Divider className="my-3" />
 						<View className="flex-row">
-							<Button
-								icon="log-in"
-								text="Connect Google"
+							<BaseButton
+								prependIcon="log-in"
+								title="Connect Google"
 								loading={isLoading}
 								disabled={isLoading}
 								onPress={login}
@@ -250,8 +250,8 @@ export default function Screen() {
 				</Subtitle>
 				<Divider className="my-3" />
 				<View className="gap-2 mt-4 flex-row">
-					<Button icon="arrow-down" text="Import" onPress={onImport} />
-					<Button icon="arrow-up" text="Export" onPress={$export} />
+					<BaseButton prependIcon="arrow-down" title="Import" onPress={onImport} />
+					<BaseButton prependIcon="arrow-up" title="Export" onPress={$export} />
 				</View>
 			</BaseCard>
 
