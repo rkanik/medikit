@@ -68,13 +68,8 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 
 	const onDownload = useCallback(() => {
 		saveToDownloads(urls[currentIndex])
-			.then(result => {
-				ToastAndroid.show(
-					result.skipped
-						? 'Already in Downloads'
-						: 'Saved to Downloads',
-					ToastAndroid.SHORT,
-				)
+			.then(() => {
+				ToastAndroid.show('Saved to Downloads', ToastAndroid.SHORT)
 			})
 			.catch(() => {
 				ToastAndroid.show('Failed to save to Downloads', ToastAndroid.SHORT)

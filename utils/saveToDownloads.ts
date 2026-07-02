@@ -2,35 +2,16 @@ import { Platform } from 'react-native'
 import { Directory, File, Paths } from 'expo-file-system'
 import mime from 'mime/lite'
 import ReactNativeBlobUtil from 'react-native-blob-util'
-import { storage } from '@/utils/storage'
 
 const ANDROID_DOWNLOAD_FOLDER = 'Medikit'
-const DOWNLOADS_REGISTRY_KEY = 'downloadedFiles'
 
 export type TSaveToDownloadsResult = {
 	path: string
-	skipped: boolean
 }
 
 const getFileName = (uri: string) => {
 	const name = uri.split('/').pop()?.split('?')[0]
 	return name || `medikit-${Date.now()}.jpg`
-}
-
-const getDownloadKey = (fileName: string) => {
-	if (Platform.OS === 'android') {
-		return `${ANDROID_DOWNLOAD_FOLDER}/${fileName}`
-	}
-	return `Downloads/${fileName}`
-}
-
-const getDownloadRegistry = () => storage.getArray<string>(DOWNLOADS_REGISTRY_KEY)
-
-const markAsDownloaded = (fileName: string) => {
-	const key = getDownloadKey(fileName)
-	const registry = getDownloadRegistry()
-	if (registry.includes(key)) return
-	storage.set(DOWNLOADS_REGISTRY_KEY, JSON.stringify([...registry, key]))
 }
 
 const toNativePath = (uri: string) => {
@@ -70,46 +51,6 @@ const getAndroidDownloadPath = (fileName: string) => {
 	return `${downloadDir}/${fileName}`
 }
 
-const isAndroidFileDownloaded = async (fileName: string) => {
-	const path = getAndroidDownloadPath(fileName)
-	if (await ReactNativeBlobUtil.fs.exists(path)) {
-		return true
-	}
-
-	if (Number(Platform.Version) < 29) {
-		return false
-	}
-
-	try {
-		const folder = `${ReactNativeBlobUtil.fs.dirs.DownloadDir}/${ANDROID_DOWNLOAD_FOLDER}`
-		const files = await ReactNativeBlobUtil.fs.ls(folder)
-		return files.includes(fileName)
-	} catch {
-		return false
-	}
-}
-
-const isAlreadyDownloaded = async (fileName: string) => {
-	if (getDownloadRegistry().includes(getDownloadKey(fileName))) {
-		return true
-	}
-
-	if (Platform.OS === 'android') {
-		if (await isAndroidFileDownloaded(fileName)) {
-			markAsDownloaded(fileName)
-			return true
-		}
-		return false
-	}
-
-	const destination = new File(new Directory(Paths.document, 'Downloads'), fileName)
-	if (destination.exists) {
-		markAsDownloaded(fileName)
-		return true
-	}
-	return false
-}
-
 const saveToAndroidDownloads = async (
 	uri: string,
 ): Promise<TSaveToDownloadsResult> => {
@@ -117,10 +58,6 @@ const saveToAndroidDownloads = async (
 	const mimeType = mime.getType(uri) || 'image/jpeg'
 	const sourcePath = resolveSourceFile(uri)
 	const existingPath = getAndroidDownloadPath(baseName)
-
-	if (await isAlreadyDownloaded(baseName)) {
-		return { path: existingPath, skipped: true }
-	}
 
 	if (Number(Platform.Version) >= 29) {
 		const path = await ReactNativeBlobUtil.MediaCollection.copyToMediaStore(
@@ -132,16 +69,14 @@ const saveToAndroidDownloads = async (
 			'Download',
 			sourcePath,
 		)
-		markAsDownloaded(baseName)
-		return { path, skipped: false }
+		return { path }
 	}
 
 	await ReactNativeBlobUtil.fs.cp(sourcePath, existingPath)
 	await ReactNativeBlobUtil.fs.scanFile([
 		{ path: existingPath, mime: mimeType },
 	])
-	markAsDownloaded(baseName)
-	return { path: existingPath, skipped: false }
+	return { path: existingPath }
 }
 
 export const saveToDownloads = async (
@@ -156,10 +91,6 @@ export const saveToDownloads = async (
 	directory.create({ idempotent: true, intermediates: true })
 	const destination = new File(directory, baseName)
 
-	if (await isAlreadyDownloaded(baseName)) {
-		return { path: destination.uri, skipped: true }
-	}
-
 	const source =
 		uri.startsWith('file://') || uri.startsWith('content://')
 			? new File(uri)
@@ -168,6 +99,5 @@ export const saveToDownloads = async (
 		throw new Error('Source file not found')
 	}
 	source.copy(destination)
-	markAsDownloaded(baseName)
-	return { path: destination.uri, skipped: false }
+	return { path: destination.uri }
 }

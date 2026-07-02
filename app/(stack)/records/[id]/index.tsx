@@ -2,7 +2,6 @@ import type { GestureResponderEvent } from 'react-native'
 import { Fragment, useCallback, useMemo, useState } from 'react'
 import { Alert, ScrollView, ToastAndroid, View } from 'react-native'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { shareAsync } from 'expo-sharing'
 import { cn } from 'tailwind-variants'
 import { BaseActions } from '@/components/base/actions'
 import { BaseCard } from '@/components/base/card'
@@ -17,6 +16,7 @@ import { useDeleteRecordsMutation } from '@/mutations/useDeleteRecordsMutation'
 import { useRecordByIdQuery } from '@/queries/useRecordByIdQuery'
 import { useInvalidateRecordsQuery } from '@/queries/useRecordsQuery'
 import { saveToDownloads } from '@/utils/saveToDownloads'
+import { shareFiles } from '@/utils/shareFiles'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
@@ -103,8 +103,10 @@ export default function Screen() {
 			.filter(Boolean) as string[]
 		if (!selected.length) return
 
-		for (const uri of selected) {
-			await shareAsync(uri)
+		try {
+			await shareFiles(selected)
+		} catch {
+			ToastAndroid.show('Failed to share files', ToastAndroid.SHORT)
 		}
 	}, [attachments, selectedIndexes])
 
@@ -117,25 +119,11 @@ export default function Screen() {
 		const results = await Promise.allSettled(
 			selected.map(uri => saveToDownloads(uri)),
 		)
-		const fulfilled = results.filter(
-			(result): result is PromiseFulfilledResult<
-				Awaited<ReturnType<typeof saveToDownloads>>
-			> => result.status === 'fulfilled',
-		)
-		const savedCount = fulfilled.filter(result => !result.value.skipped).length
-		const skippedCount = fulfilled.filter(result => result.value.skipped).length
-		const failedCount = results.length - fulfilled.length
+		const savedCount = results.filter(result => result.status === 'fulfilled').length
+		const failedCount = results.length - savedCount
 
-		if (failedCount > 0 && savedCount === 0 && skippedCount === 0) {
+		if (failedCount > 0 && savedCount === 0) {
 			ToastAndroid.show('Failed to save to Downloads', ToastAndroid.SHORT)
-			return
-		}
-
-		if (savedCount > 0 && skippedCount > 0) {
-			ToastAndroid.show(
-				`Saved ${savedCount}, skipped ${skippedCount} already in Downloads`,
-				ToastAndroid.SHORT,
-			)
 			return
 		}
 
@@ -146,10 +134,7 @@ export default function Screen() {
 					: `Saved ${savedCount} to Downloads`,
 				ToastAndroid.SHORT,
 			)
-			return
 		}
-
-		ToastAndroid.show('Already in Downloads', ToastAndroid.SHORT)
 	}, [attachments, selectedIndexes])
 
 	if (!data) {
