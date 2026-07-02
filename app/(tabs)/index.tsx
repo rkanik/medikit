@@ -117,7 +117,11 @@ export default function Screen() {
 				renderItem={({ item, index }) => (
 					<RecordCard
 						data={item}
-						className={cn({ 'mt-4': index > 0 })}
+						className={cn({
+							'mt-1': index > 0,
+							'rounded-t-3xl': index === 0,
+							'rounded-b-3xl': index === data.length - 1,
+						})}
 						showPatient={!currentPatient}
 						onPress={() => router.push(`/records/${item.id}`)}
 					/>

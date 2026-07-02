@@ -1,7 +1,5 @@
 import type { ViewProps } from 'react-native'
-
 import { View } from 'react-native'
-
 import { cn } from 'tailwind-variants'
 
 export type TDividerProps = ViewProps & {
