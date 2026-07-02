@@ -119,7 +119,9 @@ export default function Screen() {
 		const results = await Promise.allSettled(
 			selected.map(uri => saveToDownloads(uri)),
 		)
-		const savedCount = results.filter(result => result.status === 'fulfilled').length
+		const savedCount = results.filter(
+			result => result.status === 'fulfilled',
+		).length
 		const failedCount = results.length - savedCount
 
 		if (failedCount > 0 && savedCount === 0) {
@@ -175,8 +177,8 @@ export default function Screen() {
 								>
 									<BaseImage uri={attachment?.uri} aspectRatio={1} />
 									{selected && (
-										<View className="absolute right-2 top-2 bg-green-500 rounded-full p-1">
-											<Icon name="check" className="text-white text-sm" />
+										<View className="absolute right-2 top-2 bg-green-500 rounded-full size-6 items-center justify-center">
+											<Icon name="check" className="text-white" />
 										</View>
 									)}
 								</Pressable>
@@ -192,17 +194,20 @@ export default function Screen() {
 						? [
 								{
 									pill: true,
+									size: 'icon',
 									prependIcon: 'x',
 									onPress: clearSelection,
 								},
 								{
 									pill: true,
+									size: 'icon',
 									prependIcon: 'share-2',
 									disabled: !selectedIndexes.length,
 									onPress: onShareSelected,
 								},
 								{
 									pill: true,
+									size: 'icon',
 									prependIcon: 'download',
 									disabled: !selectedIndexes.length,
 									onPress: onDownloadSelected,
@@ -212,6 +217,7 @@ export default function Screen() {
 								{
 									pill: true,
 									variant: 'destructive',
+									size: 'icon',
 									prependIcon: 'trash',
 									onPress: onDelete,
 								},
