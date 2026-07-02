@@ -46,8 +46,6 @@ export default function TabLayout() {
 				headerStyle: {
 					backgroundColor: background,
 				},
-				tabBarActiveTintColor: primary,
-				tabBarInactiveTintColor: foreground,
 				tabBarStyle: {
 					height: 96,
 					paddingTop: 8,
@@ -64,7 +62,7 @@ export default function TabLayout() {
 										style={{ width: '100%', aspectRatio: 1 }}
 									/>
 								</View>
-								<Text className="text-green-600 font-semibold text-xl">
+								<Text className="text-primary font-semibold text-xl">
 									{appName}
 								</Text>
 							</View>
@@ -103,7 +101,7 @@ export default function TabLayout() {
 								className={cn(
 									'w-12 h-8 flex items-center justify-center rounded-full',
 									{
-										'bg-green-300 dark:bg-green-500': v.focused,
+										'bg-primary': v.focused,
 									},
 								)}
 							>
@@ -113,7 +111,7 @@ export default function TabLayout() {
 						tabBarLabel: v => (
 							<Text
 								className={cn('text-base mt-1', {
-									'font-semibold text-green-500 dark:text-green-300': v.focused,
+									'font-semibold text-primary': v.focused,
 								})}
 							>
 								{v.children}

@@ -1,16 +1,15 @@
 import type { TColors, TColorScheme } from '@/types'
-
 import { vars } from 'nativewind'
 
 const base = {
 	light: {
-		'--background': '255, 255, 255',
+		'--background': '240, 240, 240',
 		'--foreground': '9, 9, 11',
 		'--card': '255, 255, 255',
 		'--card-foreground': '9, 9, 11',
 		'--popover': '255, 255, 255',
 		'--popover-foreground': '9, 9, 11',
-		'--primary': '39, 204, 183',
+		'--primary': '16, 185, 129', // green-500
 		'--primary-foreground': '255, 255, 255',
 		'--secondary': '244, 244, 246',
 		'--secondary-foreground': '117, 117, 117',
@@ -37,7 +36,7 @@ const base = {
 		'--card-foreground': '242, 242, 242',
 		'--popover': '23, 23, 23',
 		'--popover-foreground': '242, 242, 242',
-		'--primary': '39, 204, 183',
+		'--primary': '16, 185, 129', // green-500
 		'--primary-foreground': '255, 255, 255',
 		'--secondary': '39, 39, 41',
 		'--secondary-foreground': '189, 189, 189',

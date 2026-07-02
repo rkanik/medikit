@@ -58,15 +58,19 @@ export const RecordCardHeader = ({
 export type TRecordCardProps = {
 	data: TRecord
 	className?: string
-	showPatient?: boolean
+	selected?: boolean
+	selecting?: boolean
 	onPress?: (e: GestureResponderEvent) => void
+	onLongPress?: () => void
 }
 
 export const RecordCard = ({
 	data,
 	className,
-	showPatient,
+	selected,
+	selecting,
 	onPress,
+	onLongPress,
 }: TRecordCardProps) => {
 	const { openImageViewer } = useImageViewer()
 
@@ -77,14 +81,29 @@ export const RecordCard = ({
 
 	const onPressImage = useCallback(
 		(event: GestureResponderEvent, index: number) => {
+			if (selecting) {
+				event.stopPropagation()
+				onPress?.(event)
+				return
+			}
 			event.stopPropagation()
 			openImageViewer(attachments, index)
 		},
-		[attachments, openImageViewer],
+		[attachments, onPress, openImageViewer, selecting],
 	)
 
 	return (
-		<BaseCard className={cn('p-4', className)} onPress={onPress}>
+		<BaseCard
+			className={cn(
+				'p-4 border-2',
+				selected
+					? 'border-green-500 dark:border-green-300'
+					: 'border-transparent',
+				className,
+			)}
+			onPress={onPress}
+			onLongPress={onLongPress}
+		>
 			<RecordCardHeader data={data} />
 			{attachments.length > 0 && (
 				<Grid cols={3} gap={8} className="mt-2">
@@ -93,6 +112,10 @@ export const RecordCard = ({
 							<Pressable
 								className="rounded-lg aspect-square overflow-hidden border border-neutral-200 dark:border-neutral-700"
 								onPress={e => {
+									if (selecting) {
+										onPress?.(e)
+										return
+									}
 									if (attachments.length > 3 && index === 2) {
 										return onPress?.(e)
 									}
