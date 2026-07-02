@@ -13,6 +13,11 @@ import { log } from '@/utils/logs'
 const GET_API = 'https://www.googleapis.com/drive/v3'
 const POST_API = 'https://www.googleapis.com/upload/drive/v3'
 
+const getUploadMimeType = (uri: string) => {
+	if (uri.endsWith('.db')) return 'application/x-sqlite3'
+	return mime.getType(uri) || 'application/octet-stream'
+}
+
 type TFile = {
 	uri: string
 	fileId?: string
@@ -318,7 +323,7 @@ export class GoogleDrive {
 						const metadata = {
 							...(file.fileId ? {} : { parents: [rootFolderId] }),
 							name: file.uri.split('/').pop(),
-							mimeType: mime.getType(file.uri!),
+							mimeType: getUploadMimeType(file.uri!),
 						}
 
 						const url = file.fileId

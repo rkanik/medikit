@@ -10,7 +10,7 @@ import { Divider } from '@/components/ui/divider'
 import { Body, Subtitle, Text, Title } from '@/components/ui/text'
 import { useAuth } from '@/context/AuthContext'
 import { minimumIntervals, useBackgroundTask } from '@/services/background'
-import { backup, useBackup } from '@/services/backup'
+import { backup2, useBackup } from '@/services/backup2'
 import { $export } from '@/services/export'
 import { $import } from '@/services/import'
 import { restore } from '@/services/restore'
@@ -37,7 +37,7 @@ export default function Screen() {
 					text: 'Backup',
 					onPress() {
 						setUploading(true)
-						backup().finally(() => {
+						backup2().finally(() => {
 							setUploading(false)
 						})
 					},
