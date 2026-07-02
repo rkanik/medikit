@@ -1,52 +1,27 @@
-import { BaseButton } from '@/components/base/button'
-import { useNotification } from '@/services/notification'
-import { log } from '@/utils/logs'
-import { sleep } from '@/utils/sleep'
-import { Stack } from 'expo-router'
-import { useState } from 'react'
 import { ScrollView, View } from 'react-native'
+import { Stack } from 'expo-router'
+import { BaseJson } from '@/components/base/Json'
+import { Text } from '@/components/ui/text'
+import { useRecordsQuery } from '@/queries/useRecordsQuery'
 
 export default function Screen() {
-	const [running, setRunning] = useState(false)
+	const { data, isLoading, error } = useRecordsQuery()
 
-	const { schedule, update } = useNotification({
-		identifier: 'test',
-		trigger: {
-			channelId: 'default',
-		},
-		content: {
-			title: 'Progress',
-			body: 'Starting...',
-		},
-	})
-
-	const showNotification = async () => {
-		if (running) return
-		setRunning(true)
-		const v = await schedule()
-		log('schedule', v)
-		for (let i = 1; i < 100; i++) {
-			await update({
-				body: `Progress: ${Math.round((i / 100) * 100)}%`,
-			})
-			await sleep(100)
-		}
-		await update({ body: 'Done' })
-		// await dismiss()
-		setRunning(false)
-	}
 	return (
 		<ScrollView
 			contentContainerClassName="px-4"
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Stack.Screen options={{ title: 'Temp' }} />
-			<View className="flex-1 items-center justify-center">
-				<BaseButton
-					onPress={showNotification}
-					prependIcon="bell"
-					title="Show Notification"
-				/>
+			<View className="flex-1 py-4 gap-4">
+				<Text className="font-bold">Records with related data</Text>
+				{isLoading && <Text>Loading records...</Text>}
+				{error && (
+					<Text className="text-red-500">
+						{error.message || 'Failed to load records'}
+					</Text>
+				)}
+				<BaseJson data={data} />
 			</View>
 		</ScrollView>
 	)

@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { db } from '@/drizzle/db'
+import { mapPatient } from '@/queries/mapPatient'
 import { useQuery } from '@/hooks/useQuery'
 import { $d } from '@/utils/dayjs'
 import { paths } from '@/utils/paths'
@@ -17,6 +18,7 @@ export type TRecordsQuery = {
 const mapRecord = (record: NonNullable<Awaited<ReturnType<typeof fetchRecords>>[number]>): TRecord => {
 	return {
 		...record,
+		patient: mapPatient(record.patient),
 		tags: record.taggables?.map(item => item.tag?.name).filter(Boolean) as string[],
 		attachments:
 			record.attachables

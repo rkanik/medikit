@@ -1,6 +1,7 @@
 import type { TRecord } from '@/types/database'
 
 import { db } from '@/drizzle/db'
+import { mapPatient } from '@/queries/mapPatient'
 import { useQuery } from '@/hooks/useQuery'
 import { paths } from '@/utils/paths'
 
@@ -9,6 +10,7 @@ const mapRecord = (
 ): TRecord => {
 	return {
 		...record,
+		patient: mapPatient(record.patient),
 		tags: record.taggables?.map(item => item.tag?.name).filter(Boolean) as string[],
 		attachments:
 			record.attachables

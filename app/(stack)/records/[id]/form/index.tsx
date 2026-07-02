@@ -4,7 +4,7 @@ import { View } from 'react-native'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
-import { useCurrentPatientIdStorage, usePatients } from '@/api/patients'
+import { useCurrentPatientIdStorage } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
@@ -19,6 +19,7 @@ import {
 	useRecordsMutation,
 	zRecord,
 } from '@/mutations/useRecordsMutation'
+import { usePatientsListQuery } from '@/queries/usePatientsListQuery'
 import {
 	getRecordTagIds,
 	useRecordByIdQuery,
@@ -28,7 +29,7 @@ import { useInvalidateRecordsQuery } from '@/queries/useRecordsQuery'
 export default function Screen() {
 	const { id } = useLocalSearchParams()
 	const { data } = useRecordByIdQuery(Number(id))
-	const { data: patients } = usePatients()
+	const { data: patients } = usePatientsListQuery()
 	const [currentPatientId] = useCurrentPatientIdStorage()
 
 	const form = useForm({

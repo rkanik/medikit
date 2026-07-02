@@ -1,4 +1,6 @@
 import { useCurrentPatient } from '@/api/patients'
+import { paths } from '@/utils/paths'
+
 import { PatientPicker } from './PatientPicket'
 import { Avatar } from './ui/avatar'
 import { BaseButton } from './base/button'
@@ -18,7 +20,7 @@ export const CurrentPatientPicker = () => {
 					<Avatar
 						{...v}
 						text={data?.name}
-						image={data?.avatar?.uri}
+						image={paths.document(data?.avatar?.uri)}
 						className="border-2 border-green-500 dark:border-green-300 p-px"
 					/>
 				)

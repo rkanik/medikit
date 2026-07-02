@@ -1,4 +1,5 @@
-import type { TRecord } from '@/types/database'
+import type { TMaybe } from '@/types'
+import type { TPatient, TRecord } from '@/types/database'
 import type { GestureResponderEvent, ViewProps } from 'react-native'
 
 import { useCallback, useMemo } from 'react'
@@ -6,9 +7,9 @@ import { View } from 'react-native'
 
 import { cn } from 'tailwind-variants'
 
-import { usePatient } from '@/api/patients'
 import { useImageViewer } from '@/context/ImageViewerProvider'
 import { $df } from '@/utils/dayjs'
+import { paths } from '@/utils/paths'
 
 import { BaseCard } from './base/card'
 import { BaseImage } from './base/image'
@@ -21,16 +22,19 @@ import { Pressable } from './ui/pressable'
 import { Subtitle, Text, Title } from './ui/text'
 
 export type TRecordCardPatientProps = {
-	patientId: number
+	patient?: TMaybe<TPatient>
 }
 
-export const RecordCardPatient = ({ patientId }: TRecordCardPatientProps) => {
-	const { data: patient } = usePatient(patientId)
+export const RecordCardPatient = ({ patient }: TRecordCardPatientProps) => {
+	if (!patient) return null
 	return (
 		<View>
 			<View className="flex-row items-center gap-2">
-				<Avatar image={patient?.avatar?.uri} className="w-6 h-6" />
-				<Subtitle>{patient?.name}</Subtitle>
+				<Avatar
+					image={paths.document(patient.avatar?.uri)}
+					className="w-6 h-6"
+				/>
+				<Subtitle>{patient.name}</Subtitle>
 			</View>
 			<Divider className="my-2" />
 		</View>
@@ -97,7 +101,7 @@ export const RecordCard = ({
 
 	return (
 		<BaseCard className={cn('p-4', className)} onPress={onPress}>
-			{showPatient && <RecordCardPatient patientId={data.patientId} />}
+			{showPatient && <RecordCardPatient patient={data.patient} />}
 			<View className="flex-row justify-between">
 				<RecordCardHeader className="flex-1 gap-1" data={data} />
 				<View className="flex-none"></View>
