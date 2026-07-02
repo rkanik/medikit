@@ -102,6 +102,21 @@ export const taggablesTable = sqliteTable('taggables', {
 
 // Relations
 
+export const tagRelations = relations(tags, ({ many }) => ({
+	taggables: many(taggablesTable),
+}))
+
+export const taggableRelations = relations(taggablesTable, ({ one }) => ({
+	tag: one(tags, {
+		fields: [taggablesTable.tagId],
+		references: [tags.id],
+	}),
+	record: one(records, {
+		fields: [taggablesTable.recordId],
+		references: [records.id],
+	}),
+}))
+
 export const recordRelations = relations(records, ({ many, one }) => ({
 	taggables: many(taggablesTable),
 	attachables: many(attachables),

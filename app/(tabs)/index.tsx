@@ -1,10 +1,9 @@
-import type { TRecordsQuery } from '@/api/records'
+import type { TRecordsQuery } from '@/queries/useRecordsQuery'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import { router } from 'expo-router'
 import { cn } from 'tailwind-variants'
 import { useCurrentPatient } from '@/api/patients'
-import { useRecords } from '@/api/records'
 import { BaseActions } from '@/components/base/actions'
 import { NoRecords } from '@/components/NoRecords'
 import { PatientCard } from '@/components/PatientCard'
@@ -13,6 +12,7 @@ import { RecordsSummary } from '@/components/RecordsSummary'
 import { Input } from '@/components/ui/input'
 import { Title } from '@/components/ui/text'
 import { useApp } from '@/context/AppContext'
+import { useRecordsQuery } from '@/queries/useRecordsQuery'
 
 export default function Screen() {
 	const [q, setQ] = useState('')
@@ -25,7 +25,7 @@ export default function Screen() {
 		}
 	}, [q, currentPatient?.id])
 
-	const { data } = useRecords(query)
+	const { data } = useRecordsQuery(query)
 
 	const { isSearching } = useApp()
 	useEffect(() => {

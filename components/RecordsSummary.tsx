@@ -1,4 +1,4 @@
-import type { TRecordsQuery } from '@/api/records'
+import type { TRecordsQuery } from '@/queries/useRecordsQuery'
 import type { ViewProps } from 'react-native'
 
 import { ScrollView, View } from 'react-native'

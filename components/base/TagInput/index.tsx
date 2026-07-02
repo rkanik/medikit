@@ -12,18 +12,14 @@ import { type TInputProps } from '@/components/ui/input'
 import { Text, Title } from '@/components/ui/text'
 import { useSchemeColors } from '@/hooks/useSchemeColors'
 import { useTagsMutation } from '@/mutations/useTagsMutation'
-import { useTagsQuery } from '@/queries/useTagsQuery'
+import { useInvalidateTagsQuery, useTagsQuery } from '@/queries/useTagsQuery'
 import { BaseController } from '../controller'
-import { BaseJson } from '../Json'
 import { BaseModal } from '../modal'
 
 export type TBaseTagInputProps<
 	TFieldValues extends FieldValues = FieldValues,
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> = Omit<TBaseControllerProps<TFieldValues, TName>, 'render'> &
-	TInputProps & {
-		tags?: string[]
-	}
+> = Omit<TBaseControllerProps<TFieldValues, TName>, 'render'> & TInputProps
 
 const BaseTagInputInner = <
 	TFieldValues extends FieldValues = FieldValues,
@@ -36,7 +32,6 @@ const BaseTagInputInner = <
 		required,
 		className,
 		keyboardType,
-		tags = [],
 		placeholder = 'Enter tags...',
 		onBlur,
 		onFocus,
@@ -49,22 +44,27 @@ const BaseTagInputInner = <
 
 	const [value, setValue] = useState('')
 
-	const { data } = useTagsQuery()
+	const { data: tags = [] } = useTagsQuery()
 	const { mutate } = useTagsMutation()
+	const invalidateTagsQuery = useInvalidateTagsQuery()
 
-	const { textColorSecondary } = useSchemeColors()
+	const colors = useSchemeColors()
+
+	const tagMap = useMemo(() => {
+		return Object.fromEntries(tags.map(tag => [tag.id, tag.name]))
+	}, [tags])
 
 	const groupedTags = useMemo(() => {
 		const grouped = tags.reduce(
 			(acc, tag) => {
-				const firstLetter = tag[0].toUpperCase()
+				const firstLetter = tag.name[0]?.toUpperCase() ?? '#'
 				if (!acc[firstLetter]) {
 					acc[firstLetter] = []
 				}
 				acc[firstLetter].push(tag)
 				return acc
 			},
-			{} as Record<string, string[]>,
+			{} as Record<string, typeof tags>,
 		)
 		return Object.entries(grouped)
 			.map(([name, children]) => ({
@@ -74,11 +74,46 @@ const BaseTagInputInner = <
 			.sort((a, b) => a.name.localeCompare(b.name))
 	}, [tags])
 
+	const addTag = (
+		name: string,
+		items: number[],
+		onChange: (value: number[]) => void,
+	) => {
+		const trimmed = name.trim()
+		if (!trimmed.length) return
+
+		const existingTag = tags.find(
+			tag => tag.name.toLowerCase() === trimmed.toLowerCase(),
+		)
+		if (existingTag) {
+			if (!items.includes(existingTag.id)) {
+				onChange([...items, existingTag.id])
+			}
+			setValue('')
+			countRef.current = 0
+			return
+		}
+
+		mutate(
+			{ name: trimmed },
+			{
+				onSuccess: tag => {
+					if (tag?.id && !items.includes(tag.id)) {
+						onChange([...items, tag.id])
+					}
+					invalidateTagsQuery()
+					setValue('')
+					countRef.current = 0
+				},
+			},
+		)
+	}
+
 	return (
 		<BaseController
 			{...{ name, label, control, required, className }}
 			render={({ field }) => {
-				const items: string[] = Array.isArray(field.value) ? field.value : []
+				const items: number[] = Array.isArray(field.value) ? field.value : []
 				return (
 					<View>
 						<View
@@ -91,10 +126,10 @@ const BaseTagInputInner = <
 							)}
 						>
 							<View className="flex-1 flex-row flex-wrap gap-1">
-								{items.map((item, index) => (
+								{items.map(item => (
 									<Badge
-										key={index}
-										text={item}
+										key={item}
+										text={tagMap[item] ?? String(item)}
 										onPressRemove={() =>
 											field.onChange(items.filter(i => i !== item))
 										}
@@ -107,29 +142,11 @@ const BaseTagInputInner = <
 									returnKeyLabel="Add"
 									submitBehavior="submit"
 									placeholder={placeholder}
-									placeholderTextColor={textColorSecondary}
+									placeholderTextColor={colors['secondary-foreground']}
 									className="text-black dark:text-white py-0 text-lg px-0 leading-snug flex-1 min-w-16 overflow-hidden"
 									onChangeText={setValue}
 									onSubmitEditing={e => {
-										const name = e.nativeEvent.text.trim()
-										if (!name.length) return
-
-										console.log('mutate', { name })
-										mutate(
-											{ name },
-											{
-												onSuccess: e => {
-													console.log('onSuccess', e)
-													// field.onChange([...items, text])
-													// setValue('')
-													// countRef.current = 0
-												},
-											},
-										)
-
-										// field.onChange([...items, e.nativeEvent.text.trim()])
-										// setValue('')
-										// countRef.current = 0
+										addTag(e.nativeEvent.text, items, field.onChange)
 									}}
 									onFocus={e => {
 										onFocus?.(e)
@@ -163,7 +180,6 @@ const BaseTagInputInner = <
 								)}
 							</View>
 						</View>
-						<BaseJson data={data} />
 						{!!tags.length && (
 							<BaseModal
 								trigger={v => (
@@ -185,18 +201,20 @@ const BaseTagInputInner = <
 											/>
 											<View className="flex-row flex-wrap gap-2">
 												{v.children.map(tag => {
-													const selected = items.includes(tag)
+													const selected = items.includes(tag.id)
 													return (
 														<Badge
-															key={tag}
-															text={tag}
+															key={tag.id}
+															text={tag.name}
 															selected={selected}
 															className="px-4 py-2 rounded-lg"
 															onPress={() => {
 																if (selected) {
-																	field.onChange(items.filter(i => i !== tag))
+																	field.onChange(
+																		items.filter(i => i !== tag.id),
+																	)
 																} else {
-																	field.onChange([...items, tag])
+																	field.onChange([...items, tag.id])
 																}
 															}}
 														/>

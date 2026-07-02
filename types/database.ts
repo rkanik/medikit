@@ -5,6 +5,8 @@ import type {
 	patientMedicines,
 	patients,
 	records,
+	taggablesTable,
+	tags,
 } from '@/drizzle/schema'
 import type { TMaybe } from '@/types'
 import type { File, FileInfo } from 'expo-file-system'
@@ -26,9 +28,18 @@ export type TPatient = typeof patients.$inferSelect & {
 	avatar?: TMaybe<TAttachment>
 }
 
+export type TTag = typeof tags.$inferSelect
+
+export type TTaggable = typeof taggablesTable.$inferSelect & {
+	tag?: TMaybe<TTag>
+}
+
 export type TRecord = typeof records.$inferSelect & {
 	patient?: TMaybe<TPatient>
 	attachables?: TMaybe<TAttachable[]>
+	taggables?: TMaybe<TTaggable[]>
+	tags?: string[]
+	attachments?: TMaybe<TAttachment[]>
 }
 
 export type TMedicine = typeof medicines.$inferSelect & {

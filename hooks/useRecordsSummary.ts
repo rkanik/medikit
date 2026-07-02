@@ -1,12 +1,12 @@
-import type { TRecordsQuery } from '@/api/records'
+import type { TRecordsQuery } from '@/queries/useRecordsQuery'
 
 import { useMemo } from 'react'
 
-import { useRecords } from '@/api/records'
+import { useRecordsQuery } from '@/queries/useRecordsQuery'
 import { $d } from '@/utils/dayjs'
 
 export const useRecordsSummary = (query: TRecordsQuery) => {
-	const { data } = useRecords(query)
+	const { data } = useRecordsQuery(query)
 
 	const summary = useMemo(() => {
 		return data.reduce(

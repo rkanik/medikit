@@ -2,7 +2,6 @@ import type { GestureResponderEvent } from 'react-native'
 import { Fragment, useCallback, useMemo } from 'react'
 import { Alert, ScrollView, View } from 'react-native'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { useRecordById } from '@/api/records'
 import { BaseActions } from '@/components/base/actions'
 import { BaseCard } from '@/components/base/card'
 import { BaseImage } from '@/components/base/image'
@@ -11,11 +10,16 @@ import { Grid, GridItem } from '@/components/ui/grid'
 import { Pressable } from '@/components/ui/pressable'
 import { Text } from '@/components/ui/text'
 import { useImageViewer } from '@/context/ImageViewerProvider'
+import { useDeleteRecordsMutation } from '@/mutations/useDeleteRecordsMutation'
+import { useRecordByIdQuery } from '@/queries/useRecordByIdQuery'
+import { useInvalidateRecordsQuery } from '@/queries/useRecordsQuery'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
 
-	const { data, remove } = useRecordById(Number(id))
+	const { data } = useRecordByIdQuery(Number(id))
+	const { mutate: deleteRecord } = useDeleteRecordsMutation()
+	const invalidateRecordsQuery = useInvalidateRecordsQuery()
 
 	const onDelete = useCallback(() => {
 		Alert.alert(
@@ -26,13 +30,17 @@ export default function Screen() {
 				{
 					text: 'Delete',
 					onPress() {
-						remove()
-						router.back()
+						deleteRecord(Number(id), {
+							onSuccess() {
+								invalidateRecordsQuery()
+								router.back()
+							},
+						})
 					},
 				},
 			],
 		)
-	}, [remove])
+	}, [deleteRecord, id, invalidateRecordsQuery])
 
 	const attachments = useMemo(
 		() => (data?.attachments ?? []).filter(v => !!v.uri),

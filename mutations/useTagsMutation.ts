@@ -13,7 +13,11 @@ export const zTag = z.object({
 export const useTagsMutation = () => {
 	return useMutation({
 		mutationFn: async (data: TZTag) => {
-			const { id, ...values } = data
+			const name = data.name.trim()
+			if (!name) {
+				throw new Error('Name is required')
+			}
+			const { id } = data
 			if (id) {
 				const existing = await db.query.tags.findFirst({
 					where: (v, { eq }) => eq(v.id, id),
@@ -21,9 +25,19 @@ export const useTagsMutation = () => {
 				if (!existing) {
 					throw new Error('Tag not found')
 				}
-				return db.update(tags).set(values).where(eq(tags.id, id))
+				return (
+					await db
+						.update(tags)
+						.set({ name })
+						.where(eq(tags.id, id))
+						.returning()
+				)[0]
 			}
-			return db.insert(tags).values(values)
+			const existing = await db.query.tags.findFirst({
+				where: (v, { eq }) => eq(v.name, name),
+			})
+			if (existing) return existing
+			return (await db.insert(tags).values({ name }).returning())[0]
 		},
 	})
 }

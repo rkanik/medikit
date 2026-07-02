@@ -1,11 +1,10 @@
-import type { TZRecord } from '@/api/records'
+import type { TZRecord } from '@/mutations/useRecordsMutation'
 import { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useCurrentPatientIdStorage, usePatients } from '@/api/patients'
-import { useRecordById, useRecordsActions, zRecord } from '@/api/records'
 import { BaseActions } from '@/components/base/actions'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
@@ -16,12 +15,19 @@ import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollV
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
-import { useTags } from '@/hooks/useTags'
+import {
+	useRecordsMutation,
+	zRecord,
+} from '@/mutations/useRecordsMutation'
+import {
+	getRecordTagIds,
+	useRecordByIdQuery,
+} from '@/queries/useRecordByIdQuery'
+import { useInvalidateRecordsQuery } from '@/queries/useRecordsQuery'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
-	const { data } = useRecordById(Number(id))
-	const { data: tags } = useTags()
+	const { data } = useRecordByIdQuery(Number(id))
 	const { data: patients } = usePatients()
 	const [currentPatientId] = useCurrentPatientIdStorage()
 
@@ -34,28 +40,43 @@ export default function Screen() {
 			patientId: currentPatientId,
 			date: new Date().toISOString(),
 			attachments: [],
+			tags: [],
 		},
 	})
 
-	const { submit } = useRecordsActions()
+	const { mutate } = useRecordsMutation()
+	const invalidateRecordsQuery = useInvalidateRecordsQuery()
 
 	const onSubmit = useCallback(
 		(data: TZRecord) => {
-			const promise = submit(data.id, data)
-			promise
-				.then(() => router.back())
-				.catch(error => {
+			mutate(data, {
+				onSuccess() {
+					invalidateRecordsQuery()
+					router.back()
+				},
+				onError(error) {
 					form.setError('root', {
 						message: error.message,
 					})
-				})
+				},
+			})
 		},
-		[form, submit],
+		[form, mutate, invalidateRecordsQuery],
 	)
 
 	useEffect(() => {
-		if (data) form.reset(data)
-	}, [form, data])
+		if (data) {
+			form.reset({
+				id: data.id,
+				text: data.text ?? '',
+				amount: data.amount,
+				patientId: data.patientId ?? currentPatientId ?? 0,
+				date: data.date,
+				tags: getRecordTagIds(data),
+				attachments: data.attachments ?? [],
+			})
+		}
+	}, [form, data, currentPatientId])
 
 	if (id !== 'new' && !data) {
 		return (
@@ -124,7 +145,6 @@ export default function Screen() {
 							<BaseTagInput
 								name="tags"
 								label="Tags"
-								tags={tags}
 								control={form.control}
 								placeholder="Enter record tags..."
 							/>
