@@ -1,30 +1,106 @@
-import type { TRecord } from '@/types/database'
 import type { TPaginated } from '@/types'
-
+import type { TRecord } from '@/types/database'
 import { useCallback, useMemo } from 'react'
-
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import { count, eq } from 'drizzle-orm'
-
+import {
+	and,
+	count,
+	eq,
+	exists,
+	like,
+	or,
+	sql,
+	type SQL,
+} from 'drizzle-orm'
 import { db } from '@/drizzle/db'
-import { records as recordsTable } from '@/drizzle/schema'
+import {
+	records as recordsTable,
+	taggablesTable,
+	tags,
+} from '@/drizzle/schema'
 import { mapPatient } from '@/queries/mapPatient'
 import { getPagination } from '@/utils/getPagination'
-import { $d } from '@/utils/dayjs'
 import { paths } from '@/utils/paths'
 
 export type TRecordsQuery = {
 	q?: string
+	tag?: string
 	patientId?: number
 	page?: number
 	perPage?: number
 }
 
-const mapRecord = (record: NonNullable<Awaited<ReturnType<typeof fetchRecords>>[number]>): TRecord => {
+type TRecordsRef = Pick<typeof recordsTable, 'id' | 'patientId' | 'text' | 'date'>
+
+const tagMatchExists = (records: TRecordsRef, tagName: string) =>
+	exists(
+		db
+			.select({ id: taggablesTable.id })
+			.from(taggablesTable)
+			.innerJoin(tags, eq(taggablesTable.tagId, tags.id))
+			.where(
+				and(
+					eq(taggablesTable.recordId, records.id),
+					eq(tags.name, tagName),
+				),
+			),
+	)
+
+const tagSearchExists = (records: TRecordsRef, q: string) =>
+	exists(
+		db
+			.select({ id: taggablesTable.id })
+			.from(taggablesTable)
+			.innerJoin(tags, eq(taggablesTable.tagId, tags.id))
+			.where(
+				and(
+					eq(taggablesTable.recordId, records.id),
+					like(sql`lower(${tags.name})`, `%${q}%`),
+				),
+			),
+	)
+
+const buildRecordsWhere = (
+	records: TRecordsRef,
+	query: TRecordsQuery,
+): SQL | undefined => {
+	const conditions: SQL[] = []
+
+	if (query.patientId != null) {
+		conditions.push(eq(records.patientId, query.patientId))
+	}
+
+	const tag = query.tag?.trim()
+	if (tag) {
+		conditions.push(tagMatchExists(records, tag))
+	}
+
+	const q = query.q?.trim().toLowerCase()
+	if (q) {
+		conditions.push(
+			or(
+				like(sql`lower(${records.text})`, `%${q}%`),
+				like(records.date, `%${q}%`),
+				like(sql`strftime('%d-%m-%Y', ${records.date})`, `%${q}%`),
+				like(sql`strftime('%Y-%m-%d', ${records.date})`, `%${q}%`),
+				tagSearchExists(records, q),
+			)!,
+		)
+	}
+
+	if (!conditions.length) return undefined
+	return conditions.length === 1 ? conditions[0] : and(...conditions)
+}
+
+const mapRecord = (
+	record: NonNullable<Awaited<ReturnType<typeof fetchRecords>>[number]>,
+): TRecord => {
 	return {
 		...record,
 		patient: mapPatient(record.patient),
-		tags: record.taggables?.map(item => item.tag?.name).filter(Boolean) as string[],
+		tags: record.taggables
+			?.map(item => item.tag?.name)
+			.filter(Boolean) as string[],
 		attachments:
 			record.attachables
 				?.map(item => ({
@@ -36,7 +112,6 @@ const mapRecord = (record: NonNullable<Awaited<ReturnType<typeof fetchRecords>>[
 }
 
 const fetchRecords = async (query: TRecordsQuery = {}) => {
-	const patientId = query.patientId
 	const page = query.page ?? 1
 	const { offset, limit } = getPagination({
 		page,
@@ -45,10 +120,8 @@ const fetchRecords = async (query: TRecordsQuery = {}) => {
 	const records = await db.query.records.findMany({
 		limit,
 		offset,
-		where: patientId
-			? (v, { eq }) => eq(v.patientId, patientId)
-			: undefined,
-		orderBy: (v, { desc }) => [desc(v.date)],
+		where: records => buildRecordsWhere(records, query),
+		orderBy: (records, { desc }) => [desc(records.date)],
 		with: {
 			patient: {
 				with: {
@@ -70,20 +143,6 @@ const fetchRecords = async (query: TRecordsQuery = {}) => {
 	return records
 }
 
-const filterRecords = (records: TRecord[], query: TRecordsQuery = {}) => {
-	const q = query.q?.trim().toLowerCase() ?? ''
-	if (!q) return records
-	return records.filter(record => {
-		return (
-			record.text?.toLowerCase().includes(q) ||
-			record.tags?.some(tag => tag.toLowerCase().includes(q)) ||
-			['DD-MM-YYYY', 'YYYY-MM-DD'].some(format => {
-				return $d(record.date).format(format).includes(q)
-			})
-		)
-	})
-}
-
 export const useRecordsQuery = (query: TRecordsQuery = {}) => {
 	const result = useInfiniteQuery({
 		queryKey: ['records', query],
@@ -96,12 +155,12 @@ export const useRecordsQuery = (query: TRecordsQuery = {}) => {
 		getPreviousPageParam: (page: TPaginated<TRecord>) => page.previousPage,
 		queryFn: async ({ pageParam }) => {
 			const page = Number(pageParam)
+			const where = buildRecordsWhere(recordsTable, query)
 			const [{ total }] = await db
 				.select({ total: count() })
 				.from(recordsTable)
-				.where(
-					query.patientId ? eq(recordsTable.patientId, query.patientId) : undefined,
-				)
+				.where(where)
+
 			const { paginate } = getPagination({
 				page,
 				perPage: query.perPage ?? 10,
@@ -110,7 +169,7 @@ export const useRecordsQuery = (query: TRecordsQuery = {}) => {
 				...query,
 				page,
 			})
-			return paginate(filterRecords(records.map(mapRecord), query), total)
+			return paginate(records.map(mapRecord), total)
 		},
 	})
 
