@@ -1,6 +1,14 @@
 import type { TRecordsQuery } from '@/queries/useRecordsQuery'
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import {
+	Fragment,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react'
 import { RefreshControl, View } from 'react-native'
+import { launchScanner } from '@dariyd/react-native-document-scanner'
 import { useScrollToTop } from '@react-navigation/native'
 import { router } from 'expo-router'
 import { cn } from 'tailwind-variants'
@@ -42,12 +50,24 @@ export default function Screen() {
 		perPage: 10,
 	})
 
-	const { isSearching } = useApp()
+	const { isSearching, setPendingRecordAttachments } = useApp()
 	useEffect(() => {
 		if (!isSearching) {
 			setQ('')
 		}
 	}, [isSearching])
+
+	const onScan = useCallback(async () => {
+		const result = await launchScanner({ quality: 1, includeBase64: false })
+		if (!result.images?.length) return
+		setPendingRecordAttachments(
+			result.images.map(image => ({
+				uri: image.uri,
+			})),
+		)
+		router.push('/records/new/form')
+	}, [setPendingRecordAttachments])
+
 	return (
 		<View className="flex-1 relative">
 			{isSearching && (
@@ -79,7 +99,9 @@ export default function Screen() {
 									<Title>Patient</Title>
 									<PatientCard
 										data={currentPatient}
-										onPress={() => router.push(`/patients/${currentPatient.id}`)}
+										onPress={() =>
+											router.push(`/patients/${currentPatient.id}`)
+										}
 									/>
 								</View>
 							)}
@@ -109,19 +131,24 @@ export default function Screen() {
 					}
 				}}
 			/>
-			{data.length > 0 && (
-				<BaseActions
-					className="bottom-8"
-					data={[
-						{
-							pill: true,
-							prependIcon: 'plus',
-							title: 'Add Record',
-							onPress: () => router.push('/records/new/form'),
-						},
-					]}
-				/>
-			)}
+			<BaseActions
+				className="bottom-8"
+				data={[
+					{
+						pill: true,
+						prependIcon: 'plus',
+						title: 'Add Record',
+						onPress: () => router.push('/records/new/form'),
+					},
+					{
+						pill: true,
+						size: 'icon',
+						prependIcon: 'camera',
+						prependIconClassName: 'text-xl',
+						onPress: onScan,
+					},
+				]}
+			/>
 		</View>
 	)
 }

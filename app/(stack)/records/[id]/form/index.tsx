@@ -15,6 +15,7 @@ import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollV
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
+import { useApp } from '@/context/AppContext'
 import {
 	useRecordsMutation,
 	zRecord,
@@ -28,6 +29,7 @@ import { useInvalidateRecordsQuery } from '@/queries/useRecordsQuery'
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
+	const { pendingRecordAttachments, setPendingRecordAttachments } = useApp()
 	const { data } = useRecordByIdQuery(Number(id))
 	const { data: patients } = usePatientsListQuery()
 	const [currentPatientId] = useCurrentPatientIdStorage()
@@ -78,6 +80,17 @@ export default function Screen() {
 			})
 		}
 	}, [form, data, currentPatientId])
+
+	useEffect(() => {
+		if (id !== 'new' || !pendingRecordAttachments?.length) return
+		form.setValue('attachments', pendingRecordAttachments)
+		setPendingRecordAttachments(null)
+	}, [
+		form,
+		id,
+		pendingRecordAttachments,
+		setPendingRecordAttachments,
+	])
 
 	if (id !== 'new' && !data) {
 		return (

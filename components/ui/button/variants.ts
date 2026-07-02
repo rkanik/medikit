@@ -6,7 +6,7 @@ export const buttonVariants = tv({
 	base: 'flex-row items-center justify-center gap-2 border overflow-hidden',
 	variants: {
 		variant: {
-			default: 'bg-foreground',
+			default: 'bg-foreground border-transparent',
 			outline: 'border-input bg-background',
 			//
 			primary: 'bg-primary border-primary',
