@@ -1,11 +1,8 @@
 import type { TPaginated } from '@/types'
 import type { TPatient } from '@/types/database'
-
 import { useCallback } from 'react'
-
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { count } from 'drizzle-orm'
-
 import { db } from '@/drizzle/db'
 import { patients } from '@/drizzle/schema'
 import { getPagination } from '@/utils/getPagination'

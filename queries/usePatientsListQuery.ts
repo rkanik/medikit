@@ -1,8 +1,4 @@
-import type { TMaybe } from '@/types'
-import type { TPatient } from '@/types/database'
-
 import { useMemo } from 'react'
-
 import { mapPatient } from '@/queries/mapPatient'
 import { usePatientsQuery } from '@/queries/usePatientsQuery'
 

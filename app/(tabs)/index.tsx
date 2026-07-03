@@ -15,6 +15,7 @@ import { cn } from 'tailwind-variants'
 import { useCurrentPatient } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
 import { FlashList } from '@/components/FlashList'
+import { NoPatients } from '@/components/NoPatients'
 import { NoRecords } from '@/components/NoRecords'
 import { PatientCard } from '@/components/PatientCard'
 import { RecordCard } from '@/components/RecordCard'
@@ -22,6 +23,7 @@ import { RecordsSummary } from '@/components/RecordsSummary'
 import { Input } from '@/components/ui/input'
 import { Title } from '@/components/ui/text'
 import { useApp } from '@/context/AppContext'
+import { usePatientsListQuery } from '@/queries/usePatientsListQuery'
 import { useRecordsQuery } from '@/queries/useRecordsQuery'
 import { saveToDownloads } from '@/utils/saveToDownloads'
 import { shareFiles } from '@/utils/shareFiles'
@@ -140,6 +142,8 @@ export default function Screen() {
 		}
 	}, [selectedAttachments])
 
+	const { data: patients } = usePatientsListQuery()
+
 	return (
 		<View className="flex-1 relative">
 			{isSearching && (
@@ -183,6 +187,7 @@ export default function Screen() {
 					)
 				}}
 				ListFooterComponent={() => {
+					if (!patients.length) return <NoPatients />
 					if (!data.length) return <NoRecords />
 					return null
 				}}
@@ -245,21 +250,23 @@ export default function Screen() {
 									onPress: onDownloadSelected,
 								},
 							]
-						: [
-								{
-									pill: true,
-									prependIcon: 'plus',
-									title: 'Add Record',
-									onPress: () => router.push('/records/new/form'),
-								},
-								{
-									pill: true,
-									size: 'icon',
-									prependIcon: 'camera',
-									prependIconClassName: 'text-2xl',
-									onPress: onScan,
-								},
-							]
+						: data.length
+							? [
+									{
+										pill: true,
+										prependIcon: 'plus',
+										title: 'Add Record',
+										onPress: () => router.push('/records/new/form'),
+									},
+									{
+										pill: true,
+										size: 'icon',
+										prependIcon: 'camera',
+										prependIconClassName: 'text-2xl',
+										onPress: onScan,
+									},
+								]
+							: []
 				}
 			/>
 		</View>

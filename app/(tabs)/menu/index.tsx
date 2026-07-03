@@ -11,6 +11,7 @@ export default function Screen() {
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Grid cols={3} gap={16}>
+				{!__DEV__ && <GridItem />}
 				{/* <GridItem></GridItem> */}
 				{/* <GridItem>
 					<IconCard
@@ -66,15 +67,17 @@ export default function Screen() {
 						onPress={() => router.push('/backup')}
 					/>
 				</GridItem>
-				<GridItem>
-					<IconCard
-						icon="folder"
-						title="Files"
-						titleClassName="text-sm"
-						iconClassName="text-3xl text-orange-500 dark:text-orange-400"
-						onPress={() => router.push('/files')}
-					/>
-				</GridItem>
+				{__DEV__ && (
+					<GridItem>
+						<IconCard
+							icon="folder"
+							title="Files"
+							titleClassName="text-sm"
+							iconClassName="text-3xl text-orange-500 dark:text-orange-400"
+							onPress={() => router.push('/files')}
+						/>
+					</GridItem>
+				)}
 				<GridItem>
 					<ColorSchemePicker
 						trigger={v => (
