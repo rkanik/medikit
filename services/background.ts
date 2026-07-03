@@ -11,7 +11,7 @@ import {
 import { defineTask, isTaskRegisteredAsync } from 'expo-task-manager'
 import { useCallback, useEffect, useState } from 'react'
 import { useMMKVNumber } from 'react-native-mmkv'
-import { backup } from './backup'
+import { backup2 } from './backup2'
 
 const taskName = 'MediKitBackupBackgroundTask'
 
@@ -34,7 +34,7 @@ export const initializeBackgroundTask = async (
 			await innerAppMountedPromise
 
 			log(`[${taskName}]: ✅ backup started`)
-			await backup()
+			await backup2()
 			log(`[${taskName}]: ✅ backup completed`)
 
 			log(`[${taskName}]: ✅ background task done`)
