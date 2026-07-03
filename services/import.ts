@@ -1,9 +1,49 @@
-import { storage } from '@/utils/storage'
+import { queryClient } from '@/context/QueryProvider'
+import { db, replaceDatabaseFromCache } from '@/drizzle/db'
+import { fs } from '@/utils/fs'
+import { log } from '@/utils/logs'
 import { getDocumentAsync } from 'expo-document-picker'
 import { Directory, File, Paths } from 'expo-file-system'
 import { unzip } from 'react-native-zip-archive'
 
+const DB_FILE_NAME = 'index.db'
+const ATTACHMENTS_DIR = 'attachments'
+const IMPORT_DIR = 'import'
+
+const getFileName = (uri: string) => uri.split('/').pop() ?? ''
+
+const formatError = (error: unknown) => {
+	if (error instanceof Error) {
+		return error.message || error.name || 'Unknown error'
+	}
+	if (typeof error === 'string') {
+		return error
+	}
+	return 'Error importing data'
+}
+
+const toAttachmentFile = (uri: string) => {
+	if (uri.startsWith('file://') || uri.startsWith('content://')) {
+		return new File(uri)
+	}
+	return new File(Paths.document, ...uri.split('/').filter(Boolean))
+}
+
+const findImportFiles = (directory: Directory): File[] => {
+	const files: File[] = []
+	for (const item of directory.list()) {
+		if (item instanceof File) {
+			files.push(item)
+		} else if (item instanceof Directory) {
+			files.push(...findImportFiles(item))
+		}
+	}
+	return files
+}
+
 export const $import = async () => {
+	const importDirectory = new Directory(Paths.cache, IMPORT_DIR)
+
 	try {
 		const result = await getDocumentAsync({
 			type: ['application/zip'],
@@ -19,94 +59,84 @@ export const $import = async () => {
 			}
 		}
 
-		const importDirectory = new Directory(Paths.cache, 'import')
-		if (importDirectory.exists) importDirectory.delete()
+		if (importDirectory.exists) {
+			importDirectory.delete()
+		}
 		importDirectory.create()
 
 		await unzip(result.assets[0].uri, importDirectory.uri)
 
-		const files = importDirectory.list()
-
-		const filesDirectory = new Directory(Paths.document, 'files')
-		if (!filesDirectory.exists) filesDirectory.create()
-
-		for (const file of files) {
-			if (file instanceof File) {
-				if (file.uri.endsWith('.json')) {
-					const data = await file.text()
-					try {
-						const array = JSON.parse(data)
-						if (Array.isArray(array)) {
-							if (file.uri.endsWith('records.json')) {
-								storage.set(
-									'records',
-									JSON.stringify(
-										array.map(v => ({
-											...v,
-											attachments: (v.attachments || []).map((v: any) => {
-												return {
-													uri: Paths.join(
-														Paths.document,
-														'files',
-														v.uri.split('/').pop()!,
-													),
-												}
-											}),
-										})),
-									),
-								)
-							} else if (file.uri.endsWith('patients.json')) {
-								storage.set(
-									'patients',
-									JSON.stringify(
-										array.map(v => ({
-											...v,
-											avatar: v.avatar?.uri
-												? {
-														uri: Paths.join(
-															Paths.document,
-															'files',
-															v.avatar.uri.split('/').pop()!,
-														),
-													}
-												: undefined,
-										})),
-									),
-								)
-							}
-						}
-					} catch (error) {
-						console.log('Error parsing file...', file.uri, error)
-					}
-				} else {
-					console.log('Copying file...', file.uri)
-					const destination = new File(
-						Paths.document,
-						'files',
-						file.uri.split('/').pop()!,
-					)
-					if (destination.exists) {
-						destination.delete()
-					}
-					file.copy(destination)
-				}
-			}
+		const files = findImportFiles(importDirectory)
+		const dbSource = files.find(file => file.name === DB_FILE_NAME)
+		if (!dbSource) {
+			throw new Error('Database file not found in import archive')
 		}
 
-		importDirectory.delete()
-		const cacheDirectory = new Directory(Paths.cache)
-		if (cacheDirectory.exists) cacheDirectory.delete()
+		const cacheDbFile = new File(Paths.cache, DB_FILE_NAME)
+		if (cacheDbFile.exists) {
+			cacheDbFile.delete()
+		}
+		dbSource.copy(cacheDbFile)
 
-		//
+		const info = cacheDbFile.info()
+		if (!info.exists || !info.size) {
+			throw new Error('Imported database file is empty or missing')
+		}
+
+		replaceDatabaseFromCache()
+
+		const importFileMap = new Map(files.map(file => [file.name, file]))
+		const dbAttachments = await db.query.attachments.findMany()
+		const validAttachmentNames = new Set(
+			dbAttachments
+				.map(attachment => getFileName(attachment.uri))
+				.filter(Boolean),
+		)
+
+		fs.createDirectory(ATTACHMENTS_DIR)
+
+		for (const attachment of dbAttachments) {
+			const fileName = getFileName(attachment.uri)
+			if (!fileName) continue
+
+			const source = importFileMap.get(fileName)
+			if (!source?.exists) continue
+
+			const destination = toAttachmentFile(attachment.uri)
+			if (destination.exists) {
+				destination.delete()
+			}
+			source.copy(destination)
+		}
+
+		const localFiles = fs.getFiles(ATTACHMENTS_DIR)
+		const orphanedLocalFiles = localFiles.filter(
+			file => !validAttachmentNames.has(file.name),
+		)
+		if (orphanedLocalFiles.length) {
+			fs.removeMany(orphanedLocalFiles.map(file => file.uri))
+		}
+
+		await queryClient.invalidateQueries()
+
 		return {
 			success: true,
 			message: 'Data imported successfully',
 		}
 	} catch (error) {
-		console.log('error', error)
+		const message = formatError(error)
+		log('[import]: error', message)
 		return {
 			success: false,
-			message: (error as any)?.message || 'Error importing data',
+			message,
+		}
+	} finally {
+		if (importDirectory.exists) {
+			importDirectory.delete()
+		}
+		const cacheDbFile = new File(Paths.cache, DB_FILE_NAME)
+		if (cacheDbFile.exists) {
+			cacheDbFile.delete()
 		}
 	}
 }

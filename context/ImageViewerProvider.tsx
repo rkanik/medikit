@@ -1,14 +1,26 @@
 import type { PropsWithChildren } from 'react'
-
-import { createContext, useCallback, useContext, useState } from 'react'
-import { Modal, ScrollView, StyleSheet, ToastAndroid, View } from 'react-native'
-
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+} from 'react'
+import {
+	Modal,
+	ScrollView,
+	StyleSheet,
+	ToastAndroid,
+	useWindowDimensions,
+	View,
+	type NativeScrollEvent,
+	type NativeSyntheticEvent,
+} from 'react-native'
 import { Image } from 'expo-image'
-import { saveToLibraryAsync } from 'expo-media-library'
 import { shareAsync } from 'expo-sharing'
 import { GestureViewer } from 'react-native-gesture-image-viewer'
-
 import { BaseActions } from '@/components/base/actions'
+import { saveToDownloads } from '@/utils/saveToDownloads'
 
 type TAsset = { uri?: string }
 
@@ -19,8 +31,10 @@ type TContext = {
 const Context = createContext<TContext>(null!)
 
 export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
+	const { width } = useWindowDimensions()
 	const [urls, setUrls] = useState<string[]>([])
-	const [index, setIndex] = useState(0)
+	const [initialIndex, setInitialIndex] = useState(0)
+	const [currentIndex, setCurrentIndex] = useState(0)
 	const [visible, setVisible] = useState(false)
 
 	const onDismiss = useCallback(() => {
@@ -31,7 +45,8 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 		const urls = assets.filter(v => !!v.uri).map(asset => asset.uri!)
 		if (!assets.length) return
 		setUrls(urls)
-		setIndex(index)
+		setInitialIndex(index)
+		setCurrentIndex(index)
 		setVisible(true)
 	}, [])
 
@@ -48,18 +63,32 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 	)
 
 	const onShare = useCallback(() => {
-		shareAsync(urls[index])
-	}, [urls, index])
+		shareAsync(urls[currentIndex])
+	}, [urls, currentIndex])
 
 	const onDownload = useCallback(() => {
-		saveToLibraryAsync(urls[index])
+		saveToDownloads(urls[currentIndex])
 			.then(() => {
-				ToastAndroid.show('Saved to gallery', ToastAndroid.SHORT)
+				ToastAndroid.show('Saved to Downloads', ToastAndroid.SHORT)
 			})
 			.catch(() => {
-				ToastAndroid.show('Failed to save to gallery', ToastAndroid.SHORT)
+				ToastAndroid.show('Failed to save to Downloads', ToastAndroid.SHORT)
 			})
-	}, [urls, index])
+	}, [urls, currentIndex])
+
+	const listProps = useMemo(
+		() => ({
+			onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+				const scrollIndex = Math.round(
+					event.nativeEvent.contentOffset.x / width,
+				)
+				if (scrollIndex >= 0 && scrollIndex < urls.length) {
+					setCurrentIndex(scrollIndex)
+				}
+			},
+		}),
+		[width, urls.length],
+	)
 
 	// const onDelete = useCallback(() => {
 	// 	setUrls(urls.filter((_, i) => i !== index))
@@ -77,10 +106,11 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 				>
 					<GestureViewer
 						data={urls}
-						initialIndex={index}
+						initialIndex={initialIndex}
 						onDismiss={onDismiss}
 						renderItem={renderItem}
 						ListComponent={ScrollView}
+						listProps={listProps}
 						renderContainer={(children, { dismiss }) => (
 							<View className="flex-1">
 								{children}
@@ -92,16 +122,19 @@ export const ImageViewerProvider = ({ children }: PropsWithChildren) => {
 										// 	onPress: onDelete,
 										// },
 										{
-											icon: 'share-2',
+											pill: true,
+											prependIcon: 'share-2',
 											onPress: onShare,
 										},
 										{
-											icon: 'download',
+											pill: true,
+											prependIcon: 'download',
 											onPress: onDownload,
 										},
 										{
-											icon: 'chevron-down',
-											text: 'Close',
+											pill: true,
+											prependIcon: 'chevron-down',
+											title: 'Close',
 											onPress: dismiss,
 										},
 									]}

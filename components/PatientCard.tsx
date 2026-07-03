@@ -6,6 +6,7 @@ import { View } from 'react-native'
 import { cn } from 'tailwind-variants'
 
 import { $d, $df } from '@/utils/dayjs'
+import { paths } from '@/utils/paths'
 
 import { BaseCard } from './base/card'
 import { Avatar } from './ui/avatar'
@@ -36,7 +37,7 @@ export const PatientCard = ({
 					variant="secondary"
 					className="w-16 h-16"
 					text={data.name}
-					image={data.avatar?.uri}
+					image={paths.document(data.avatar?.uri)}
 				/>
 				<View>
 					<Title>{data.name}</Title>

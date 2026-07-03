@@ -1,0 +1,374 @@
+import { Alert as RNAlert, ScrollView, View } from 'react-native'
+
+import { BaseCard } from '@/components/base/card'
+import { BaseModal } from '@/components/base/modal'
+import { FlashList } from '@/components/FlashList'
+import { Alert } from '@/components/ui/alert'
+import { Avatar } from '@/components/ui/avatar'
+import { BaseButton } from '@/components/base/button'
+import { Divider } from '@/components/ui/divider'
+import { Body, Subtitle, Text, Title } from '@/components/ui/text'
+import { useAuth } from '@/context/AuthContext'
+import { minimumIntervals, useBackgroundTask } from '@/services/background'
+import { backup2, useBackup } from '@/services/backup2'
+import { $export } from '@/services/export'
+import { $import } from '@/services/import'
+import { $importLegacy } from '@/services/import-legacy'
+import { restore2 } from '@/services/restore2'
+import { $df } from '@/utils/dayjs'
+import { Stack } from 'expo-router'
+import { Fragment, useCallback, useState } from 'react'
+import { cn } from 'tailwind-variants'
+
+export default function Screen() {
+	//
+	const { user, isLoading, error, login, logout, setError } = useAuth()
+
+	const [isUploading, setUploading] = useState(false)
+	const onBackup = useCallback(async () => {
+		RNAlert.alert(
+			'Backup to Google Drive',
+			'Are you sure you want to backup your data to Google Drive? This will overwrite your existing backup data.',
+			[
+				{
+					text: 'Cancel',
+					style: 'cancel',
+				},
+				{
+					text: 'Backup',
+					onPress() {
+						setUploading(true)
+						backup2().finally(() => {
+							setUploading(false)
+						})
+					},
+				},
+			],
+		)
+	}, [])
+
+	const [isRestoring, setRestoring] = useState(false)
+	const onRestore = useCallback(async () => {
+		RNAlert.alert(
+			'Restore from Google Drive',
+			'Are you sure you want to restore your data from Google Drive? This will overwrite your existing data.',
+			[
+				{
+					text: 'Cancel',
+					style: 'cancel',
+				},
+				{
+					text: 'Restore',
+					onPress() {
+						setRestoring(true)
+						restore2()
+							.then(result => {
+								if (!result.success) {
+									RNAlert.alert('Restore failed', result.message)
+								}
+							})
+							.finally(() => {
+								setRestoring(false)
+							})
+					},
+				},
+			],
+		)
+	}, [])
+
+	const onDisconnect = useCallback(async () => {
+		RNAlert.alert(
+			'Disconnect from Google Drive',
+			'Are you sure you want to disconnect from Google Drive? This will remove all your data from Google Drive.',
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{ text: 'Disconnect', onPress: logout },
+			],
+		)
+	}, [logout])
+
+	const [isImporting, setImporting] = useState(false)
+	const onImport = useCallback(async () => {
+		RNAlert.alert(
+			'Import from Device',
+			'Are you sure you want to import your data from your device? This will overwrite your existing data.',
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{
+					text: 'Import',
+					onPress() {
+						setImporting(true)
+						$import()
+							.then(result => {
+								if (!result.success) {
+									RNAlert.alert('Import failed', result.message)
+								}
+							})
+							.finally(() => {
+								setImporting(false)
+							})
+					},
+				},
+			],
+		)
+	}, [])
+
+	const [isExporting, setExporting] = useState(false)
+	const onExport = useCallback(async () => {
+		setExporting(true)
+		$export()
+			.then(result => {
+				if (!result.success) {
+					RNAlert.alert('Export failed', result.message)
+				}
+			})
+			.finally(() => {
+				setExporting(false)
+			})
+	}, [])
+
+	const [isLegacyImporting, setLegacyImporting] = useState(false)
+	const onLegacyImport = useCallback(async () => {
+		RNAlert.alert(
+			'Import Legacy Backup',
+			'Import legacy backup zip (records.json, patients.json and files). This will overwrite your existing data.',
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{
+					text: 'Import Legacy',
+					onPress() {
+						setLegacyImporting(true)
+						$importLegacy()
+							.then(result => {
+								if (!result.success) {
+									RNAlert.alert('Legacy import failed', result.message)
+								}
+							})
+							.finally(() => {
+								setLegacyImporting(false)
+							})
+					},
+				},
+			],
+		)
+	}, [])
+
+	const { lastBackupTime, lastBackupSize } = useBackup()
+	const { minimumInterval, setMinimumInterval } = useBackgroundTask()
+	const [minimumIntervalDialog, setMinimumIntervalDialog] = useState(false)
+
+	return (
+		<ScrollView
+			contentContainerClassName="px-4 pb-20"
+			contentContainerStyle={{ flexGrow: 1 }}
+		>
+			<Stack.Screen options={{ title: 'Backup & Restore' }} />
+			<Alert
+				inverted
+				type="success"
+				title="Google Drive Backup"
+				subtitle="Keep your medical histories safe by syncing them to your own Drive. No external servers are involved — everything stays on your device until you tap 'Upload to Google Drive'."
+			/>
+			{user ? (
+				<View className="mt-4 gap-4">
+					<BaseCard>
+						<Title>Google Account</Title>
+						<Subtitle>
+							This account will be used to backup and restore your data to
+							Google Drive.
+						</Subtitle>
+						<Divider className="my-3" />
+						<View className="items-center gap-2 flex-row">
+							<Avatar
+								text={user.name}
+								image={user.photo}
+								className="w-16 h-16"
+							/>
+							<View>
+								<Title>{user.name || user.email.split('@')[0]}</Title>
+								<Subtitle>{user.email}</Subtitle>
+							</View>
+						</View>
+						<View className="flex-row">
+							<BaseButton
+								disabled={isLoading}
+								className="mt-3"
+								prependIcon="log-out"
+								title="Disconnect"
+								loading={isLoading}
+								onPress={onDisconnect}
+							/>
+						</View>
+					</BaseCard>
+					<BaseCard>
+						<Title>Backup & Restore</Title>
+						<Subtitle>Backup and restore your data to Google Drive.</Subtitle>
+						<Divider className="my-3" />
+						<View>
+							<Body>
+								Size:{' '}
+								{lastBackupSize
+									? `${Math.round(lastBackupSize / 1024 / 1024)} MB`
+									: 'None'}
+							</Body>
+							<Body>
+								Frequency:{' '}
+								{minimumIntervals.find(v => v.value === minimumInterval)
+									?.title || 'Default'}
+							</Body>
+							<Body>
+								Last backup:{' '}
+								{lastBackupTime
+									? $df(lastBackupTime, 'hh:mm A - DD MMMM YYYY')
+									: 'Never'}
+							</Body>
+						</View>
+						<View className="gap-2 mt-4 flex-row">
+							<BaseButton
+								disabled={isUploading}
+								prependIcon="upload"
+								title="Backup"
+								loading={isUploading}
+								onPress={onBackup}
+							/>
+							<BaseButton
+								disabled={isRestoring}
+								prependIcon="download"
+								title="Restore"
+								loading={isRestoring}
+								onPress={onRestore}
+							/>
+							<BaseModal
+								visible={minimumIntervalDialog}
+								setVisible={setMinimumIntervalDialog}
+								trigger={v => <BaseButton {...v} prependIcon="clock" />}
+							>
+								<FlashList
+									contentContainerClassName="px-4 pt-4 pb-16"
+									contentContainerStyle={{ flexGrow: 1 }}
+									data={minimumIntervals}
+									renderItem={({ item }) => (
+										<BaseCard
+											className={cn('mb-2', {
+												'bg-black dark:bg-white':
+													item.value === minimumInterval,
+											})}
+											onPress={() => {
+												setMinimumInterval(item.value)
+												setMinimumIntervalDialog(false)
+											}}
+										>
+											<Text
+												className={cn({
+													'text-white dark:text-black font-bold':
+														item.value === minimumInterval,
+												})}
+											>
+												{item.title}
+											</Text>
+										</BaseCard>
+									)}
+								/>
+							</BaseModal>
+						</View>
+					</BaseCard>
+				</View>
+			) : (
+				<Fragment>
+					{error && (
+						<Alert
+							type="error"
+							title="Error!"
+							className="mt-3"
+							subtitle={error}
+							onClose={() => setError(null)}
+						/>
+					)}
+					<BaseCard className="mt-3">
+						<Title>Google Drive Backup</Title>
+						<Subtitle>
+							Connect your google account to backup and restore your data to
+							Google Drive. Make sure to grant the necessary permissions to the
+							app.
+						</Subtitle>
+						<Divider className="my-3" />
+						<View className="flex-row">
+							<BaseButton
+								prependIcon="log-in"
+								title="Connect Google"
+								loading={isLoading}
+								disabled={isLoading}
+								onPress={login}
+							/>
+						</View>
+					</BaseCard>
+				</Fragment>
+			)}
+
+			<BaseCard className="mt-4">
+				<Title>Import & Export</Title>
+				<Subtitle>
+					Import and export your data from and to your device.
+				</Subtitle>
+				<Divider className="my-3" />
+				<View className="gap-2 mt-4 flex-row">
+					<BaseButton
+						prependIcon="arrow-down"
+						title="Import"
+						onPress={onImport}
+						loading={isImporting}
+						disabled={isImporting || isExporting || isLegacyImporting}
+					/>
+					<BaseButton
+						prependIcon="arrow-up"
+						title="Export"
+						onPress={onExport}
+						loading={isExporting}
+						disabled={isImporting || isExporting || isLegacyImporting}
+					/>
+				</View>
+				<View className="mt-2 flex-row">
+					<BaseButton
+						prependIcon="download"
+						title="Import Legacy"
+						onPress={onLegacyImport}
+						loading={isLegacyImporting}
+						disabled={isImporting || isExporting || isLegacyImporting}
+					/>
+				</View>
+			</BaseCard>
+
+			{/* <Card size="lg" variant="outline" className="mt-3">
+				<Heading size="md">Background Tasks</Heading>
+				<Text size="sm">
+					Background tasks are used to backup and restore your data to Google
+					Drive.
+				</Text>
+				<View className="flex-row gap-2 mt-4">
+					<Button size="xs" onPress={trigger}>
+						<ButtonText>Trigger</ButtonText>
+					</Button>
+					<Button size="xs" onPress={register}>
+						<ButtonText>Register</ButtonText>
+					</Button>
+					<Button size="xs" onPress={unregister}>
+						<ButtonText>Unregister</ButtonText>
+					</Button>
+					<Button size="xs" onPress={toggle}>
+						<ButtonText>Toggle</ButtonText>
+					</Button>
+				</View>
+				<Divider className="my-3" />
+				<View>
+					<Text>
+						Status:{' '}
+						{status === BackgroundTaskStatus.Available
+							? 'Available'
+							: 'Restricted'}
+					</Text>
+					<Text>Registered: {isRegistered ? 'Yes' : 'No'}</Text>
+				</View>
+			</Card> */}
+		</ScrollView>
+	)
+}

@@ -1,6 +1,9 @@
-import { useScheme } from '@/hooks/useScheme'
+import type { PressableProps, View } from 'react-native'
+
 import { forwardRef } from 'react'
-import { PressableProps, Pressable as RNPressable, View } from 'react-native'
+import { Pressable as RNPressable } from 'react-native'
+
+import { useScheme } from '@/hooks/useScheme'
 
 export const Pressable = forwardRef<View, PressableProps>(function Pressable(
 	v: PressableProps,

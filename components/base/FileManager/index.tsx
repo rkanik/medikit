@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { BaseButton } from '@/components/base/button'
 import { Icon } from '@/components/ui/icon'
 import { Pressable } from '@/components/ui/pressable'
 import { Subtitle, Text, Title } from '@/components/ui/text'
@@ -139,7 +139,7 @@ export const FileManager = ({ initialPath }: FileManagerProps) => {
 			{/* Header with back button and path */}
 			<View className="flex-row items-center gap-2 px-4 py-3 border-b border-outline-200">
 				{canGoBack && (
-					<Button size="sm" icon="chevron-left" onPress={handleBack} />
+					<BaseButton size="icon-sm" prependIcon="chevron-left" onPress={handleBack} />
 				)}
 				<Text className="flex-1">{pathDisplay}</Text>
 			</View>

@@ -1,19 +1,20 @@
-import { fs } from '@/utils/fs'
-import { log } from '@/utils/logs'
-import {
-	createDownloadResumable,
+import type {
 	DownloadProgressData,
 	DownloadResumable,
 } from 'expo-file-system/legacy'
+import type { PropsWithChildren } from 'react'
+import type { AppStateStatus } from 'react-native'
 import {
 	createContext,
-	PropsWithChildren,
 	useCallback,
 	useContext,
 	useEffect,
 	useRef,
 } from 'react'
-import { Alert, AppState, AppStateStatus } from 'react-native'
+import { Alert, AppState } from 'react-native'
+import { createDownloadResumable } from 'expo-file-system/legacy'
+import { fs } from '@/utils/fs'
+import { log } from '@/utils/logs'
 import { useMMKVArray } from '../useMMKVArray'
 
 const KEY = 'useDownloader:downloads'

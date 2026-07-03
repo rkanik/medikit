@@ -1,45 +1,52 @@
+import type {
+	attachables,
+	attachments,
+	medicines,
+	patientMedicines,
+	patients,
+	records,
+	taggablesTable,
+	tags,
+} from '@/drizzle/schema'
 import type { TMaybe } from '@/types'
 import type { File, FileInfo } from 'expo-file-system'
 import type { ImagePickerAsset } from 'expo-image-picker'
 
 export type TAsset = File | FileInfo | ImagePickerAsset
 
-export type TPatient = {
-	id: number
-	name: string
-	dob?: TMaybe<string>
-	gender?: TMaybe<string>
-	avatar?: TMaybe<TAsset>
-	edd?: TMaybe<string>
-	createdAt?: TMaybe<string>
-	updatedAt?: TMaybe<string>
+export type TAttachable = typeof attachables.$inferSelect & {
+	record?: TMaybe<TRecord>
+	patient?: TMaybe<TPatient>
+	medicine?: TMaybe<TMedicine>
 }
 
-export type TRecord = {
-	id: number
-	text?: TMaybe<string>
-	date: string
-	amount: number
-	patientId: number
-	attachments: TAsset[]
-	createdAt: string
-	updatedAt: string
+export type TAttachment = typeof attachments.$inferSelect & {
+	attachables?: TMaybe<TAttachable[]>
+}
+
+export type TPatient = typeof patients.$inferSelect & {
+	avatar?: TMaybe<TAttachment>
+}
+
+export type TTag = typeof tags.$inferSelect
+
+export type TTaggable = typeof taggablesTable.$inferSelect & {
+	tag?: TMaybe<TTag>
+}
+
+export type TRecord = typeof records.$inferSelect & {
+	patient?: TMaybe<TPatient>
+	attachables?: TMaybe<TAttachable[]>
+	taggables?: TMaybe<TTaggable[]>
 	tags?: string[]
+	attachments?: TMaybe<TAttachment[]>
 }
 
-export type TMedicine = {
-	id: number
-	name: string
-	thumbnail?: TMaybe<TAsset>
+export type TMedicine = typeof medicines.$inferSelect & {
+	thumbnail?: TMaybe<TAttachment>
 }
 
-export type TPatientMedicine = {
-	id: number
-	patientId: number
-	medicineId: number
-	startDate?: TMaybe<string>
-	endDate?: TMaybe<string>
-	schedule?: TMaybe<string>
-	stock?: TMaybe<number>
+export type TPatientMedicine = typeof patientMedicines.$inferSelect & {
+	patient?: TMaybe<TPatient>
 	medicine?: TMaybe<TMedicine>
 }

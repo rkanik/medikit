@@ -1,7 +1,8 @@
 import { useCurrentPatient } from '@/api/patients'
+import { paths } from '@/utils/paths'
+import { BaseButton } from './base/button'
 import { PatientPicker } from './PatientPicket'
 import { Avatar } from './ui/avatar'
-import { Button } from './ui/button'
 
 export const CurrentPatientPicker = () => {
 	const { data, setData } = useCurrentPatient()
@@ -12,13 +13,21 @@ export const CurrentPatientPicker = () => {
 			onChange={patient => setData(patient?.id)}
 			trigger={v => {
 				if (!data) {
-					return <Button {...v} text="All" icon="user" />
+					return (
+						<BaseButton
+							{...v}
+							pill
+							title="All"
+							variant="secondary"
+							prependIcon="user"
+						/>
+					)
 				}
 				return (
 					<Avatar
 						{...v}
 						text={data?.name}
-						image={data?.avatar?.uri}
+						image={paths.document(data?.avatar?.uri)}
 						className="border-2 border-green-500 dark:border-green-300 p-px"
 					/>
 				)

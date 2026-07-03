@@ -1,6 +1,6 @@
 {
 	"editor.codeActionsOnSave": {
-		"source.organizeImports": "explicit",
+		"source.organizeImports": "never",
 		"source.fixAll.eslint": "explicit"
 	},
 	"editor.formatOnSave": true,
@@ -11,6 +11,7 @@
 		"typescriptreact"
 	],
 	"cSpell.words": [
+		"attachables",
 		"bottomsheet",
 		"dariyd",
 		"datetimepicker",
@@ -24,10 +25,12 @@
 		"MMKV",
 		"nandorojo",
 		"nativewind",
+		"netinfo",
 		"Pressable",
 		"Removeable",
 		"rkanik",
 		"Schedulable",
+		"taggables",
 		"worklets"
 	]
 }

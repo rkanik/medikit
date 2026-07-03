@@ -28,7 +28,7 @@ module.exports = defineConfig([
 						},
 					],
 					pathGroupsExcludedImportTypes: ['type'],
-					'newlines-between': 'always',
+					'newlines-between': 'never',
 					alphabetize: {
 						order: 'asc',
 						caseInsensitive: true,

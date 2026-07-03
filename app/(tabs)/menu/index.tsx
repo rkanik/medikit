@@ -1,7 +1,5 @@
 import { ScrollView } from 'react-native'
-
 import { router } from 'expo-router'
-
 import { ColorSchemePicker } from '@/components/ColorSchemePicker'
 import { IconCard } from '@/components/IconCard'
 import { Grid, GridItem } from '@/components/ui/grid'
@@ -13,8 +11,16 @@ export default function Screen() {
 			contentContainerStyle={{ flexGrow: 1 }}
 		>
 			<Grid cols={3} gap={16}>
-				<GridItem></GridItem>
-				<GridItem></GridItem>
+				{/* <GridItem></GridItem> */}
+				{/* <GridItem>
+					<IconCard
+						icon="list"
+						title="Medicines"
+						titleClassName="text-sm"
+						iconClassName="text-3xl text-purple-500 dark:text-purple-400"
+						onPress={() => router.push('/medicines')}
+					/>
+				</GridItem> */}
 				<GridItem>
 					<IconCard
 						icon="lock"
@@ -42,7 +48,7 @@ export default function Screen() {
 						onPress={() => router.push('/updates')}
 					/>
 				</GridItem>
-				<GridItem>
+				{/* <GridItem>
 					<IconCard
 						icon="clock"
 						title="Temp"
@@ -50,7 +56,7 @@ export default function Screen() {
 						iconClassName="text-3xl text-red-500 dark:text-red-400"
 						onPress={() => router.push('/temp')}
 					/>
-				</GridItem>
+				</GridItem> */}
 				<GridItem>
 					<IconCard
 						icon="upload-cloud"

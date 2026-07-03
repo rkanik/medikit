@@ -1,13 +1,15 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { setNotificationHandler } from 'expo-notifications'
-
-import { GestureHandlerRootView } from '@/components/GestureHandlerRootView'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { TextProvider } from '@/components/ui/text'
 import { AppProvider } from '@/context/AppContext'
 import { AuthProvider } from '@/context/AuthContext'
 import { ImageViewerProvider } from '@/context/ImageViewerProvider'
+import { QueryProvider } from '@/context/QueryProvider'
 import { Downloader } from '@/hooks/useDownloader'
+import { Offline } from '../Offline'
 
 setNotificationHandler({
 	handleNotification: async () => ({
@@ -20,20 +22,27 @@ setNotificationHandler({
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
 	return (
-		<GestureHandlerRootView>
-			<ThemeProvider>
-				<TextProvider className="text-black dark:text-white">
-					<BottomSheetModalProvider>
-						<AuthProvider>
-							<ImageViewerProvider>
-								<Downloader>
-									<AppProvider>{children}</AppProvider>
-								</Downloader>
-							</ImageViewerProvider>
-						</AuthProvider>
-					</BottomSheetModalProvider>
+		<ThemeProvider>
+			<GestureHandlerRootView className="flex-1">
+				<TextProvider className="text-foreground">
+					<SafeAreaProvider>
+						<QueryProvider>
+							<BottomSheetModalProvider>
+								<AuthProvider>
+									<ImageViewerProvider>
+										<Downloader>
+											<AppProvider>
+												<Offline />
+												{children}
+											</AppProvider>
+										</Downloader>
+									</ImageViewerProvider>
+								</AuthProvider>
+							</BottomSheetModalProvider>
+						</QueryProvider>
+					</SafeAreaProvider>
 				</TextProvider>
-			</ThemeProvider>
-		</GestureHandlerRootView>
+			</GestureHandlerRootView>
+		</ThemeProvider>
 	)
 }

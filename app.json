@@ -3,7 +3,7 @@
     "name": "MediKit",
     "slug": "medikit",
     "description": "Privacy-first medical records on your phone—local storage with optional Google Drive backup. No shared backend.",
-    "version": "1.2.6",
+    "version": "1.2.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "medikit",
@@ -76,6 +76,13 @@
           "ios": {
             "deploymentTarget": "15.5"
           }
+        }
+      ],
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": true,
+          "useSQLCipher": true
         }
       ]
     ],

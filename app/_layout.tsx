@@ -2,14 +2,14 @@ import '@/global.css'
 import 'react-native-reanimated'
 
 import { Fragment, useEffect } from 'react'
-
+import { Alert } from 'react-native'
+import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
+import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import { Stack } from 'expo-router'
-import { StatusBar } from 'expo-status-bar'
-
 import { Logs } from '@/components/Logs'
 import { Providers } from '@/components/Providers'
-import { useScheme } from '@/hooks/useScheme'
-import { useSchemeColors } from '@/hooks/useSchemeColors'
+import { db } from '@/drizzle/db'
+import migrations from '@/drizzle/migrations'
 import { initializeBackgroundTask } from '@/services/background'
 
 export const unstable_settings = {
@@ -28,29 +28,22 @@ const promise = new Promise<void>(resolve => {
 initializeBackgroundTask(promise)
 
 const RootLayoutInner = () => {
-	const { scheme } = useScheme()
-	const { backgroundColor } = useSchemeColors()
+	const { error, success } = useMigrations(db, migrations)
+	useDrizzleStudio(db.$client)
+	useEffect(() => {
+		if (error) {
+			Alert.alert('Error', error.message || 'An unknown error occurred')
+		}
+		if (success) {
+			console.log('Migrations completed successfully')
+		}
+	}, [error, success])
+
 	return (
 		<Fragment>
-			<Logs />
-			<StatusBar
-				style={scheme({
-					dark: 'light',
-					light: 'dark',
-				})}
-			/>
-			<Stack
-				screenOptions={{
-					headerStyle: { backgroundColor },
-					contentStyle: { backgroundColor },
-				}}
-			>
-				<Stack.Screen
-					name="(tabs)"
-					options={{
-						headerShown: false,
-					}}
-				/>
+			{__DEV__ && <Logs />}
+			<Stack screenOptions={{ headerShown: false }}>
+				<Stack.Screen name="(tabs)" />
 			</Stack>
 		</Fragment>
 	)
@@ -62,7 +55,6 @@ export default function RootLayout() {
 			resolver()
 		}
 	}, [])
-
 	return (
 		<Providers>
 			<RootLayoutInner />

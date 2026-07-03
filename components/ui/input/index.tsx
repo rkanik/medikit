@@ -1,13 +1,9 @@
 import type { TextInputProps } from 'react-native'
 import type { VariantProps } from 'tailwind-variants'
-
 import { forwardRef, useState } from 'react'
 import { TextInput, TouchableOpacity, View } from 'react-native'
-
 import { tv } from 'tailwind-variants'
-
 import { useSchemeColors } from '@/hooks/useSchemeColors'
-
 import { Icon } from '../icon'
 
 export const inputVariants = tv({
@@ -71,7 +67,7 @@ export const Input = forwardRef<TextInput, TInputProps>(function Input(
 	ref,
 ) {
 	const [focus, setFocus] = useState(false)
-	const { textColorSecondary } = useSchemeColors()
+	const colors = useSchemeColors()
 	return (
 		<View className="relative">
 			<TextInput
@@ -79,7 +75,7 @@ export const Input = forwardRef<TextInput, TInputProps>(function Input(
 				ref={ref}
 				value={value}
 				onChangeText={onChangeText}
-				placeholderTextColor={textColorSecondary}
+				placeholderTextColor={colors['secondary-foreground']}
 				className={inputVariants({
 					size,
 					error,

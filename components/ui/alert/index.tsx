@@ -1,7 +1,7 @@
 import { BaseCard } from '@/components/base/card'
 import { PressableProps, View } from 'react-native'
 import { cn } from 'tailwind-variants'
-import { Button } from '../button'
+import { BaseButton } from '@/components/base/button'
 import { Subtitle, Title } from '../text'
 
 export type TAlertProps = Omit<PressableProps, 'children'> & {
@@ -54,10 +54,10 @@ export const Alert = ({
 			</View>
 			<View className="flex-none">
 				{onClose && (
-					<Button
-						size="sm"
-						icon="x"
-						variant="base2"
+					<BaseButton
+						size="icon-sm"
+						prependIcon="x"
+						variant="ghost"
 						onPress={e => {
 							e.preventDefault()
 							e.stopPropagation()

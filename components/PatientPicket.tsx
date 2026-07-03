@@ -4,7 +4,7 @@ import type { TPatient } from '@/types/database'
 
 import { useState } from 'react'
 
-import { usePatients } from '@/api/patients'
+import { usePatientsListQuery } from '@/queries/usePatientsListQuery'
 import { FlashList } from '@/components/FlashList'
 
 import { BaseModal } from './base/modal'
@@ -16,7 +16,7 @@ export type TPatientPickerProps = TBaseModalProps & {
 }
 
 const PatientItems = ({ value, onChange }: TPatientPickerProps) => {
-	const { data } = usePatients()
+	const { data } = usePatientsListQuery()
 	return (
 		<FlashList
 			data={data}

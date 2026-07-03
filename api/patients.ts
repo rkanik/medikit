@@ -7,6 +7,7 @@ import { useMMKVNumber } from 'react-native-mmkv'
 import { z } from 'zod'
 
 import { useMMKVArray } from '@/hooks/useMMKVArray'
+import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
 import { fs } from '@/utils/fs'
 
 import { useRecordsStorage } from './records'
@@ -32,11 +33,8 @@ export const useCurrentPatientIdStorage = () => {
 }
 
 export const useCurrentPatient = () => {
-	const { data: items } = usePatientsStorage()
 	const [id, setData] = useCurrentPatientIdStorage()
-	const data = useMemo<TMaybe<TPatient>>(() => {
-		return items.find(item => item.id === id)
-	}, [id, items])
+	const { data } = usePatientByIdQuery(Number(id))
 	return {
 		data,
 		setData,
