@@ -47,7 +47,10 @@ const getAttachmentsFromBackup = () => {
 		if (!tables.length) return []
 		return backupDb.getAllSync<{ uri: string }>('SELECT uri FROM attachments')
 	} catch (error) {
-		log('[restore2]: failed to read attachments from backup', formatError(error))
+		log(
+			'[restore2]: failed to read attachments from backup',
+			formatError(error),
+		)
 		return []
 	} finally {
 		backupDb.closeSync()
@@ -89,7 +92,10 @@ export const restore2 = async () => {
 
 		n.update({ body: 'Downloading database...' })
 		const downloadResult = await drive.download(dbDriveFile.id, dbFile)
-		if (!downloadResult || ('error' in downloadResult && downloadResult.error)) {
+		if (
+			!downloadResult ||
+			('error' in downloadResult && downloadResult.error)
+		) {
 			throw new Error('Failed to download database from Google Drive')
 		}
 
@@ -102,7 +108,9 @@ export const restore2 = async () => {
 		replaceDatabaseFromCache()
 
 		const validAttachmentNames = new Set(
-			dbAttachments.map(attachment => getFileName(attachment.uri)).filter(Boolean),
+			dbAttachments
+				.map(attachment => getFileName(attachment.uri))
+				.filter(Boolean),
 		)
 
 		fs.createDirectory(ATTACHMENTS_DIR)

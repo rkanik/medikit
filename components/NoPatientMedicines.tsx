@@ -1,7 +1,6 @@
 import { router } from 'expo-router'
-
-import { BaseCard } from './base/card'
 import { BaseButton } from './base/button'
+import { BaseCard } from './base/card'
 import { Subtitle, Title } from './ui/text'
 
 type TNoPatientMedicinesProps = {

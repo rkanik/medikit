@@ -1,11 +1,11 @@
+import { useCallback, useEffect, useState } from 'react'
+import { Alert } from 'react-native'
+import { File, Paths } from 'expo-file-system'
+import { useMMKVNumber } from 'react-native-mmkv'
 import { appVersion } from '@/const'
 import { useDownloader } from '@/hooks/useDownloader'
 import { log } from '@/utils/logs'
 import { open } from '@/utils/open'
-import { File, Paths } from 'expo-file-system'
-import { useCallback, useEffect, useState } from 'react'
-import { Alert } from 'react-native'
-import { useMMKVNumber } from 'react-native-mmkv'
 
 const versionToNumber = (version: string) => {
 	return +version.replace(/^v/, '').replace(/-.*$/, '').split('.').join('')
@@ -23,7 +23,10 @@ export const useUpdater = () => {
 			'Update Available',
 			'A new version of the app is available. Please update to the latest version.',
 			[
-				{ text: 'Cancel', style: 'cancel' },
+				{
+					text: 'Cancel',
+					style: 'cancel',
+				},
 				{
 					text: 'Update',
 					onPress: () => {
@@ -54,7 +57,7 @@ export const useUpdater = () => {
 		const currentVersion = versionToNumber(appVersion)
 
 		//
-		if (version > currentVersion) {
+		if (version !== currentVersion) {
 			const apkName = apkUrl.split('/').pop()
 			const destinationFile = new File(Paths.document, apkName!)
 

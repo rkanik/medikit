@@ -73,7 +73,9 @@ export const backup2 = async () => {
 
 		const dbAttachments = await db.query.attachments.findMany()
 		const validAttachmentNames = new Set(
-			dbAttachments.map(attachment => getFileName(attachment.uri)).filter(Boolean),
+			dbAttachments
+				.map(attachment => getFileName(attachment.uri))
+				.filter(Boolean),
 		)
 
 		const localFiles = fs.getFiles(ATTACHMENTS_DIR)
@@ -100,14 +102,22 @@ export const backup2 = async () => {
 				fileId: driveFileMap.get(DB_FILE_NAME)?.id,
 			},
 		]
+		const queuedFileNames = new Set<string>([DB_FILE_NAME])
 
 		for (const attachment of dbAttachments) {
 			const fileName = getFileName(attachment.uri)
-			if (!fileName || driveFileMap.has(fileName)) continue
+			if (
+				!fileName ||
+				driveFileMap.has(fileName) ||
+				queuedFileNames.has(fileName)
+			) {
+				continue
+			}
 
 			const localFile = new File(paths.document(attachment.uri)!)
 			if (!localFile.exists) continue
 
+			queuedFileNames.add(fileName)
 			uploadFiles.push({ uri: localFile.uri })
 		}
 
@@ -136,7 +146,7 @@ export const backup2 = async () => {
 
 		if (
 			!uploadResult ||
-			'error' in uploadResult && uploadResult.error ||
+			('error' in uploadResult && uploadResult.error) ||
 			!('results' in uploadResult) ||
 			!uploadResult.results?.[0]?.data
 		) {

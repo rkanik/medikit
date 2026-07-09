@@ -3,8 +3,7 @@ import type {
 	TDialogProps,
 } from '@/components/ui/dialog'
 import type { ReactNode } from 'react'
-import type { ViewProps } from 'react-native'
-import type { KeyboardAwareScrollViewProps } from 'react-native-keyboard-controller'
+import type { ScrollViewProps, ViewProps } from 'react-native'
 
 export type TBaseDialogProps = TDialogProps & {
 	title?: ReactNode
@@ -23,6 +22,6 @@ export type TBaseDialogProps = TDialogProps & {
 	headerClass?: string
 	trigger?: TDialogCallbackChildren
 	children?: React.ReactNode
-	scrollViewProps?: KeyboardAwareScrollViewProps
+	scrollViewProps?: ScrollViewProps
 	FooterComponent?: React.ComponentType
 }

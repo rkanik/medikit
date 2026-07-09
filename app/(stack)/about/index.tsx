@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Linking, ScrollView, View } from 'react-native'
-
 import { Stack } from 'expo-router'
-
+import { BaseButton } from '@/components/base/button'
 import { BaseCard } from '@/components/base/card'
 import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { BaseButton } from '@/components/base/button'
 import { Divider } from '@/components/ui/divider'
+import { Grid, GridItem } from '@/components/ui/grid'
 import { Body, Subtitle, Title } from '@/components/ui/text'
 import { $df } from '@/utils/dayjs'
 
@@ -114,19 +113,27 @@ export default function Screen() {
 				</Body>
 			</BaseCard>
 
-			<View className="mt-4 flex-row flex-wrap gap-2">
-				<BaseButton
-					className="min-w-[140px] flex-1"
-					prependIcon="github"
-					title="Source on GitHub"
-					onPress={() => openUrl(REPO_URL)}
-				/>
-				<BaseButton
-					className="min-w-[140px] flex-1"
-					prependIcon="git-branch"
-					title="Contribute"
-					onPress={() => openUrl(CONTRIBUTE_URL)}
-				/>
+			<View className="mt-4">
+				<Grid cols={2} gap={8}>
+					<GridItem>
+						<BaseButton
+							wrapperClassName="w-full"
+							className="w-full"
+							prependIcon="github"
+							title="Source on GitHub"
+							onPress={() => openUrl(REPO_URL)}
+						/>
+					</GridItem>
+					<GridItem>
+						<BaseButton
+							wrapperClassName="w-full"
+							className="w-full"
+							prependIcon="git-branch"
+							title="Contribute"
+							onPress={() => openUrl(CONTRIBUTE_URL)}
+						/>
+					</GridItem>
+				</Grid>
 			</View>
 
 			<Title className="mt-6 mb-2">Developer</Title>
@@ -200,28 +207,41 @@ export default function Screen() {
 				)}
 			</BaseCard>
 
-			<Title className="mt-6 mb-2">Contact</Title>
-			<View className="flex-row flex-wrap gap-2">
-				<BaseButton
-					className="min-w-[140px] flex-1"
-					prependIcon="mail"
-					title="Email"
-					onPress={() =>
-						openUrl(`mailto:${EMAIL}?subject=${encodeURIComponent('Medikit')}`)
-					}
-				/>
-				<BaseButton
-					className="min-w-[140px] flex-1"
-					prependIcon="github"
-					title="GitHub"
-					onPress={() => openUrl(PROFILE_URL)}
-				/>
-				<BaseButton
-					className="min-w-[140px] flex-1"
-					prependIcon="message-circle"
-					title="WhatsApp"
-					onPress={() => openUrl(WHATSAPP_URL)}
-				/>
+			<View className="mt-6 gap-2">
+				<Title>Contact</Title>
+				<Grid cols={2} gap={8}>
+					<GridItem>
+						<BaseButton
+							wrapperClassName="w-full"
+							className="w-full"
+							prependIcon="mail"
+							title="Email"
+							onPress={() =>
+								openUrl(
+									`mailto:${EMAIL}?subject=${encodeURIComponent('Medikit')}`,
+								)
+							}
+						/>
+					</GridItem>
+					<GridItem>
+						<BaseButton
+							wrapperClassName="w-full"
+							className="w-full"
+							prependIcon="github"
+							title="GitHub"
+							onPress={() => openUrl(PROFILE_URL)}
+						/>
+					</GridItem>
+					<GridItem colSpan={2}>
+						<BaseButton
+							wrapperClassName="w-full"
+							className="w-full"
+							prependIcon="message-circle"
+							title="WhatsApp"
+							onPress={() => openUrl(WHATSAPP_URL)}
+						/>
+					</GridItem>
+				</Grid>
 			</View>
 
 			<Body className="mt-6 text-center text-sm opacity-60">

@@ -233,22 +233,31 @@ export class GoogleDrive {
 			const id = await this.getRootFolderId()
 			if (id) queries.push(`'${id}' in parents`)
 
-			const params = new URLSearchParams({
-				q: queries.join(' and '),
-				fields: 'files(id,name,mimeType)',
-			})
-
 			try {
-				const r = await ReactNativeBlobUtil.fetch(
-					'GET',
-					`${GET_API}/files?${params.toString()}`,
-					{
-						Authorization: `Bearer ${token}`,
-					},
-				)
-				const data = JSON.parse(r.data)
+				const allFiles: TDriveFile[] = []
+				let pageToken: string | undefined
+
+				do {
+					const params = new URLSearchParams({
+						q: queries.join(' and '),
+						fields: 'nextPageToken,files(id,name,mimeType)',
+					})
+					if (pageToken) params.set('pageToken', pageToken)
+
+					const r = await ReactNativeBlobUtil.fetch(
+						'GET',
+						`${GET_API}/files?${params.toString()}`,
+						{
+							Authorization: `Bearer ${token}`,
+						},
+					)
+					const data = JSON.parse(r.data)
+					allFiles.push(...((data.files ?? []) as TDriveFile[]))
+					pageToken = data.nextPageToken
+				} while (pageToken)
+
 				return {
-					data: (data.files ?? []) as TDriveFile[],
+					data: allFiles,
 					error: null,
 				}
 			} catch (error) {

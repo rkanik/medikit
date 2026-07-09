@@ -1,12 +1,9 @@
 import type { TBaseModalProps } from '@/components/base/modal'
 import type { TMaybe } from '@/types'
 import type { TPatient } from '@/types/database'
-
 import { useState } from 'react'
-
-import { usePatientsListQuery } from '@/queries/usePatientsListQuery'
 import { FlashList } from '@/components/FlashList'
-
+import { usePatientsListQuery } from '@/queries/usePatientsListQuery'
 import { BaseModal } from './base/modal'
 import { PatientCard } from './PatientCard'
 

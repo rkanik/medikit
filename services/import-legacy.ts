@@ -119,7 +119,10 @@ export const $importLegacy = async () => {
 			await patientsFile.text(),
 			[],
 		).filter(item => !!item?.name)
-		const legacyRecords = safeJsonParse<TLegacyRecord[]>(await recordsFile.text(), [])
+		const legacyRecords = safeJsonParse<TLegacyRecord[]>(
+			await recordsFile.text(),
+			[],
+		)
 
 		const { db } = await import('@/drizzle/db')
 

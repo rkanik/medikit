@@ -1,12 +1,14 @@
+import type {
+	NotificationContentInput,
+	NotificationRequestInput,
+} from 'expo-notifications'
+import { useMemo } from 'react'
 import {
 	dismissNotificationAsync,
 	getPermissionsAsync,
-	NotificationContentInput,
-	NotificationRequestInput,
 	requestPermissionsAsync,
 	scheduleNotificationAsync,
 } from 'expo-notifications'
-import { useMemo } from 'react'
 
 export const createNotification = (input: NotificationRequestInput) => {
 	const schedule = async () => {
