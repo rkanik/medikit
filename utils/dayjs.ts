@@ -23,3 +23,36 @@ export const $dfr = (start: any, end: any) => {
 }
 
 export const $d = dayjs
+
+export const $daf = (dob: any) => {
+	const birth = $d(dob).startOf('day')
+	if (!birth.isValid()) return ''
+
+	const today = $d().startOf('day')
+	if (birth.isAfter(today)) return ''
+
+	const years = today.diff(birth, 'year')
+	const afterYears = birth.add(years, 'year')
+	const months = today.diff(afterYears, 'month')
+	const afterMonths = afterYears.add(months, 'month')
+	const days = today.diff(afterMonths, 'day')
+
+	const parts: string[] = []
+	if (years > 0) {
+		parts.push(
+			`${String(years).padStart(2, '0')} ${years === 1 ? 'year' : 'years'}`,
+		)
+	}
+	if (months > 0) {
+		parts.push(
+			`${String(months).padStart(2, '0')} ${months === 1 ? 'month' : 'months'}`,
+		)
+	}
+	if (days > 0) {
+		parts.push(
+			`${String(days).padStart(2, '0')} ${days === 1 ? 'day' : 'days'}`,
+		)
+	}
+
+	return parts.join(' ')
+}

@@ -1,16 +1,16 @@
-import { log } from '@/utils/logs'
-import { storage } from '@/utils/storage'
+import type { BackgroundTaskStatus } from 'expo-background-task'
+import { useCallback, useEffect, useState } from 'react'
 import {
 	BackgroundTaskResult,
-	BackgroundTaskStatus,
 	getStatusAsync,
 	registerTaskAsync,
 	triggerTaskWorkerForTestingAsync,
 	unregisterTaskAsync,
 } from 'expo-background-task'
 import { defineTask, isTaskRegisteredAsync } from 'expo-task-manager'
-import { useCallback, useEffect, useState } from 'react'
 import { useMMKVNumber } from 'react-native-mmkv'
+import { log } from '@/utils/logs'
+import { storage } from '@/utils/storage'
 import { backup2 } from './backup2'
 
 const taskName = 'MediKitBackupBackgroundTask'

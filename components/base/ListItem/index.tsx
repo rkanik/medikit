@@ -1,9 +1,7 @@
+import type { ComponentProps } from 'react'
 import type { GestureResponderEvent } from 'react-native'
-
 import { TouchableOpacity, View } from 'react-native'
-
 import { cn } from 'tailwind-variants'
-
 import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
 
@@ -13,10 +11,10 @@ export type TBaseListItemProps = {
 	textClassName?: string
 	label?: string
 	labelClassName?: string
-	icon?: string
+	icon?: ComponentProps<typeof Icon>['name']
 	iconSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 	iconClassName?: string
-	rightIcon?: string
+	rightIcon?: ComponentProps<typeof Icon>['name']
 	rightIconSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 	rightIconClassName?: string
 	showRightIcon?: boolean
@@ -40,7 +38,9 @@ export const BaseListItem = (props: TBaseListItemProps) => {
 			</View>
 			<View className="flex-1">
 				{props.label && (
-					<Text className={cn('dark:text-neutral-500', props.labelClassName)}>
+					<Text
+						className={cn('opacity-70 dark:opacity-80', props.labelClassName)}
+					>
 						{props.label}
 					</Text>
 				)}

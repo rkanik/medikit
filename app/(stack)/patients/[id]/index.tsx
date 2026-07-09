@@ -13,7 +13,7 @@ import { useDeletePatientsMutation } from '@/mutations/useDeletePatientsMutation
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
 import { usePatientMedicinesQuery } from '@/queries/usePatientMedicinesQuery'
 import { useInvalidatePatientsQuery } from '@/queries/usePatientsQuery'
-import { $d, $df } from '@/utils/dayjs'
+import { $d, $daf, $df } from '@/utils/dayjs'
 import { paths } from '@/utils/paths'
 
 /** Gestational age from EDD (40 weeks from LMP ≈ 280 days). */
@@ -109,7 +109,7 @@ export default function Screen() {
 							text={data.name}
 							icon="user"
 							label="Name"
-							className="dark:bg-neutral-800 rounded-lg"
+							className="bg-white dark:bg-neutral-800 rounded-lg"
 						/>
 						{data.dob && (
 							<Fragment>
@@ -117,7 +117,13 @@ export default function Screen() {
 									text={$df(data.dob, 'DD MMMM, YYYY')}
 									icon="calendar"
 									label="Date of Birth"
-									className="dark:bg-neutral-800 rounded-lg"
+									className="bg-white dark:bg-neutral-800 rounded-lg"
+								/>
+								<BaseListItem
+									text={$daf(data.dob)}
+									icon="clock"
+									label="Age"
+									className="bg-white dark:bg-neutral-800 rounded-lg"
 								/>
 							</Fragment>
 						)}
@@ -127,7 +133,7 @@ export default function Screen() {
 									text={data.gender}
 									icon="user"
 									label="Gender"
-									className="dark:bg-neutral-800 rounded-lg"
+									className="bg-white dark:bg-neutral-800 rounded-lg"
 								/>
 							</Fragment>
 						)}
@@ -137,7 +143,7 @@ export default function Screen() {
 									text={eddListText}
 									icon="calendar"
 									label="Expected Delivery Date"
-									className="dark:bg-neutral-800 rounded-lg"
+									className="bg-white dark:bg-neutral-800 rounded-lg"
 								/>
 							</Fragment>
 						)}

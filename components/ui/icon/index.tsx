@@ -1,13 +1,10 @@
 import type { ComponentProps } from 'react'
-
 import { useContext } from 'react'
-
 import Feather from '@expo/vector-icons/Feather'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { cssInterop } from 'nativewind'
 import { cn } from 'tailwind-variants'
-
 import { TextContext } from '@/components/ui/text'
 
 cssInterop(Feather, {

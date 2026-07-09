@@ -1,10 +1,10 @@
+import { getDocumentAsync } from 'expo-document-picker'
+import { Directory, File, Paths } from 'expo-file-system'
+import { unzip } from 'react-native-zip-archive'
 import { queryClient } from '@/context/QueryProvider'
 import { db, replaceDatabaseFromCache } from '@/drizzle/db'
 import { fs } from '@/utils/fs'
 import { log } from '@/utils/logs'
-import { getDocumentAsync } from 'expo-document-picker'
-import { Directory, File, Paths } from 'expo-file-system'
-import { unzip } from 'react-native-zip-archive'
 
 const DB_FILE_NAME = 'index.db'
 const ATTACHMENTS_DIR = 'attachments'

@@ -1,14 +1,10 @@
 import type { TPatientMedicine } from '@/types/database'
 import type { GestureResponderEvent } from 'react-native'
-
 import { useMemo } from 'react'
 import { View } from 'react-native'
-
 import { cn } from 'tailwind-variants'
-
 import { $d, $df, $dfr } from '@/utils/dayjs'
 import { paths } from '@/utils/paths'
-
 import { BaseCard } from './base/card'
 import { Avatar } from './ui/avatar'
 import { Badge } from './ui/badge'
