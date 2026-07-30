@@ -53,6 +53,16 @@ export default function Screen() {
 				form.setError('root', { message: 'Date is required!' })
 				return
 			}
+			const height = String(values.metrics?.height ?? '').trim()
+			const weight = String(values.metrics?.weight ?? '').trim()
+			const hasHeight = height !== '' && !Number.isNaN(Number(height))
+			const hasWeight = weight !== '' && !Number.isNaN(Number(weight))
+			if (!hasHeight && !hasWeight) {
+				form.setError('root', {
+					message: 'Enter at least height or weight.',
+				})
+				return
+			}
 			try {
 				const payload: TZPatientTimelineEntry = {
 					id: values.id,
@@ -120,7 +130,7 @@ export default function Screen() {
 		return (
 			<View className="flex-1 px-4">
 				<Stack.Screen options={{ title: 'Not Found!' }} />
-				<Text>Timeline entry not found!</Text>
+				<Text>Growth entry not found!</Text>
 			</View>
 		)
 	}
@@ -129,7 +139,7 @@ export default function Screen() {
 		<KeyboardAvoidingScrollView>
 			<Stack.Screen
 				options={{
-					title: data ? 'Update Entry' : 'New Entry',
+					title: data ? 'Update Growth' : 'New Growth',
 				}}
 			/>
 			<FormProvider {...form}>

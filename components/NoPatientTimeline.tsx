@@ -10,11 +10,11 @@ type TNoPatientTimelineProps = {
 export const NoPatientTimeline = ({ patientId }: TNoPatientTimelineProps) => {
 	return (
 		<BaseCard className="items-center py-8">
-			<Title>No timeline entries!</Title>
-			<Subtitle>Add height, weight, and more to get started</Subtitle>
+			<Title>No growth entries!</Title>
+			<Subtitle>Add height and weight to get started</Subtitle>
 			<BaseButton
 				prependIcon="plus"
-				title="Entry"
+				title="Growth"
 				className="mt-4"
 				onPress={() =>
 					router.push(`/patients/${patientId}/timeline/new/form`)

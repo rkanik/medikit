@@ -59,13 +59,12 @@ export default function Screen() {
 		return formatGestationalAge(age)
 	}, [activePregnancy])
 
-	const showPregnancyTab =
-		data?.gender === 'Female' || pregnancies.length > 0
+	const showPregnancyTab = data?.gender === 'Female' || pregnancies.length > 0
 
 	const sectionTabs = useMemo(() => {
 		const tabs: { key: TSectionTab; title: string }[] = [
 			{ key: 'medicines', title: 'Medicines' },
-			{ key: 'timeline', title: 'Timeline' },
+			{ key: 'timeline', title: 'Growth' },
 		]
 		if (showPregnancyTab) {
 			tabs.push({ key: 'pregnancy', title: 'Pregnancy' })
@@ -105,7 +104,7 @@ export default function Screen() {
 		sectionTab === 'medicines'
 			? 'Medicine'
 			: sectionTab === 'timeline'
-				? 'Entry'
+				? 'Growth'
 				: 'Pregnancy'
 
 	const fabHidden =
@@ -129,7 +128,7 @@ export default function Screen() {
 
 	return (
 		<View className="flex-1">
-			<Stack.Screen options={{ title: 'Patient Details' }} />
+			<Stack.Screen options={{ title: data.name }} />
 			<ScrollView
 				contentContainerClassName="px-4 pb-32 justify-end"
 				contentContainerStyle={{ flexGrow: 1 }}
@@ -270,9 +269,7 @@ export default function Screen() {
 											'rounded-b-3xl': index === pregnancies.length - 1,
 										})}
 										onPress={() =>
-											router.push(
-												`/patients/${id}/pregnancies/${item.id}/form`,
-											)
+											router.push(`/patients/${id}/pregnancies/${item.id}/form`)
 										}
 									/>
 								))
