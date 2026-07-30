@@ -6,7 +6,6 @@ export type TZPatient = z.infer<typeof zPatient>
 export const zPatient = z.object({
 	id: z.number().nullish(),
 	dob: z.string().nullish(),
-	edd: z.string().nullish(),
 	gender: z.string().nullish(),
 	name: z.string().min(1, 'Name is required!'),
 	avatar: z.any(),

@@ -32,8 +32,6 @@ export default function Screen() {
 		},
 	})
 
-	const gender = form.watch('gender')
-
 	const onSubmit = useCallback(
 		(data: TZPatient) => {
 			mutate(data, {
@@ -113,16 +111,6 @@ export default function Screen() {
 							getOptionLabel={item => item}
 							getOptionValue={item => item}
 						/>
-						{gender === 'Female' && (
-							<BaseDatePicker
-								name="edd"
-								display="spinner"
-								inputFormat="DD MMMM, YYYY"
-								label="Expected Delivery Date"
-								control={form.control}
-							/>
-						)}
-						{/* <BaseJson data={form.getValues()} /> */}
 						<BaseActions
 							className="relative justify-end px-0"
 							data={[

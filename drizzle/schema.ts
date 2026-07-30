@@ -132,6 +132,46 @@ export const patientTimelineValues = sqliteTable('patient_timeline_values', {
 	unit: text(),
 })
 
+export const patientPregnancies = sqliteTable(
+	'patient_pregnancies',
+	{
+		id: int().primaryKey({ autoIncrement: true }),
+		patientId: int()
+			.notNull()
+			.references(() => patients.id, {
+				onDelete: 'cascade',
+			}),
+		startDate: text(),
+		expectedDate: text(),
+		deliveryDate: text(),
+		note: text(),
+		createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
+		updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
+	},
+	table => [index('pregnancy_patient_id_idx').on(table.patientId)],
+)
+
+export const pregnancyChildren = sqliteTable(
+	'pregnancy_children',
+	{
+		id: int().primaryKey({ autoIncrement: true }),
+		pregnancyId: int()
+			.notNull()
+			.references(() => patientPregnancies.id, {
+				onDelete: 'cascade',
+			}),
+		childPatientId: int()
+			.notNull()
+			.references(() => patients.id, {
+				onDelete: 'cascade',
+			}),
+	},
+	table => [
+		index('pregnancy_children_pregnancy_id_idx').on(table.pregnancyId),
+		index('pregnancy_children_child_id_idx').on(table.childPatientId),
+	],
+)
+
 // Relations
 
 export const tagRelations = relations(tags, ({ many }) => ({
@@ -180,11 +220,41 @@ export const attachableRelations = relations(attachables, ({ one }) => ({
 export const patientRelations = relations(patients, ({ one, many }) => ({
 	attachables: many(attachables),
 	timelineEntries: many(patientTimelineEntries),
+	pregnancies: many(patientPregnancies, {
+		relationName: 'motherPregnancies',
+	}),
+	asChildInPregnancies: many(pregnancyChildren),
 	avatar: one(attachments, {
 		fields: [patients.avatarId],
 		references: [attachments.id],
 	}),
 }))
+
+export const patientPregnancyRelations = relations(
+	patientPregnancies,
+	({ one, many }) => ({
+		patient: one(patients, {
+			fields: [patientPregnancies.patientId],
+			references: [patients.id],
+			relationName: 'motherPregnancies',
+		}),
+		children: many(pregnancyChildren),
+	}),
+)
+
+export const pregnancyChildRelations = relations(
+	pregnancyChildren,
+	({ one }) => ({
+		pregnancy: one(patientPregnancies, {
+			fields: [pregnancyChildren.pregnancyId],
+			references: [patientPregnancies.id],
+		}),
+		child: one(patients, {
+			fields: [pregnancyChildren.childPatientId],
+			references: [patients.id],
+		}),
+	}),
+)
 
 export const patientTimelineEntryRelations = relations(
 	patientTimelineEntries,

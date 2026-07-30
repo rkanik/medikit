@@ -3,9 +3,11 @@ import type {
 	attachments,
 	medicines,
 	patientMedicines,
+	patientPregnancies,
 	patients,
 	patientTimelineEntries,
 	patientTimelineValues,
+	pregnancyChildren,
 	records,
 	taggablesTable,
 	tags,
@@ -58,4 +60,13 @@ export type TPatientTimelineValue = typeof patientTimelineValues.$inferSelect
 export type TPatientTimelineEntry = typeof patientTimelineEntries.$inferSelect & {
 	patient?: TMaybe<TPatient>
 	values?: TPatientTimelineValue[]
+}
+
+export type TPregnancyChild = typeof pregnancyChildren.$inferSelect & {
+	child?: TMaybe<TPatient>
+}
+
+export type TPatientPregnancy = typeof patientPregnancies.$inferSelect & {
+	patient?: TMaybe<TPatient>
+	children?: TPregnancyChild[]
 }

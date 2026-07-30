@@ -14,7 +14,6 @@ export type TZPatient = z.infer<typeof zPatient>
 export const zPatient = z.object({
 	id: z.number().nullish(),
 	dob: z.string().nullish(),
-	edd: z.string().nullish(),
 	gender: z.string().nullish(),
 	name: z.string().min(1, 'Name is required!'),
 	avatar: zAttachment.nullish(),
@@ -35,7 +34,6 @@ export const usePatientsMutation = () => {
 				name: data.name,
 				dob: data.dob,
 				gender: data.gender,
-				edd: data.edd,
 				avatarId,
 			}
 			const id = data.id

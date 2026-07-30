@@ -36,6 +36,13 @@
       "when": 1785438944533,
       "tag": "0004_broad_taskmaster",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1785440892136,
+      "tag": "0005_shocking_reavers",
+      "breakpoints": true
     }
   ]
 }
