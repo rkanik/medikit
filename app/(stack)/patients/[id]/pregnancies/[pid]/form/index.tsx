@@ -11,6 +11,7 @@ import { Avatar } from '@/components/ui/avatar'
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
+import { usePatientIdParam } from '@/hooks/usePatientIdParam'
 import { usePatientPregnancyDeleteMutation } from '@/mutations/usePatientPregnancyDeleteMutation'
 import {
 	usePatientPregnancyMutation,
@@ -31,8 +32,8 @@ type TFormValues = {
 }
 
 export default function Screen() {
-	const { id, pid } = useLocalSearchParams()
-	const patientId = Number(id)
+	const { pid } = useLocalSearchParams()
+	const { patientId, isValid: hasPatientId } = usePatientIdParam()
 	const { data } = usePatientPregnancyByIdQuery(Number(pid))
 	const { data: patients } = usePatientsListQuery()
 	const { mutateAsync: submitPregnancy } = usePatientPregnancyMutation()
@@ -53,6 +54,12 @@ export default function Screen() {
 			addChildId: null,
 		},
 	})
+
+	useEffect(() => {
+		if (hasPatientId) {
+			form.setValue('patientId', patientId)
+		}
+	}, [form, hasPatientId, patientId])
 
 	const childIds = form.watch('childIds') ?? []
 
@@ -90,6 +97,10 @@ export default function Screen() {
 
 	const onSubmit = useCallback(
 		async (values: TFormValues) => {
+			if (!hasPatientId) {
+				form.setError('root', { message: 'Patient is required.' })
+				return
+			}
 			if (!values.expectedDate && !values.deliveryDate) {
 				form.setError('root', {
 					message: 'Add expected or delivery date.',
@@ -99,7 +110,7 @@ export default function Screen() {
 			try {
 				const payload: TZPatientPregnancy = {
 					id: values.id,
-					patientId: values.patientId,
+					patientId,
 					expectedDate: values.expectedDate,
 					deliveryDate: values.deliveryDate,
 					childIds: values.childIds ?? [],
@@ -111,7 +122,7 @@ export default function Screen() {
 				form.setError('root', { message: error.message })
 			}
 		},
-		[form, invalidatePregnancies, submitPregnancy],
+		[form, hasPatientId, invalidatePregnancies, patientId, submitPregnancy],
 	)
 
 	const onRemove = useCallback(() => {

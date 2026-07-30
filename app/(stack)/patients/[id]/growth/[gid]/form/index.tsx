@@ -10,6 +10,7 @@ import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
 import { TIMELINE_METRICS } from '@/const/timelineMetrics'
+import { usePatientIdParam } from '@/hooks/usePatientIdParam'
 import { usePatientTimelineDeleteMutation } from '@/mutations/usePatientTimelineDeleteMutation'
 import {
 	usePatientTimelineMutation,
@@ -27,12 +28,20 @@ type TFormValues = {
 }
 
 export default function Screen() {
-	const { id, tid } = useLocalSearchParams()
-	const patientId = Number(id)
-	const { data } = usePatientTimelineByIdQuery(Number(tid))
+	const { gid } = useLocalSearchParams()
+	const { id, patientId, isValid: hasPatientId } = usePatientIdParam()
+	const { data } = usePatientTimelineByIdQuery(Number(gid))
 	const { mutateAsync: submitEntry } = usePatientTimelineMutation()
 	const { mutateAsync: deleteEntry } = usePatientTimelineDeleteMutation()
 	const invalidateTimeline = useInvalidatePatientTimelineQuery()
+
+	const goToGrowthTab = useCallback(() => {
+		if (id) {
+			router.replace(`/patients/${id}/growth` as any)
+			return
+		}
+		router.back()
+	}, [id])
 
 	const defaultMetrics = useMemo(() => {
 		return Object.fromEntries(TIMELINE_METRICS.map(metric => [metric.key, '']))
@@ -47,8 +56,18 @@ export default function Screen() {
 		},
 	})
 
+	useEffect(() => {
+		if (hasPatientId) {
+			form.setValue('patientId', patientId)
+		}
+	}, [form, hasPatientId, patientId])
+
 	const onSubmit = useCallback(
 		async (values: TFormValues) => {
+			if (!hasPatientId) {
+				form.setError('root', { message: 'Patient is required.' })
+				return
+			}
 			if (!values.date?.trim()) {
 				form.setError('root', { message: 'Date is required!' })
 				return
@@ -66,7 +85,7 @@ export default function Screen() {
 			try {
 				const payload: TZPatientTimelineEntry = {
 					id: values.id,
-					patientId: values.patientId,
+					patientId,
 					date: values.date,
 					note: values.note,
 					values: TIMELINE_METRICS.map(metric => {
@@ -85,14 +104,21 @@ export default function Screen() {
 				}
 				await submitEntry(payload)
 				invalidateTimeline()
-				router.back()
+				goToGrowthTab()
 			} catch (error: any) {
 				form.setError('root', {
 					message: error.message,
 				})
 			}
 		},
-		[form, invalidateTimeline, submitEntry],
+		[
+			form,
+			goToGrowthTab,
+			hasPatientId,
+			invalidateTimeline,
+			patientId,
+			submitEntry,
+		],
 	)
 
 	const onRemove = useCallback(() => {
@@ -104,11 +130,11 @@ export default function Screen() {
 					if (!data?.id) return
 					await deleteEntry(data.id)
 					invalidateTimeline()
-					router.back()
+					goToGrowthTab()
 				},
 			},
 		])
-	}, [data?.id, deleteEntry, invalidateTimeline])
+	}, [data?.id, deleteEntry, goToGrowthTab, invalidateTimeline])
 
 	useEffect(() => {
 		if (data) {
@@ -126,7 +152,7 @@ export default function Screen() {
 		}
 	}, [data, defaultMetrics, form, patientId])
 
-	if (tid !== 'new' && !data) {
+	if (gid !== 'new' && !data) {
 		return (
 			<View className="flex-1 px-4">
 				<Stack.Screen options={{ title: 'Not Found!' }} />
@@ -183,7 +209,7 @@ export default function Screen() {
 							{
 								pill: true,
 								prependIcon: 'x',
-								onPress: () => router.back(),
+								onPress: () => goToGrowthTab(),
 							},
 							{
 								pill: true,

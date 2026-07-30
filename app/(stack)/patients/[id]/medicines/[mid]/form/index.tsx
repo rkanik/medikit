@@ -14,6 +14,7 @@ import { Avatar } from '@/components/ui/avatar'
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
 import { Text } from '@/components/ui/text'
+import { usePatientIdParam } from '@/hooks/usePatientIdParam'
 import { useDeleteMedicineMutation } from '@/mutations/useDeleteMedicineMutation'
 import { usePatientMedicineDeleteMutation } from '@/mutations/usePatientMedicineDeleteMutation'
 import {
@@ -26,7 +27,8 @@ import { usePatientMedicineByIdQuery } from '@/queries/usePatientMedicineByIdQue
 import { paths } from '@/utils/paths'
 
 export default function Screen() {
-	const { id, mid } = useLocalSearchParams()
+	const { mid } = useLocalSearchParams()
+	const { patientId, isValid: hasPatientId } = usePatientIdParam()
 	const { data } = usePatientMedicineByIdQuery(Number(mid))
 
 	const { data: medicines, refetch: refetchMedicines } = useMedicinesQuery()
@@ -38,12 +40,18 @@ export default function Screen() {
 	const form = useForm({
 		resolver: zodResolver(zPatientMedicine),
 		defaultValues: {
-			patientId: Number(id),
+			patientId,
 			medicine: {
 				name: '',
 			},
 		},
 	})
+
+	useEffect(() => {
+		if (hasPatientId) {
+			form.setValue('patientId', patientId)
+		}
+	}, [form, hasPatientId, patientId])
 
 	const onSubmit = useCallback(
 		async (data: TZPatientMedicine) => {
@@ -129,7 +137,7 @@ export default function Screen() {
 		if (data) {
 			form.reset({
 				id: data.id,
-				patientId: data.patientId ?? Number(id),
+				patientId: data.patientId ?? patientId,
 				startDate: data.startDate,
 				endDate: data.endDate,
 				schedule: data.schedule,
@@ -141,7 +149,7 @@ export default function Screen() {
 				},
 			})
 		}
-	}, [form, data, id])
+	}, [form, data, patientId])
 
 	if (mid !== 'new' && !data) {
 		return (

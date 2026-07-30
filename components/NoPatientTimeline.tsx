@@ -17,7 +17,7 @@ export const NoPatientTimeline = ({ patientId }: TNoPatientTimelineProps) => {
 				title="Growth"
 				className="mt-4"
 				onPress={() =>
-					router.push(`/patients/${patientId}/timeline/new/form`)
+					router.push(`/patients/${patientId}/growth/new/form`)
 				}
 			/>
 		</BaseCard>

@@ -33,7 +33,7 @@ export default function TabLayout() {
 	useUpdater()
 
 	const pathname = usePathname()
-	const { foreground, primary, background } = useColors()
+	const { background } = useColors()
 	const { isSearching, setSearching } = useApp()
 
 	return (
