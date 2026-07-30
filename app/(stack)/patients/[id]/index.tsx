@@ -1,20 +1,31 @@
-import { Fragment, useCallback } from 'react'
+import { Fragment, useCallback, useState } from 'react'
 import { Alert, ScrollView, View } from 'react-native'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { cn } from 'tailwind-variants'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
+import { SegmentedTabs } from '@/components/base/SegmentedTabs'
 import { FlashList } from '@/components/FlashList'
 import { NoPatientMedicines } from '@/components/NoPatientMedicines'
+import { NoPatientTimeline } from '@/components/NoPatientTimeline'
 import { PatientMedicineCard } from '@/components/PatientMedicineCard'
+import { PatientTimelineCard } from '@/components/PatientTimelineCard'
 import { Avatar } from '@/components/ui/avatar'
 import { Subtitle, Text, Title } from '@/components/ui/text'
 import { useDeletePatientsMutation } from '@/mutations/useDeletePatientsMutation'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
 import { usePatientMedicinesQuery } from '@/queries/usePatientMedicinesQuery'
 import { useInvalidatePatientsQuery } from '@/queries/usePatientsQuery'
+import { usePatientTimelineQuery } from '@/queries/usePatientTimelineQuery'
 import { $d, $daf, $df } from '@/utils/dayjs'
 import { paths } from '@/utils/paths'
+
+type TSectionTab = 'medicines' | 'timeline'
+
+const SECTION_TABS: { key: TSectionTab; title: string }[] = [
+	{ key: 'medicines', title: 'Medicines' },
+	{ key: 'timeline', title: 'Timeline' },
+]
 
 /** Gestational age from EDD (40 weeks from LMP ≈ 280 days). */
 function gestationalAgeParts(edd: string) {
@@ -35,10 +46,15 @@ function plural(n: number, one: string, many: string) {
 
 export default function Screen() {
 	const { id } = useLocalSearchParams()
-	const { data } = usePatientByIdQuery(Number(id))
+	const patientId = Number(id)
+	const [sectionTab, setSectionTab] = useState<TSectionTab>('medicines')
+	const { data } = usePatientByIdQuery(patientId)
 	const { mutate: deletePatient } = useDeletePatientsMutation()
 	const { data: medicinesData } = usePatientMedicinesQuery({
-		patientId: Number(id),
+		patientId,
+	})
+	const { data: timelineData } = usePatientTimelineQuery({
+		patientId,
 	})
 	const invalidatePatientsQuery = useInvalidatePatientsQuery()
 	const medicines = medicinesData.filter(item => !!item.medicine)
@@ -49,7 +65,7 @@ export default function Screen() {
 			{
 				text: 'Delete',
 				onPress: () => {
-					deletePatient(Number(id), {
+					deletePatient(patientId, {
 						onSuccess() {
 							invalidatePatientsQuery()
 							router.back()
@@ -58,7 +74,7 @@ export default function Screen() {
 				},
 			},
 		])
-	}, [id, deletePatient, invalidatePatientsQuery])
+	}, [patientId, deletePatient, invalidatePatientsQuery])
 
 	if (!data) {
 		return (
@@ -104,7 +120,7 @@ export default function Screen() {
 
 				<View className="mt-8">
 					<Text className="uppercase text-sm tracking-wide ml-2">Basic</Text>
-					<View className="rounded-3xl mt-2 gap-1 overflow-hidden ">
+					<View className="rounded-3xl mt-2 gap-1 overflow-hidden">
 						<BaseListItem
 							text={data.name}
 							icon="user"
@@ -150,37 +166,67 @@ export default function Screen() {
 					</View>
 				</View>
 
-				<View className="mt-8">
-					<Text className="uppercase text-sm tracking-wide ml-2">
-						Medicines
-					</Text>
-					<FlashList
-						data={medicines}
-						keyExtractor={item => item.id?.toString() ?? ''}
-						contentContainerStyle={{ flexGrow: 1 }}
-						className="mt-2"
-						renderItem={({ item, index }) => (
-							<PatientMedicineCard
-								data={item}
-								className={cn({
-									'mt-1': index > 0,
-									'rounded-t-3xl': index === 0,
-									'rounded-b-3xl': index === medicines.length - 1,
-								})}
-								onPress={() =>
-									router.push(`/patients/${id}/medicines/${item.id}/form`)
-								}
-							/>
-						)}
-						ListFooterComponent={() => {
-							if (!medicines.length)
-								return <NoPatientMedicines patientId={Number(id)} />
-							return null
-						}}
+				<View className="mt-4 gap-4">
+					<SegmentedTabs
+						value={sectionTab}
+						items={SECTION_TABS}
+						onChange={setSectionTab}
 					/>
+					{sectionTab === 'medicines' ? (
+						<FlashList
+							data={medicines}
+							keyExtractor={item => item.id?.toString() ?? ''}
+							contentContainerStyle={{ flexGrow: 1 }}
+							renderItem={({ item, index }) => (
+								<PatientMedicineCard
+									data={item}
+									className={cn({
+										'mt-1': index > 0,
+										'rounded-t-3xl': index === 0,
+										'rounded-b-3xl': index === medicines.length - 1,
+									})}
+									onPress={() =>
+										router.push(`/patients/${id}/medicines/${item.id}/form`)
+									}
+								/>
+							)}
+							ListFooterComponent={() => {
+								if (!medicines.length)
+									return <NoPatientMedicines patientId={patientId} />
+								return null
+							}}
+						/>
+					) : (
+						<FlashList
+							data={timelineData}
+							keyExtractor={item => item.id?.toString() ?? ''}
+							contentContainerStyle={{ flexGrow: 1 }}
+							renderItem={({ item, index }) => (
+								<PatientTimelineCard
+									data={item}
+									previous={timelineData[index + 1]}
+									dob={data.dob}
+									gender={data.gender}
+									isFirst={index === 0}
+									isLast={index === timelineData.length - 1}
+									className={cn({
+										'mt-1': index > 0,
+										'rounded-t-3xl': index === 0,
+										'rounded-b-3xl': index === timelineData.length - 1,
+									})}
+									onPress={() =>
+										router.push(`/patients/${id}/timeline/${item.id}/form`)
+									}
+								/>
+							)}
+							ListFooterComponent={() => {
+								if (!timelineData.length)
+									return <NoPatientTimeline patientId={patientId} />
+								return null
+							}}
+						/>
+					)}
 				</View>
-
-				{/* <BaseJson data={data} /> */}
 			</ScrollView>
 			<BaseActions
 				className="bottom-12"
@@ -194,9 +240,17 @@ export default function Screen() {
 					{
 						pill: true,
 						prependIcon: 'plus',
-						title: 'Medicine',
-						hidden: !medicines.length,
-						onPress: () => router.push(`/patients/${id}/medicines/new/form`),
+						title: sectionTab === 'medicines' ? 'Medicine' : 'Entry',
+						hidden:
+							sectionTab === 'medicines'
+								? !medicines.length
+								: !timelineData.length,
+						onPress: () =>
+							router.push(
+								sectionTab === 'medicines'
+									? `/patients/${id}/medicines/new/form`
+									: `/patients/${id}/timeline/new/form`,
+							),
 					},
 					{
 						pill: true,

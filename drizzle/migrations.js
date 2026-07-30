@@ -5,6 +5,7 @@ import m0000 from './0000_crazy_king_bedlam.sql';
 import m0001 from './0001_calm_gamma_corps.sql';
 import m0002 from './0002_mushy_rick_jones.sql';
 import m0003 from './0003_silent_secret_warriors.sql';
+import m0004 from './0004_broad_taskmaster.sql';
 
   export default {
     journal,
@@ -12,7 +13,8 @@ import m0003 from './0003_silent_secret_warriors.sql';
       m0000,
 m0001,
 m0002,
-m0003
+m0003,
+m0004
     }
   }
   

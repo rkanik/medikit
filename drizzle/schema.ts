@@ -100,6 +100,38 @@ export const taggablesTable = sqliteTable('taggables', {
 	}),
 })
 
+export const patientTimelineEntries = sqliteTable(
+	'patient_timeline_entries',
+	{
+		id: int().primaryKey({ autoIncrement: true }),
+		patientId: int()
+			.notNull()
+			.references(() => patients.id, {
+				onDelete: 'cascade',
+			}),
+		date: text().notNull(),
+		note: text(),
+		createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
+		updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
+	},
+	table => [
+		index('timeline_patient_id_idx').on(table.patientId),
+		index('timeline_date_idx').on(table.date),
+	],
+)
+
+export const patientTimelineValues = sqliteTable('patient_timeline_values', {
+	id: int().primaryKey({ autoIncrement: true }),
+	entryId: int()
+		.notNull()
+		.references(() => patientTimelineEntries.id, {
+			onDelete: 'cascade',
+		}),
+	key: text().notNull(),
+	value: text().notNull(),
+	unit: text(),
+})
+
 // Relations
 
 export const tagRelations = relations(tags, ({ many }) => ({
@@ -147,11 +179,33 @@ export const attachableRelations = relations(attachables, ({ one }) => ({
 
 export const patientRelations = relations(patients, ({ one, many }) => ({
 	attachables: many(attachables),
+	timelineEntries: many(patientTimelineEntries),
 	avatar: one(attachments, {
 		fields: [patients.avatarId],
 		references: [attachments.id],
 	}),
 }))
+
+export const patientTimelineEntryRelations = relations(
+	patientTimelineEntries,
+	({ one, many }) => ({
+		patient: one(patients, {
+			fields: [patientTimelineEntries.patientId],
+			references: [patients.id],
+		}),
+		values: many(patientTimelineValues),
+	}),
+)
+
+export const patientTimelineValueRelations = relations(
+	patientTimelineValues,
+	({ one }) => ({
+		entry: one(patientTimelineEntries, {
+			fields: [patientTimelineValues.entryId],
+			references: [patientTimelineEntries.id],
+		}),
+	}),
+)
 
 export const medicineRelations = relations(medicines, ({ one, many }) => ({
 	attachables: many(attachables),

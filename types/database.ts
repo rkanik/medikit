@@ -4,6 +4,8 @@ import type {
 	medicines,
 	patientMedicines,
 	patients,
+	patientTimelineEntries,
+	patientTimelineValues,
 	records,
 	taggablesTable,
 	tags,
@@ -49,4 +51,11 @@ export type TMedicine = typeof medicines.$inferSelect & {
 export type TPatientMedicine = typeof patientMedicines.$inferSelect & {
 	patient?: TMaybe<TPatient>
 	medicine?: TMaybe<TMedicine>
+}
+
+export type TPatientTimelineValue = typeof patientTimelineValues.$inferSelect
+
+export type TPatientTimelineEntry = typeof patientTimelineEntries.$inferSelect & {
+	patient?: TMaybe<TPatient>
+	values?: TPatientTimelineValue[]
 }
