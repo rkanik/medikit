@@ -1,11 +1,15 @@
 import type { TMaybe } from '@/types'
 
 import { useMutation } from '@tanstack/react-query'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { db } from '@/drizzle/db'
-import { patients } from '@/drizzle/schema'
+import {
+	patientPregnancies,
+	patients,
+	pregnancyChildren,
+} from '@/drizzle/schema'
 
 import { useAttachmentsDeleteMutation } from './useAttachmentsDeleteMutation'
 import { useAttachmentsMutation, zAttachment } from './useAttachmentsMutation'
@@ -55,6 +59,27 @@ export const usePatientsMutation = () => {
 					})
 					.where(eq(patients.id, id))
 					.returning()
+
+				// Baby DOB is the pregnancy delivery date
+				if (data.dob) {
+					const links = await db
+						.select({ pregnancyId: pregnancyChildren.pregnancyId })
+						.from(pregnancyChildren)
+						.where(eq(pregnancyChildren.childPatientId, id))
+					const pregnancyIds = [
+						...new Set(links.map(link => link.pregnancyId)),
+					]
+					if (pregnancyIds.length) {
+						await db
+							.update(patientPregnancies)
+							.set({
+								deliveryDate: data.dob,
+								updatedAt: new Date().toISOString(),
+							})
+							.where(inArray(patientPregnancies.id, pregnancyIds))
+					}
+				}
+
 				return result[0]
 			}
 			const result = await db.insert(patients).values(values).returning()

@@ -10,6 +10,11 @@ export const usePatientPregnancyByIdQuery = (id: number) => {
 			const item = await db.query.patientPregnancies.findFirst({
 				where: (v, { eq }) => eq(v.id, id),
 				with: {
+					father: {
+						with: {
+							avatar: true,
+						},
+					},
 					children: {
 						with: {
 							child: {
@@ -24,6 +29,7 @@ export const usePatientPregnancyByIdQuery = (id: number) => {
 			if (!item) return null
 			return {
 				...item,
+				father: mapPatient(item.father),
 				children: item.children?.map(link => ({
 					...link,
 					child: mapPatient(link.child),

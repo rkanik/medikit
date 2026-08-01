@@ -52,6 +52,11 @@ export const usePatientPregnanciesQuery = ({
 				limit,
 				offset,
 				with: {
+					father: {
+						with: {
+							avatar: true,
+						},
+					},
 					children: {
 						with: {
 							child: {
@@ -67,6 +72,7 @@ export const usePatientPregnanciesQuery = ({
 			return paginate(
 				items.map(item => ({
 					...item,
+					father: mapPatient(item.father),
 					children: item.children?.map(link => ({
 						...link,
 						child: mapPatient(link.child),
@@ -83,5 +89,7 @@ export const useInvalidatePatientPregnanciesQuery = () => {
 	return useCallback(() => {
 		queryClient.invalidateQueries({ queryKey: ['patient-pregnancies'] })
 		queryClient.invalidateQueries({ queryKey: ['linkable-pregnancy-patients'] })
+		queryClient.invalidateQueries({ queryKey: ['patient-family'] })
+		queryClient.invalidateQueries({ queryKey: ['patients'] })
 	}, [queryClient])
 }

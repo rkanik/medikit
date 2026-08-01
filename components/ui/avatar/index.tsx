@@ -12,7 +12,7 @@ const avatarVariants = tv({
 			primary:
 				'bg-white border border-white dark:bg-neutral-700 dark:border-neutral-700',
 			secondary:
-				'bg-neutral-200 border border-neutral-200 dark:bg-black dark:border-black',
+				'bg-neutral-200 border border-neutral-200 dark:bg-neutral-600 dark:border-neutral-600',
 		},
 	},
 	defaultVariants: {

@@ -15,6 +15,7 @@ import { Form } from '@/components/ui/form'
 import { Text } from '@/components/ui/text'
 import { usePatientsMutation } from '@/mutations/usePatientsMutation'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
+import { useInvalidatePatientPregnanciesQuery } from '@/queries/usePatientPregnanciesQuery'
 import { useInvalidatePatientsQuery } from '@/queries/usePatientsQuery'
 
 const GENDER_OPTIONS = ['Male', 'Female']
@@ -24,6 +25,7 @@ export default function Screen() {
 	const { data } = usePatientByIdQuery(Number(id))
 	const { mutate } = usePatientsMutation()
 	const invalidatePatientsQuery = useInvalidatePatientsQuery()
+	const invalidatePregnancies = useInvalidatePatientPregnanciesQuery()
 
 	const form = useForm({
 		resolver: zodResolver(zPatient),
@@ -37,6 +39,7 @@ export default function Screen() {
 			mutate(data, {
 				onSuccess() {
 					invalidatePatientsQuery()
+					invalidatePregnancies()
 					router.back()
 				},
 				onError(error) {
@@ -46,7 +49,7 @@ export default function Screen() {
 				},
 			})
 		},
-		[form, mutate, invalidatePatientsQuery],
+		[form, mutate, invalidatePatientsQuery, invalidatePregnancies],
 	)
 
 	useEffect(() => {

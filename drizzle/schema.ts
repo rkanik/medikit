@@ -141,6 +141,9 @@ export const patientPregnancies = sqliteTable(
 			.references(() => patients.id, {
 				onDelete: 'cascade',
 			}),
+		fatherPatientId: int().references(() => patients.id, {
+			onDelete: 'set null',
+		}),
 		startDate: text(),
 		expectedDate: text(),
 		deliveryDate: text(),
@@ -148,7 +151,10 @@ export const patientPregnancies = sqliteTable(
 		createdAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 		updatedAt: text().default(sql`(CURRENT_TIMESTAMP)`),
 	},
-	table => [index('pregnancy_patient_id_idx').on(table.patientId)],
+	table => [
+		index('pregnancy_patient_id_idx').on(table.patientId),
+		index('pregnancy_father_patient_id_idx').on(table.fatherPatientId),
+	],
 )
 
 export const pregnancyChildren = sqliteTable(
@@ -223,6 +229,9 @@ export const patientRelations = relations(patients, ({ one, many }) => ({
 	pregnancies: many(patientPregnancies, {
 		relationName: 'motherPregnancies',
 	}),
+	asFatherInPregnancies: many(patientPregnancies, {
+		relationName: 'fatherPregnancies',
+	}),
 	asChildInPregnancies: many(pregnancyChildren),
 	avatar: one(attachments, {
 		fields: [patients.avatarId],
@@ -237,6 +246,11 @@ export const patientPregnancyRelations = relations(
 			fields: [patientPregnancies.patientId],
 			references: [patients.id],
 			relationName: 'motherPregnancies',
+		}),
+		father: one(patients, {
+			fields: [patientPregnancies.fatherPatientId],
+			references: [patients.id],
+			relationName: 'fatherPregnancies',
 		}),
 		children: many(pregnancyChildren),
 	}),

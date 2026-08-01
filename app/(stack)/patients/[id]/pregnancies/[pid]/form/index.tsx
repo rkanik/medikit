@@ -4,6 +4,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 import { BaseActions } from '@/components/base/actions'
 import { BaseButton } from '@/components/base/button'
+import { BaseCard } from '@/components/base/card'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseModal } from '@/components/base/modal'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
@@ -13,7 +14,7 @@ import { Grid, GridItem } from '@/components/ui/grid'
 import { Icon } from '@/components/ui/icon'
 import { Pressable } from '@/components/ui/pressable'
 import { Spinner } from '@/components/ui/spinner'
-import { Text } from '@/components/ui/text'
+import { Subtitle, Text } from '@/components/ui/text'
 import { usePatientIdParam } from '@/hooks/usePatientIdParam'
 import { usePatientPregnancyDeleteMutation } from '@/mutations/usePatientPregnancyDeleteMutation'
 import {
@@ -23,15 +24,19 @@ import {
 import { useLinkablePregnancyPatientsQuery } from '@/queries/useLinkablePregnancyPatientsQuery'
 import { useInvalidatePatientPregnanciesQuery } from '@/queries/usePatientPregnanciesQuery'
 import { usePatientPregnancyByIdQuery } from '@/queries/usePatientPregnancyByIdQuery'
+import { usePatientsListQuery } from '@/queries/usePatientsListQuery'
 import { paths } from '@/utils/paths'
 
 type TFormValues = {
 	id?: number | null
 	patientId: number
+	fatherPatientId?: number | null
 	expectedDate?: string | null
 	deliveryDate?: string | null
 	childIds: number[]
 }
+
+type TPickerMode = 'baby' | 'father'
 
 export default function Screen() {
 	const { pid } = useLocalSearchParams()
@@ -39,6 +44,7 @@ export default function Screen() {
 	const pregnancyId = Number(pid)
 	const { patientId, isValid: hasPatientId } = usePatientIdParam()
 	const { data, isPending } = usePatientPregnancyByIdQuery(pregnancyId)
+	const { data: patients = [] } = usePatientsListQuery()
 	const { data: linkablePatients = [] } = useLinkablePregnancyPatientsQuery({
 		excludePatientId: patientId,
 		excludePregnancyId: isNew ? null : pregnancyId,
@@ -46,13 +52,14 @@ export default function Screen() {
 	const { mutateAsync: submitPregnancy } = usePatientPregnancyMutation()
 	const { mutateAsync: deletePregnancy } = usePatientPregnancyDeleteMutation()
 	const invalidatePregnancies = useInvalidatePatientPregnanciesQuery()
-	const [pickerVisible, setPickerVisible] = useState(false)
+	const [pickerMode, setPickerMode] = useState<TPickerMode | null>(null)
 
 	const initialValues = useMemo<TFormValues>(() => {
 		if (data) {
 			return {
 				id: data.id,
 				patientId: data.patientId ?? patientId,
+				fatherPatientId: data.fatherPatientId ?? null,
 				expectedDate: data.expectedDate,
 				deliveryDate: data.deliveryDate,
 				childIds:
@@ -63,6 +70,7 @@ export default function Screen() {
 		}
 		return {
 			patientId,
+			fatherPatientId: null,
 			expectedDate: null,
 			deliveryDate: null,
 			childIds: [],
@@ -87,24 +95,59 @@ export default function Screen() {
 	}, [form, hasPatientId, isNew, patientId])
 
 	const childIds = form.watch('childIds')
+	const fatherPatientId = form.watch('fatherPatientId')
 
-	const selectedChildren = useMemo(() => {
-		const byId = new Map(linkablePatients.map(patient => [patient.id, patient]))
+	const patientsById = useMemo(() => {
+		const byId = new Map(patients.map(patient => [patient.id, patient]))
+		for (const patient of linkablePatients) {
+			byId.set(patient.id, patient)
+		}
+		if (data?.father?.id != null) {
+			byId.set(data.father.id, data.father as (typeof patients)[number])
+		}
 		for (const link of data?.children ?? []) {
 			if (link.child?.id != null) {
-				byId.set(link.child.id, link.child as (typeof linkablePatients)[number])
+				byId.set(link.child.id, link.child as (typeof patients)[number])
 			}
 		}
+		return byId
+	}, [patients, linkablePatients, data?.father, data?.children])
+
+	const selectedFather = useMemo(() => {
+		if (fatherPatientId == null) return null
+		return patientsById.get(fatherPatientId) ?? null
+	}, [fatherPatientId, patientsById])
+
+	const selectedChildren = useMemo(() => {
 		return (childIds ?? [])
-			.map(id => byId.get(id))
+			.map(id => patientsById.get(id))
 			.filter((patient): patient is NonNullable<typeof patient> => !!patient)
-	}, [childIds, linkablePatients, data?.children])
+	}, [childIds, patientsById])
 
 	const availableChildren = useMemo(
 		() =>
-			linkablePatients.filter(patient => !(childIds ?? []).includes(patient.id)),
-		[childIds, linkablePatients],
+			linkablePatients.filter(
+				patient =>
+					!(childIds ?? []).includes(patient.id) &&
+					patient.id !== fatherPatientId,
+			),
+		[childIds, fatherPatientId, linkablePatients],
 	)
+
+	const availableFathers = useMemo(
+		() =>
+			patients.filter(
+				patient =>
+					patient.id !== patientId &&
+					!(childIds ?? []).includes(patient.id) &&
+					patient.id !== fatherPatientId &&
+					(patient.gender ?? '').toLowerCase() === 'male',
+			),
+		[childIds, fatherPatientId, patientId, patients],
+	)
+
+	const pickerOptions =
+		pickerMode === 'father' ? availableFathers : availableChildren
 
 	const onAddChild = useCallback(
 		(childId?: number) => {
@@ -112,7 +155,16 @@ export default function Screen() {
 			const current = form.getValues('childIds') ?? []
 			if (current.includes(childId)) return
 			form.setValue('childIds', [...current, childId])
-			setPickerVisible(false)
+			setPickerMode(null)
+		},
+		[form],
+	)
+
+	const onSelectFather = useCallback(
+		(nextFatherId?: number) => {
+			if (!nextFatherId) return
+			form.setValue('fatherPatientId', nextFatherId)
+			setPickerMode(null)
 		},
 		[form],
 	)
@@ -128,13 +180,17 @@ export default function Screen() {
 		[form],
 	)
 
-	const onPressAdd = useCallback(() => {
-		if (!availableChildren.length) {
-			Alert.alert('No patients', 'There are no other patients to link.')
-			return
-		}
-		setPickerVisible(true)
-	}, [availableChildren.length])
+	const onClearFather = useCallback(() => {
+		form.setValue('fatherPatientId', null)
+	}, [form])
+
+	const onPressAddBaby = useCallback(() => {
+		setPickerMode('baby')
+	}, [])
+
+	const onPressFather = useCallback(() => {
+		setPickerMode('father')
+	}, [])
 
 	const onSubmit = useCallback(
 		async (values: TFormValues) => {
@@ -152,6 +208,7 @@ export default function Screen() {
 				const payload: TZPatientPregnancy = {
 					id: values.id,
 					patientId,
+					fatherPatientId: values.fatherPatientId,
 					expectedDate: values.expectedDate,
 					deliveryDate: values.deliveryDate,
 					childIds: values.childIds ?? [],
@@ -231,6 +288,49 @@ export default function Screen() {
 							/>
 						</GridItem>
 						<GridItem colSpan={2}>
+							<Text className="mb-1 text-base font-medium">Father</Text>
+							<Grid cols={3} gap={10}>
+								{selectedFather ? (
+									<GridItem className="aspect-square">
+										<BaseCard
+											onPress={onPressFather}
+											className="h-full rounded-xl bg-secondary dark:bg-secondary items-center justify-center p-2"
+										>
+											<Pressable
+												onPress={onClearFather}
+												className="absolute right-1 top-1 z-10 h-5 w-5 items-center justify-center rounded-full bg-neutral-500/80"
+											>
+												<Icon name="x" className="text-white text-xs" />
+											</Pressable>
+											<Avatar
+												className="h-10 w-10"
+												textClassName="text-sm"
+												text={selectedFather.name}
+												image={paths.document(selectedFather.avatar?.uri)}
+											/>
+											<Text
+												className="mt-1.5 text-center text-sm"
+												numberOfLines={2}
+											>
+												{selectedFather.name}
+											</Text>
+										</BaseCard>
+									</GridItem>
+								) : (
+									<GridItem className="aspect-square">
+										<BaseButton
+											size="xl"
+											prependIcon="plus"
+											prependIconClassName="text-3xl"
+											variant="secondary"
+											className="h-full rounded-xl"
+											onPress={onPressFather}
+										/>
+									</GridItem>
+								)}
+							</Grid>
+						</GridItem>
+						<GridItem colSpan={2}>
 							<Text className="mb-1 text-base font-medium">Babies</Text>
 							<Grid cols={3} gap={10}>
 								{selectedChildren.map(child => (
@@ -264,7 +364,7 @@ export default function Screen() {
 										prependIconClassName="text-3xl"
 										variant="secondary"
 										className="h-full rounded-xl"
-										onPress={onPressAdd}
+										onPress={onPressAddBaby}
 									/>
 								</GridItem>
 							</Grid>
@@ -303,29 +403,55 @@ export default function Screen() {
 				</Form>
 			</FormProvider>
 
-			{pickerVisible ? (
+			{pickerMode ? (
 				<BaseModal
-					visible={pickerVisible}
-					setVisible={setPickerVisible}
-					height={Math.min(480, 80 + availableChildren.length * 72)}
+					visible={!!pickerMode}
+					setVisible={visible => {
+						if (!visible) setPickerMode(null)
+					}}
+					height={
+						pickerOptions.length
+							? Math.min(480, 80 + pickerOptions.length * 72)
+							: 220
+					}
 				>
 					<View className="px-4 pb-8 pt-2 gap-2">
-						<Text className="mb-1 text-lg font-semibold">Select baby</Text>
-						{availableChildren.map(item => (
-							<Pressable
-								key={item.id}
-								onPress={() => onAddChild(item.id)}
-								className="flex-row items-center gap-3 rounded-xl bg-secondary px-3 py-3"
-							>
-								<Avatar
-									className="h-10 w-10"
-									text={item.name}
-									image={paths.document(item.avatar?.uri)}
-								/>
-								<Text className="flex-1 text-lg">{item.name}</Text>
-								<Icon name="plus" className="text-lg opacity-60" />
-							</Pressable>
-						))}
+						<Text className="mb-1 text-lg font-semibold">
+							{pickerMode === 'father' ? 'Select father' : 'Select baby'}
+						</Text>
+						{pickerOptions.length ? (
+							pickerOptions.map(item => (
+								<BaseCard
+									key={item.id}
+									onPress={() =>
+										pickerMode === 'father'
+											? onSelectFather(item.id)
+											: onAddChild(item.id)
+									}
+									className="flex-row items-center gap-3 rounded-xl px-3 py-3"
+								>
+									<Avatar
+										className="h-10 w-10"
+										text={item.name}
+										image={paths.document(item.avatar?.uri)}
+									/>
+									<Text className="flex-1 text-lg">{item.name}</Text>
+									<Icon name="plus" className="text-lg opacity-60" />
+								</BaseCard>
+							))
+						) : (
+							<View className="items-center py-8 px-4">
+								<Icon name="user-x" className="text-4xl opacity-50" />
+								<Text className="mt-3 text-center text-base font-medium">
+									No patients available
+								</Text>
+								<Subtitle className="mt-1 text-center">
+									{pickerMode === 'father'
+										? 'Add a male patient to select as father.'
+										: 'Add another patient to link as a baby.'}
+								</Subtitle>
+							</View>
+						)}
 					</View>
 				</BaseModal>
 			) : null}

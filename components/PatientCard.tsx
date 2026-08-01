@@ -12,6 +12,7 @@ type TPatientCardProps = {
 	data: TPatient
 	selected?: boolean
 	className?: string
+	subtitle?: string
 	onPress?: (e: GestureResponderEvent) => void
 }
 
@@ -19,6 +20,7 @@ export const PatientCard = ({
 	data,
 	selected,
 	className,
+	subtitle,
 	onPress,
 }: TPatientCardProps) => {
 	return (
@@ -35,7 +37,7 @@ export const PatientCard = ({
 					text={data.name}
 					image={paths.document(data.avatar?.uri)}
 				/>
-				<View>
+				<View className="flex-1">
 					<Title>{data.name}</Title>
 					{data.dob && (
 						<Subtitle>
@@ -43,6 +45,7 @@ export const PatientCard = ({
 							yrs)
 						</Subtitle>
 					)}
+					{subtitle ? <Subtitle>{subtitle}</Subtitle> : null}
 				</View>
 			</View>
 		</BaseCard>

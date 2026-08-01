@@ -68,5 +68,6 @@ export type TPregnancyChild = typeof pregnancyChildren.$inferSelect & {
 
 export type TPatientPregnancy = typeof patientPregnancies.$inferSelect & {
 	patient?: TMaybe<TPatient>
+	father?: TMaybe<TPatient>
 	children?: TPregnancyChild[]
 }

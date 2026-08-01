@@ -3,11 +3,13 @@ import { Alert, ScrollView, View } from 'react-native'
 import { router, Stack } from 'expo-router'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
+import { PatientCard } from '@/components/PatientCard'
 import { Avatar } from '@/components/ui/avatar'
 import { Subtitle, Text, Title } from '@/components/ui/text'
 import { usePatientIdParam } from '@/hooks/usePatientIdParam'
 import { useDeletePatientsMutation } from '@/mutations/useDeletePatientsMutation'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
+import { usePatientFamilyQuery } from '@/queries/usePatientFamilyQuery'
 import { usePatientPregnanciesQuery } from '@/queries/usePatientPregnanciesQuery'
 import { useInvalidatePatientsQuery } from '@/queries/usePatientsQuery'
 import { $d, $daf, $df } from '@/utils/dayjs'
@@ -27,6 +29,7 @@ export default function PatientInfoScreen() {
 		patientId,
 		perPage: 20,
 	})
+	const { data: family } = usePatientFamilyQuery(patientId)
 
 	const pregnancies = useMemo(() => {
 		return (pregnanciesData?.pages ?? []).flatMap(page => page.data ?? [])
@@ -42,6 +45,16 @@ export default function PatientInfoScreen() {
 		if (!age) return null
 		return formatGestationalAge(age)
 	}, [activePregnancy])
+
+	const spouses = family?.spouses ?? []
+	const babies = family?.babies ?? []
+
+	const showFatherOnBabyCards = useMemo(() => {
+		const list = family?.babies ?? []
+		if (list.length < 2) return false
+		const firstKey = list[0]?.father?.id ?? null
+		return list.some(baby => (baby.father?.id ?? null) !== firstKey)
+	}, [family?.babies])
 
 	const onDelete = useCallback(() => {
 		Alert.alert('Delete', 'Are you sure you want to delete this item?', [
@@ -135,6 +148,63 @@ export default function PatientInfoScreen() {
 							) : null}
 						</View>
 					</View>
+
+					{spouses.length > 0 ? (
+						<View className="mt-8">
+							<Text className="uppercase text-sm tracking-wide ml-2">
+								Spouse
+							</Text>
+							<View className="mt-2 gap-1">
+								{spouses.map((spouse, index) => (
+									<PatientCard
+										key={spouse.id}
+										data={spouse}
+										className={
+											index === 0 && index === spouses.length - 1
+												? 'rounded-3xl'
+												: index === 0
+													? 'rounded-t-3xl'
+													: index === spouses.length - 1
+														? 'rounded-b-3xl'
+														: undefined
+										}
+										onPress={() => router.push(`/patients/${spouse.id}`)}
+									/>
+								))}
+							</View>
+						</View>
+					) : null}
+
+					{babies.length > 0 ? (
+						<View className="mt-8">
+							<Text className="uppercase text-sm tracking-wide ml-2">
+								Babies
+							</Text>
+							<View className="mt-2 gap-1">
+								{babies.map((baby, index) => (
+									<PatientCard
+										key={baby.patient.id}
+										data={baby.patient}
+										className={
+											index === 0 && index === babies.length - 1
+												? 'rounded-3xl'
+												: index === 0
+													? 'rounded-t-3xl'
+													: index === babies.length - 1
+														? 'rounded-b-3xl'
+														: undefined
+										}
+										subtitle={
+											showFatherOnBabyCards && baby.father
+												? baby.father.name
+												: undefined
+										}
+										onPress={() => router.push(`/patients/${baby.patient.id}`)}
+									/>
+								))}
+							</View>
+						</View>
+					) : null}
 				</ScrollView>
 				<BaseActions
 					className="bottom-8"
