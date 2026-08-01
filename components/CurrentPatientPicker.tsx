@@ -10,6 +10,7 @@ export const CurrentPatientPicker = () => {
 		<PatientPicker
 			value={data}
 			height={400}
+			withRecords
 			onChange={patient => setData(patient?.id)}
 			trigger={v => {
 				if (!data) {

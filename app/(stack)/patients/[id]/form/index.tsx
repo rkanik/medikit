@@ -1,11 +1,12 @@
 import type { TZPatient } from '@/api/patients'
 import { useCallback, useEffect } from 'react'
-import { View } from 'react-native'
+import { Switch, View } from 'react-native'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 import { zPatient } from '@/api/patients'
 import { BaseActions } from '@/components/base/actions'
+import { BaseController } from '@/components/base/controller'
 import { BaseDatePicker } from '@/components/base/DatePicker'
 import { BaseImagePicker } from '@/components/base/ImagePicker'
 import { BaseInput } from '@/components/base/input'
@@ -31,6 +32,7 @@ export default function Screen() {
 		resolver: zodResolver(zPatient),
 		defaultValues: {
 			name: '',
+			public: true,
 		},
 	})
 
@@ -56,6 +58,7 @@ export default function Screen() {
 		if (data) {
 			form.reset({
 				...data,
+				public: data.public ?? true,
 			})
 		}
 	}, [form, data])
@@ -106,6 +109,14 @@ export default function Screen() {
 							placeholder="Select date of birth..."
 							control={form.control}
 						/>
+						<BaseDatePicker
+							name="dod"
+							display="spinner"
+							inputFormat="DD MMMM, YYYY"
+							label="Date of Death"
+							placeholder="Select date of death..."
+							control={form.control}
+						/>
 						<BaseSelect
 							name="gender"
 							label="Gender"
@@ -113,6 +124,22 @@ export default function Screen() {
 							options={GENDER_OPTIONS}
 							getOptionLabel={item => item}
 							getOptionValue={item => item}
+						/>
+						<BaseController
+							name="public"
+							label="Public"
+							control={form.control}
+							render={({ field }) => (
+								<View className="flex-row items-center justify-between rounded-xl bg-white dark:bg-neutral-800 px-4 py-3">
+									<Text className="flex-1 text-base pr-3">
+										Show in patient list and record picker
+									</Text>
+									<Switch
+										value={field.value !== false}
+										onValueChange={field.onChange}
+									/>
+								</View>
+							)}
 						/>
 						<BaseActions
 							className="relative justify-end px-0"

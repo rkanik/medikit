@@ -8,6 +8,7 @@ import m0003 from './0003_silent_secret_warriors.sql';
 import m0004 from './0004_broad_taskmaster.sql';
 import m0005 from './0005_shocking_reavers.sql';
 import m0006 from './0006_mean_boomer.sql';
+import m0007 from './0007_sour_dorian_gray.sql';
 
   export default {
     journal,
@@ -18,7 +19,8 @@ m0002,
 m0003,
 m0004,
 m0005,
-m0006
+m0006,
+m0007
     }
   }
   

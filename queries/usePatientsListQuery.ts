@@ -1,21 +1,28 @@
 import { useMemo } from 'react'
 import { mapPatient } from '@/queries/mapPatient'
-import { usePatientsQuery } from '@/queries/usePatientsQuery'
+import {
+	usePatientsQuery,
+	type TPatientsQuery,
+} from '@/queries/usePatientsQuery'
 
-export const usePatientsListQuery = () => {
-	const query = usePatientsQuery({
+export const usePatientsListQuery = (
+	query?: Pick<TPatientsQuery, 'includePrivate' | 'perPage' | 'withRecords'>,
+) => {
+	const listQuery = usePatientsQuery({
 		page: 1,
-		perPage: 500,
+		perPage: query?.perPage ?? 500,
+		includePrivate: query?.includePrivate,
+		withRecords: query?.withRecords,
 	})
 
 	const data = useMemo(() => {
-		return (query.data?.pages ?? [])
+		return (listQuery.data?.pages ?? [])
 			.flatMap(page => page.data ?? [])
 			.map(patient => mapPatient(patient)!)
-	}, [query.data?.pages])
+	}, [listQuery.data?.pages])
 
 	return {
-		...query,
+		...listQuery,
 		data,
 	}
 }

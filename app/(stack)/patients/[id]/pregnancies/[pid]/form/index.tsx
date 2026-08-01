@@ -44,7 +44,9 @@ export default function Screen() {
 	const pregnancyId = Number(pid)
 	const { patientId, isValid: hasPatientId } = usePatientIdParam()
 	const { data, isPending } = usePatientPregnancyByIdQuery(pregnancyId)
-	const { data: patients = [] } = usePatientsListQuery()
+	const { data: patients = [] } = usePatientsListQuery({
+		includePrivate: true,
+	})
 	const { data: linkablePatients = [] } = useLinkablePregnancyPatientsQuery({
 		excludePatientId: patientId,
 		excludePregnancyId: isNew ? null : pregnancyId,

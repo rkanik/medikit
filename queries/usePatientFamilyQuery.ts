@@ -8,7 +8,13 @@ export type TPatientFamilyBaby = {
 	father: TPatient | null
 }
 
+export type TPatientFamilyParent = {
+	patient: TPatient
+	role: 'Mother' | 'Father'
+}
+
 export type TPatientFamily = {
+	parents: TPatientFamilyParent[]
 	spouses: TPatient[]
 	babies: TPatientFamilyBaby[]
 }
@@ -23,7 +29,7 @@ const pregnancyWith = {
 	},
 } as const
 
-/** Spouses + babies via pregnancies (as mother or father). */
+/** Parents, spouses + babies via pregnancies. */
 export const usePatientFamilyQuery = (patientId: number) => {
 	return useQuery({
 		queryKey: ['patient-family', patientId],
@@ -37,9 +43,32 @@ export const usePatientFamilyQuery = (patientId: number) => {
 				where: (v, { eq: equals }) => equals(v.fatherPatientId, patientId),
 				with: pregnancyWith,
 			})
+			const asChild = await db.query.pregnancyChildren.findMany({
+				where: (v, { eq: equals }) => equals(v.childPatientId, patientId),
+				with: {
+					pregnancy: {
+						with: {
+							patient: { with: { avatar: true } },
+							father: { with: { avatar: true } },
+						},
+					},
+				},
+			})
 
+			const parentsById = new Map<number, TPatientFamilyParent>()
 			const spousesById = new Map<number, TPatient>()
 			const babiesById = new Map<number, TPatientFamilyBaby>()
+
+			for (const link of asChild) {
+				const mother = mapPatient(link.pregnancy?.patient) ?? null
+				const father = mapPatient(link.pregnancy?.father) ?? null
+				if (mother?.id != null) {
+					parentsById.set(mother.id, { patient: mother, role: 'Mother' })
+				}
+				if (father?.id != null) {
+					parentsById.set(father.id, { patient: father, role: 'Father' })
+				}
+			}
 
 			for (const pregnancy of asMother) {
 				const father = mapPatient(pregnancy.father) ?? null
@@ -66,7 +95,13 @@ export const usePatientFamilyQuery = (patientId: number) => {
 				}
 			}
 
+			const parents = [...parentsById.values()].sort((a, b) => {
+				if (a.role === b.role) return 0
+				return a.role === 'Mother' ? -1 : 1
+			})
+
 			return {
+				parents,
 				spouses: [...spousesById.values()],
 				babies: [...babiesById.values()],
 			}

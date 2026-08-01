@@ -46,6 +46,7 @@ export default function PatientInfoScreen() {
 		return formatGestationalAge(age)
 	}, [activePregnancy])
 
+	const parents = family?.parents ?? []
 	const spouses = family?.spouses ?? []
 	const babies = family?.babies ?? []
 
@@ -99,10 +100,15 @@ export default function PatientInfoScreen() {
 						<Title className="mt-5 text-2xl">{data.name}</Title>
 						{data.dob && (
 							<Subtitle>
-								{$df(data.dob, 'DD MMMM, YYYY')} ({$d().diff(data.dob, 'years')}
-								yrs)
+								{$df(data.dob, 'DD MMMM, YYYY')} (
+								{$d(data.dod ?? undefined).diff(data.dob, 'years')} yrs)
 							</Subtitle>
 						)}
+						{data.dod ? (
+							<Subtitle className="mt-1">
+								Died {$df(data.dod, 'DD MMMM, YYYY')}
+							</Subtitle>
+						) : null}
 					</View>
 
 					<View className="mt-8">
@@ -123,13 +129,21 @@ export default function PatientInfoScreen() {
 										className="bg-white dark:bg-neutral-800 rounded-lg"
 									/>
 									<BaseListItem
-										text={$daf(data.dob)}
+										text={$daf(data.dob, data.dod)}
 										icon="clock"
-										label="Age"
+										label={data.dod ? 'Age at Death' : 'Age'}
 										className="bg-white dark:bg-neutral-800 rounded-lg"
 									/>
 								</Fragment>
 							)}
+							{data.dod ? (
+								<BaseListItem
+									text={$df(data.dod, 'DD MMMM, YYYY')}
+									icon="calendar"
+									label="Date of Death"
+									className="bg-white dark:bg-neutral-800 rounded-lg"
+								/>
+							) : null}
 							{data.gender && (
 								<BaseListItem
 									text={data.gender}
@@ -138,6 +152,14 @@ export default function PatientInfoScreen() {
 									className="bg-white dark:bg-neutral-800 rounded-lg"
 								/>
 							)}
+							{data.public === false ? (
+								<BaseListItem
+									text="Private"
+									icon="eye-off"
+									label="Visibility"
+									className="bg-white dark:bg-neutral-800 rounded-lg"
+								/>
+							) : null}
 							{runningWeeksText ? (
 								<BaseListItem
 									text={runningWeeksText}
@@ -148,6 +170,35 @@ export default function PatientInfoScreen() {
 							) : null}
 						</View>
 					</View>
+
+					{parents.length > 0 ? (
+						<View className="mt-8">
+							<Text className="uppercase text-sm tracking-wide ml-2">
+								Parents
+							</Text>
+							<View className="mt-2 gap-1">
+								{parents.map((parent, index) => (
+									<PatientCard
+										key={`${parent.role}-${parent.patient.id}`}
+										data={parent.patient}
+										subtitle={parent.role}
+										className={
+											index === 0 && index === parents.length - 1
+												? 'rounded-3xl'
+												: index === 0
+													? 'rounded-t-3xl'
+													: index === parents.length - 1
+														? 'rounded-b-3xl'
+														: undefined
+										}
+										onPress={() =>
+											router.push(`/patients/${parent.patient.id}`)
+										}
+									/>
+								))}
+							</View>
+						</View>
+					) : null}
 
 					{spouses.length > 0 ? (
 						<View className="mt-8">

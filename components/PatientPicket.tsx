@@ -10,10 +10,15 @@ import { PatientCard } from './PatientCard'
 export type TPatientPickerProps = TBaseModalProps & {
 	value?: TMaybe<TPatient>
 	onChange?: (patient?: TPatient) => void
+	/** Only list patients that have at least one record. */
+	withRecords?: boolean
 }
 
-const PatientItems = ({ value, onChange }: TPatientPickerProps) => {
-	const { data } = usePatientsListQuery()
+const PatientItems = ({ value, onChange, withRecords }: TPatientPickerProps) => {
+	const { data } = usePatientsListQuery({
+		includePrivate: true,
+		withRecords,
+	})
 	return (
 		<FlashList
 			data={data}
@@ -21,7 +26,7 @@ const PatientItems = ({ value, onChange }: TPatientPickerProps) => {
 			keyExtractor={item => item.id.toString()}
 			ListHeaderComponent={() => (
 				<PatientCard
-					data={{ id: 0, name: 'All Patients' }}
+					data={{ id: 0, name: 'All Patients' } as TPatient}
 					className="mb-4"
 					selected={!value}
 					onPress={() => onChange?.(undefined)}
@@ -42,6 +47,7 @@ const PatientItems = ({ value, onChange }: TPatientPickerProps) => {
 export const PatientPicker = ({
 	value,
 	onChange,
+	withRecords,
 	...props
 }: TPatientPickerProps) => {
 	const [visible, setVisible] = useState(false)
@@ -49,6 +55,7 @@ export const PatientPicker = ({
 		<BaseModal {...props} visible={visible} setVisible={setVisible}>
 			<PatientItems
 				value={value}
+				withRecords={withRecords}
 				onChange={value => {
 					onChange?.(value)
 					setVisible(false)

@@ -184,5 +184,6 @@ export const useInvalidateRecordsQuery = () => {
 	const queryClient = useQueryClient()
 	return useCallback(() => {
 		queryClient.invalidateQueries({ queryKey: ['records'] })
+		queryClient.invalidateQueries({ queryKey: ['patients'] })
 	}, [queryClient])
 }

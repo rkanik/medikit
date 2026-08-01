@@ -1,5 +1,4 @@
 import { createRef, Fragment, useCallback, useEffect } from 'react'
-
 import {
 	BottomSheetBackdrop,
 	BottomSheetModal,
@@ -51,7 +50,7 @@ export const BaseModal = ({
 				topInset={0}
 				enableDismissOnClose
 				enablePanDownToClose
-				snapPoints={[1, height]}
+				snapPoints={[1, height, '95%']}
 				enableDynamicSizing={false}
 				backdropComponent={BottomSheetBackdrop}
 				// @ts-ignore
