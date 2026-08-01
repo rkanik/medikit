@@ -11,6 +11,7 @@ import {
 	getGrowthIdeal,
 	percentChange,
 } from '@/utils/growthIdeals'
+import { formatHeightFt } from '@/utils/height'
 import { BaseCard } from './base/card'
 import { Body, Subtitle, Text, Title } from './ui/text'
 
@@ -72,7 +73,7 @@ export const PatientTimelineCard = ({
 				dob,
 				atDate: data.date,
 				gender,
-				heightFt: height,
+				heightFt: height != null ? height / 12 : null,
 			}),
 		[dob, data.date, gender, height],
 	)
@@ -132,8 +133,7 @@ export const PatientTimelineCard = ({
 									Height
 								</Text>
 								<Title className="text-2xl">
-									{height}{' '}
-									<Text className="text-base font-normal opacity-70">ft</Text>
+									{formatHeightFt(height)}
 								</Title>
 								{heightChange ? (
 									<Text
@@ -168,7 +168,9 @@ export const PatientTimelineCard = ({
 				{ideal && (ideal.heightFt != null || ideal.weightKg != null) ? (
 					<Body className="mt-2 text-sm">
 						Ideal
-						{ideal.heightFt != null ? ` height ~${ideal.heightFt} ft` : ''}
+						{ideal.heightFt != null
+							? ` height ~${formatHeightFt(ideal.heightFt * 12)}`
+							: ''}
 						{ideal.heightFt != null && ideal.weightKg != null ? ',' : ''}
 						{ideal.weightKg != null ? ` weight ~${ideal.weightKg} kg` : ''}
 						{ideal.source === 'age'

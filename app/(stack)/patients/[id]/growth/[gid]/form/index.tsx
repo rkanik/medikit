@@ -8,6 +8,7 @@ import { BaseInput } from '@/components/base/input'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
+import { Spinner } from '@/components/ui/spinner'
 import { Text } from '@/components/ui/text'
 import { TIMELINE_METRICS } from '@/const/timelineMetrics'
 import { usePatientIdParam } from '@/hooks/usePatientIdParam'
@@ -29,19 +30,11 @@ type TFormValues = {
 
 export default function Screen() {
 	const { gid } = useLocalSearchParams()
-	const { id, patientId, isValid: hasPatientId } = usePatientIdParam()
-	const { data } = usePatientTimelineByIdQuery(Number(gid))
+	const { patientId, isValid: hasPatientId } = usePatientIdParam()
+	const { data, isPending } = usePatientTimelineByIdQuery(Number(gid))
 	const { mutateAsync: submitEntry } = usePatientTimelineMutation()
 	const { mutateAsync: deleteEntry } = usePatientTimelineDeleteMutation()
 	const invalidateTimeline = useInvalidatePatientTimelineQuery()
-
-	const goToGrowthTab = useCallback(() => {
-		if (id) {
-			router.replace(`/patients/${id}/growth` as any)
-			return
-		}
-		router.back()
-	}, [id])
 
 	const defaultMetrics = useMemo(() => {
 		return Object.fromEntries(TIMELINE_METRICS.map(metric => [metric.key, '']))
@@ -104,21 +97,14 @@ export default function Screen() {
 				}
 				await submitEntry(payload)
 				invalidateTimeline()
-				goToGrowthTab()
+				router.back()
 			} catch (error: any) {
 				form.setError('root', {
 					message: error.message,
 				})
 			}
 		},
-		[
-			form,
-			goToGrowthTab,
-			hasPatientId,
-			invalidateTimeline,
-			patientId,
-			submitEntry,
-		],
+		[form, hasPatientId, invalidateTimeline, patientId, submitEntry],
 	)
 
 	const onRemove = useCallback(() => {
@@ -130,11 +116,11 @@ export default function Screen() {
 					if (!data?.id) return
 					await deleteEntry(data.id)
 					invalidateTimeline()
-					goToGrowthTab()
+					router.back()
 				},
 			},
 		])
-	}, [data?.id, deleteEntry, goToGrowthTab, invalidateTimeline])
+	}, [data?.id, deleteEntry, invalidateTimeline])
 
 	useEffect(() => {
 		if (data) {
@@ -151,6 +137,15 @@ export default function Screen() {
 			})
 		}
 	}, [data, defaultMetrics, form, patientId])
+
+	if (gid !== 'new' && isPending) {
+		return (
+			<View className="flex-1 items-center justify-center px-4">
+				<Stack.Screen options={{ title: 'Loading...' }} />
+				<Spinner size="large" />
+			</View>
+		)
+	}
 
 	if (gid !== 'new' && !data) {
 		return (
@@ -209,7 +204,7 @@ export default function Screen() {
 							{
 								pill: true,
 								prependIcon: 'x',
-								onPress: () => goToGrowthTab(),
+								onPress: () => router.back(),
 							},
 							{
 								pill: true,

@@ -5,8 +5,8 @@ import { mapPatient } from '@/queries/mapPatient'
 export const usePatientPregnancyByIdQuery = (id: number) => {
 	return useQuery({
 		queryKey: ['patient-pregnancies', id],
+		enabled: Number.isFinite(id) && id > 0,
 		queryFn: async () => {
-			if (isNaN(id)) return null
 			const item = await db.query.patientPregnancies.findFirst({
 				where: (v, { eq }) => eq(v.id, id),
 				with: {

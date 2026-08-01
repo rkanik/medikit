@@ -1,6 +1,6 @@
-import { View } from 'react-native'
-import { HeaderBackButton } from '@react-navigation/elements'
-import { router, Stack, Tabs, usePathname, type Href } from 'expo-router'
+import { Pressable, View } from 'react-native'
+import { Link, Slot, Stack, usePathname } from 'expo-router'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { cn } from 'tailwind-variants'
 import { Icon } from '@/components/ui/icon'
 import { Text } from '@/components/ui/text'
@@ -11,35 +11,42 @@ import { usePatientPregnanciesQuery } from '@/queries/usePatientPregnanciesQuery
 
 const tabItems = [
 	{
-		title: 'Info',
-		name: 'index',
+		title: 'Basic',
 		path: '' as const,
 		icon: 'user' as const,
+		match: (pathname: string, basePath: string) =>
+			pathname === basePath || pathname === `${basePath}/`,
 	},
 	{
 		title: 'Medicines',
-		name: 'medicines/index',
 		path: 'medicines' as const,
 		icon: 'thermometer' as const,
+		match: (pathname: string, basePath: string) =>
+			pathname.startsWith(`${basePath}/medicines`) &&
+			!pathname.includes('/form'),
 	},
 	{
 		title: 'Growth',
-		name: 'growth/index',
 		path: 'growth' as const,
 		icon: 'trending-up' as const,
+		match: (pathname: string, basePath: string) =>
+			pathname.startsWith(`${basePath}/growth`) && !pathname.includes('/form'),
 	},
 	{
 		title: 'Pregnancy',
-		name: 'pregnancies/index',
 		path: 'pregnancies' as const,
 		icon: 'heart' as const,
+		match: (pathname: string, basePath: string) =>
+			pathname.startsWith(`${basePath}/pregnancies`) &&
+			!pathname.includes('/form'),
 	},
 ] as const
 
-export default function PatientTabsLayout() {
+export default function PatientLayout() {
 	const pathname = usePathname()
+	const insets = useSafeAreaInsets()
 	const { id, patientId, isValid } = usePatientIdParam()
-	const { background, foreground } = useColors()
+	const { background } = useColors()
 	const { data: patient } = usePatientByIdQuery(patientId)
 	const { data: pregnanciesData } = usePatientPregnanciesQuery({
 		patientId,
@@ -47,138 +54,59 @@ export default function PatientTabsLayout() {
 	})
 
 	const pregnancyCount = pregnanciesData?.pages?.[0]?.total ?? 0
-	const showPregnancyTab =
-		patient?.gender === 'Female' || pregnancyCount > 0
+	const showPregnancyTab = patient?.gender === 'Female' || pregnancyCount > 0
 
-	const headerTitle = patient?.name ?? 'Patient'
-	const basePath = isValid ? `/patients/${id}` : undefined
-
-	const onHeaderBack = () => {
-		if (!basePath) {
-			router.back()
-			return
-		}
-		if (pathname.includes('/growth/')) {
-			router.replace(`${basePath}/growth` as any)
-			return
-		}
-		if (pathname.includes('/medicines/')) {
-			router.replace(`${basePath}/medicines` as any)
-			return
-		}
-		if (pathname.includes('/pregnancies/')) {
-			router.replace(`${basePath}/pregnancies` as any)
-			return
-		}
-		if (pathname.endsWith('/form')) {
-			router.replace(basePath as any)
-			return
-		}
-		router.back()
-	}
-
+	const basePath = isValid ? `/patients/${id}` : ''
+	const isFormScreen = pathname.includes('/form')
+	const visibleTabs = tabItems.filter(
+		item => item.path !== 'pregnancies' || showPregnancyTab,
+	)
 	return (
 		<>
-			<Stack.Screen options={{ headerShown: false }} />
-			<Tabs
-				screenOptions={{
-					headerShadowVisible: false,
-					sceneStyle: {
-						backgroundColor: background,
-					},
-					headerStyle: {
-						backgroundColor: background,
-					},
-					headerTintColor: foreground,
-					headerTitle,
-					headerLeft: props => (
-						<HeaderBackButton
-							{...props}
-							tintColor={foreground}
-							onPress={onHeaderBack}
-						/>
-					),
-					tabBarStyle: {
-						height: 96,
-						paddingTop: 8,
-						borderColor: background,
-						backgroundColor: background,
-					},
+			<Stack.Screen
+				options={{
+					title: patient?.name ?? 'Patient Profile',
 				}}
-			>
-				{tabItems.map(item => {
-					const href =
-						item.name === 'pregnancies/index' && !showPregnancyTab
-							? null
-							: basePath
-								? item.path
-									? `${basePath}/${item.path}`
-									: basePath
-								: undefined
-
-					return (
-						<Tabs.Screen
-							key={item.name}
-							name={item.name}
-							options={{
-								title: item.title,
-								href: href as Href | null | undefined,
-								tabBarIcon: v => (
-									<View
-										className={cn(
-											'w-12 h-8 flex items-center justify-center rounded-full',
-											{ 'bg-primary': v.focused },
-										)}
-									>
-										<Icon name={item.icon} className="text-xl" />
-									</View>
-								),
-								tabBarLabel: v => (
-									<Text
-										className={cn('text-base mt-1', {
-											'font-semibold text-primary': v.focused,
-										})}
-									>
-										{v.children}
-									</Text>
-								),
-							}}
-						/>
-					)
-				})}
-				<Tabs.Screen
-					name="form/index"
-					options={{
-						href: null,
-						title: 'Update Patient',
-						tabBarStyle: { display: 'none' },
-					}}
-				/>
-				<Tabs.Screen
-					name="medicines/[mid]/form/index"
-					options={{
-						href: null,
-						title: 'Medicine',
-						tabBarStyle: { display: 'none' },
-					}}
-				/>
-				<Tabs.Screen
-					name="growth/[gid]/form/index"
-					options={{
-						href: null,
-						title: 'Growth',
-						tabBarStyle: { display: 'none' },
-					}}
-				/>
-				<Tabs.Screen
-					name="pregnancies/[pid]/form/index"
-					options={{
-						href: null,
-						title: 'Pregnancy',
-						tabBarStyle: { display: 'none' },
-					}}
-				/>
-			</Tabs>
+			/>
+			<View className="flex-1">
+				<Slot />
+				{!isFormScreen && basePath ? (
+					<View
+						className="flex-row items-start justify-around border-t border-transparent pt-2"
+						style={{
+							height: 96,
+							paddingBottom: Math.max(insets.bottom, 8),
+							backgroundColor: background,
+						}}
+					>
+						{visibleTabs.map(item => {
+							const href = item.path ? `${basePath}/${item.path}` : basePath
+							const focused = item.match(pathname, basePath)
+							return (
+								<Link key={item.title} href={href as any} replace asChild>
+									<Pressable className="flex-1 items-center">
+										<View
+											className={cn(
+												'w-12 h-8 flex items-center justify-center rounded-3xl',
+												{ 'bg-primary': focused },
+											)}
+										>
+											<Icon name={item.icon} className="text-xl" />
+										</View>
+										<Text
+											className={cn('text-base mt-1', {
+												'font-semibold text-primary': focused,
+											})}
+										>
+											{item.title}
+										</Text>
+									</Pressable>
+								</Link>
+							)
+						})}
+					</View>
+				) : null}
+			</View>
 		</>
 	)
 }

@@ -82,5 +82,6 @@ export const useInvalidatePatientPregnanciesQuery = () => {
 	const queryClient = useQueryClient()
 	return useCallback(() => {
 		queryClient.invalidateQueries({ queryKey: ['patient-pregnancies'] })
+		queryClient.invalidateQueries({ queryKey: ['linkable-pregnancy-patients'] })
 	}, [queryClient])
 }

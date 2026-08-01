@@ -13,6 +13,7 @@ import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollV
 import { Avatar } from '@/components/ui/avatar'
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
+import { Spinner } from '@/components/ui/spinner'
 import { Text } from '@/components/ui/text'
 import { usePatientIdParam } from '@/hooks/usePatientIdParam'
 import { useDeleteMedicineMutation } from '@/mutations/useDeleteMedicineMutation'
@@ -29,7 +30,7 @@ import { paths } from '@/utils/paths'
 export default function Screen() {
 	const { mid } = useLocalSearchParams()
 	const { patientId, isValid: hasPatientId } = usePatientIdParam()
-	const { data } = usePatientMedicineByIdQuery(Number(mid))
+	const { data, isPending } = usePatientMedicineByIdQuery(Number(mid))
 
 	const { data: medicines, refetch: refetchMedicines } = useMedicinesQuery()
 	const { mutateAsync: deleteMedicine } = useDeleteMedicineMutation()
@@ -150,6 +151,15 @@ export default function Screen() {
 			})
 		}
 	}, [form, data, patientId])
+
+	if (mid !== 'new' && isPending) {
+		return (
+			<View className="flex-1 items-center justify-center px-4">
+				<Stack.Screen options={{ title: 'Loading...' }} />
+				<Spinner size="large" />
+			</View>
+		)
+	}
 
 	if (mid !== 'new' && !data) {
 		return (

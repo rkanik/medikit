@@ -1,15 +1,18 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Alert, View } from 'react-native'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { FormProvider, useForm } from 'react-hook-form'
 import { BaseActions } from '@/components/base/actions'
 import { BaseButton } from '@/components/base/button'
 import { BaseDatePicker } from '@/components/base/DatePicker'
-import { BaseSelect } from '@/components/base/select'
+import { BaseModal } from '@/components/base/modal'
 import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollView'
 import { Avatar } from '@/components/ui/avatar'
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
+import { Icon } from '@/components/ui/icon'
+import { Pressable } from '@/components/ui/pressable'
+import { Spinner } from '@/components/ui/spinner'
 import { Text } from '@/components/ui/text'
 import { usePatientIdParam } from '@/hooks/usePatientIdParam'
 import { usePatientPregnancyDeleteMutation } from '@/mutations/usePatientPregnancyDeleteMutation'
@@ -17,9 +20,9 @@ import {
 	usePatientPregnancyMutation,
 	type TZPatientPregnancy,
 } from '@/mutations/usePatientPregnancyMutation'
+import { useLinkablePregnancyPatientsQuery } from '@/queries/useLinkablePregnancyPatientsQuery'
 import { useInvalidatePatientPregnanciesQuery } from '@/queries/usePatientPregnanciesQuery'
 import { usePatientPregnancyByIdQuery } from '@/queries/usePatientPregnancyByIdQuery'
-import { usePatientsListQuery } from '@/queries/usePatientsListQuery'
 import { paths } from '@/utils/paths'
 
 type TFormValues = {
@@ -28,49 +31,79 @@ type TFormValues = {
 	expectedDate?: string | null
 	deliveryDate?: string | null
 	childIds: number[]
-	addChildId?: number | null
 }
 
 export default function Screen() {
 	const { pid } = useLocalSearchParams()
+	const isNew = pid === 'new'
+	const pregnancyId = Number(pid)
 	const { patientId, isValid: hasPatientId } = usePatientIdParam()
-	const { data } = usePatientPregnancyByIdQuery(Number(pid))
-	const { data: patients } = usePatientsListQuery()
+	const { data, isPending } = usePatientPregnancyByIdQuery(pregnancyId)
+	const { data: linkablePatients = [] } = useLinkablePregnancyPatientsQuery({
+		excludePatientId: patientId,
+		excludePregnancyId: isNew ? null : pregnancyId,
+	})
 	const { mutateAsync: submitPregnancy } = usePatientPregnancyMutation()
 	const { mutateAsync: deletePregnancy } = usePatientPregnancyDeleteMutation()
 	const invalidatePregnancies = useInvalidatePatientPregnanciesQuery()
+	const [pickerVisible, setPickerVisible] = useState(false)
 
-	const childOptions = useMemo(
-		() => patients.filter(patient => patient.id !== patientId),
-		[patients, patientId],
-	)
-
-	const form = useForm<TFormValues>({
-		defaultValues: {
+	const initialValues = useMemo<TFormValues>(() => {
+		if (data) {
+			return {
+				id: data.id,
+				patientId: data.patientId ?? patientId,
+				expectedDate: data.expectedDate,
+				deliveryDate: data.deliveryDate,
+				childIds:
+					data.children
+						?.map(link => link.childPatientId)
+						.filter((id): id is number => id != null) ?? [],
+			}
+		}
+		return {
 			patientId,
 			expectedDate: null,
 			deliveryDate: null,
 			childIds: [],
-			addChildId: null,
-		},
+		}
+	}, [data, patientId])
+
+	const form = useForm<TFormValues>({
+		defaultValues: initialValues,
 	})
 
-	useEffect(() => {
-		if (hasPatientId) {
+	const lastDataId = useRef<number | null>(null)
+	useLayoutEffect(() => {
+		if (!data?.id || data.id === lastDataId.current) return
+		lastDataId.current = data.id
+		form.reset(initialValues)
+	}, [data, form, initialValues])
+
+	useLayoutEffect(() => {
+		if (hasPatientId && isNew) {
 			form.setValue('patientId', patientId)
 		}
-	}, [form, hasPatientId, patientId])
+	}, [form, hasPatientId, isNew, patientId])
 
-	const childIds = form.watch('childIds') ?? []
+	const childIds = form.watch('childIds')
 
-	const selectedChildren = useMemo(
-		() => childOptions.filter(patient => childIds.includes(patient.id)),
-		[childIds, childOptions],
-	)
+	const selectedChildren = useMemo(() => {
+		const byId = new Map(linkablePatients.map(patient => [patient.id, patient]))
+		for (const link of data?.children ?? []) {
+			if (link.child?.id != null) {
+				byId.set(link.child.id, link.child as (typeof linkablePatients)[number])
+			}
+		}
+		return (childIds ?? [])
+			.map(id => byId.get(id))
+			.filter((patient): patient is NonNullable<typeof patient> => !!patient)
+	}, [childIds, linkablePatients, data?.children])
 
 	const availableChildren = useMemo(
-		() => childOptions.filter(patient => !childIds.includes(patient.id)),
-		[childIds, childOptions],
+		() =>
+			linkablePatients.filter(patient => !(childIds ?? []).includes(patient.id)),
+		[childIds, linkablePatients],
 	)
 
 	const onAddChild = useCallback(
@@ -79,7 +112,7 @@ export default function Screen() {
 			const current = form.getValues('childIds') ?? []
 			if (current.includes(childId)) return
 			form.setValue('childIds', [...current, childId])
-			form.setValue('addChildId', null)
+			setPickerVisible(false)
 		},
 		[form],
 	)
@@ -94,6 +127,14 @@ export default function Screen() {
 		},
 		[form],
 	)
+
+	const onPressAdd = useCallback(() => {
+		if (!availableChildren.length) {
+			Alert.alert('No patients', 'There are no other patients to link.')
+			return
+		}
+		setPickerVisible(true)
+	}, [availableChildren.length])
 
 	const onSubmit = useCallback(
 		async (values: TFormValues) => {
@@ -140,25 +181,18 @@ export default function Screen() {
 		])
 	}, [data?.id, deletePregnancy, invalidatePregnancies])
 
-	useEffect(() => {
-		if (data) {
-			form.reset({
-				id: data.id,
-				patientId: data.patientId ?? patientId,
-				expectedDate: data.expectedDate,
-				deliveryDate: data.deliveryDate,
-				childIds:
-					data.children
-						?.map(link => link.childPatientId)
-						.filter((id): id is number => id != null) ?? [],
-				addChildId: null,
-			})
-		}
-	}, [data, form, patientId])
-
-	if (pid !== 'new' && !data) {
+	if (!isNew && isPending) {
 		return (
-			<View className="flex-1 px-4">
+			<View className="flex-1 items-center justify-center p-4">
+				<Stack.Screen options={{ title: 'Loading...' }} />
+				<Spinner size="large" />
+			</View>
+		)
+	}
+
+	if (!isNew && !data) {
+		return (
+			<View className="flex-1 p-4">
 				<Stack.Screen options={{ title: 'Not Found!' }} />
 				<Text>Pregnancy not found!</Text>
 			</View>
@@ -197,49 +231,43 @@ export default function Screen() {
 							/>
 						</GridItem>
 						<GridItem colSpan={2}>
-							<BaseSelect
-								name="addChildId"
-								label="Baby"
-								placeholder="Select a child patient..."
-								control={form.control}
-								options={availableChildren}
-								getOptionValue={item => item?.id}
-								getOptionLabel={item => (
-									<View className="flex-row items-center gap-3">
-										<Avatar
-											className="h-8 w-8"
-											text={item?.name}
-											image={paths.document(item?.avatar?.uri)}
-										/>
-										<Text className="text-lg">{item?.name}</Text>
-									</View>
-								)}
-								onChange={onAddChild}
-							/>
-							{selectedChildren.length > 0 ? (
-								<View className="mt-3 gap-2">
-									{selectedChildren.map(child => (
-										<View
-											key={child.id}
-											className="flex-row items-center gap-3 rounded-lg bg-secondary px-3 py-2"
-										>
+							<Text className="mb-1 text-base font-medium">Babies</Text>
+							<Grid cols={3} gap={10}>
+								{selectedChildren.map(child => (
+									<GridItem key={child.id} className="aspect-square">
+										<View className="h-full rounded-xl bg-secondary overflow-hidden items-center justify-center p-2">
+											<Pressable
+												onPress={() => onRemoveChild(child.id)}
+												className="absolute right-1 top-1 z-10 h-5 w-5 items-center justify-center rounded-full bg-neutral-500/80"
+											>
+												<Icon name="x" className="text-white text-xs" />
+											</Pressable>
 											<Avatar
-												className="h-8 w-8"
+												className="h-10 w-10"
+												textClassName="text-sm"
 												text={child.name}
 												image={paths.document(child.avatar?.uri)}
 											/>
-											<Text className="flex-1 text-base">{child.name}</Text>
-											<BaseButton
-												pill
-												size="icon-xs"
-												variant="secondary"
-												prependIcon="x"
-												onPress={() => onRemoveChild(child.id)}
-											/>
+											<Text
+												className="mt-1.5 text-center text-sm"
+												numberOfLines={2}
+											>
+												{child.name}
+											</Text>
 										</View>
-									))}
-								</View>
-							) : null}
+									</GridItem>
+								))}
+								<GridItem className="aspect-square">
+									<BaseButton
+										size="xl"
+										prependIcon="plus"
+										prependIconClassName="text-3xl"
+										variant="secondary"
+										className="h-full rounded-xl"
+										onPress={onPressAdd}
+									/>
+								</GridItem>
+							</Grid>
 						</GridItem>
 					</Grid>
 					{form.formState.errors.root?.message ? (
@@ -274,6 +302,33 @@ export default function Screen() {
 					/>
 				</Form>
 			</FormProvider>
+
+			{pickerVisible ? (
+				<BaseModal
+					visible={pickerVisible}
+					setVisible={setPickerVisible}
+					height={Math.min(480, 80 + availableChildren.length * 72)}
+				>
+					<View className="px-4 pb-8 pt-2 gap-2">
+						<Text className="mb-1 text-lg font-semibold">Select baby</Text>
+						{availableChildren.map(item => (
+							<Pressable
+								key={item.id}
+								onPress={() => onAddChild(item.id)}
+								className="flex-row items-center gap-3 rounded-xl bg-secondary px-3 py-3"
+							>
+								<Avatar
+									className="h-10 w-10"
+									text={item.name}
+									image={paths.document(item.avatar?.uri)}
+								/>
+								<Text className="flex-1 text-lg">{item.name}</Text>
+								<Icon name="plus" className="text-lg opacity-60" />
+							</Pressable>
+						))}
+					</View>
+				</BaseModal>
+			) : null}
 		</KeyboardAvoidingScrollView>
 	)
 }

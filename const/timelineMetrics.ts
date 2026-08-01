@@ -1,5 +1,5 @@
 export const TIMELINE_METRICS = [
-	{ key: 'height', label: 'Height', unit: 'ft' },
+	{ key: 'height', label: 'Height', unit: 'in' },
 	{ key: 'weight', label: 'Weight', unit: 'kg' },
 ] as const
 
