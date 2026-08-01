@@ -29,6 +29,34 @@
       "when": 1776715476448,
       "tag": "0003_silent_secret_warriors",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1785438944533,
+      "tag": "0004_broad_taskmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1785440892136,
+      "tag": "0005_shocking_reavers",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1785577015062,
+      "tag": "0006_mean_boomer",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1785579416202,
+      "tag": "0007_sour_dorian_gray",
+      "breakpoints": true
     }
   ]
 }

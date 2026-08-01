@@ -1,11 +1,15 @@
 import type { TMaybe } from '@/types'
 
 import { useMutation } from '@tanstack/react-query'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { db } from '@/drizzle/db'
-import { patients } from '@/drizzle/schema'
+import {
+	patientPregnancies,
+	patients,
+	pregnancyChildren,
+} from '@/drizzle/schema'
 
 import { useAttachmentsDeleteMutation } from './useAttachmentsDeleteMutation'
 import { useAttachmentsMutation, zAttachment } from './useAttachmentsMutation'
@@ -14,8 +18,9 @@ export type TZPatient = z.infer<typeof zPatient>
 export const zPatient = z.object({
 	id: z.number().nullish(),
 	dob: z.string().nullish(),
-	edd: z.string().nullish(),
+	dod: z.string().nullish(),
 	gender: z.string().nullish(),
+	public: z.boolean().default(true),
 	name: z.string().min(1, 'Name is required!'),
 	avatar: zAttachment.nullish(),
 })
@@ -33,9 +38,10 @@ export const usePatientsMutation = () => {
 			}
 			const values = {
 				name: data.name,
-				dob: data.dob,
+				dob: data.dob || null,
+				dod: data.dod || null,
 				gender: data.gender,
-				edd: data.edd,
+				public: data.public ?? true,
 				avatarId,
 			}
 			const id = data.id
@@ -57,6 +63,27 @@ export const usePatientsMutation = () => {
 					})
 					.where(eq(patients.id, id))
 					.returning()
+
+				// Baby DOB is the pregnancy delivery date
+				if (data.dob) {
+					const links = await db
+						.select({ pregnancyId: pregnancyChildren.pregnancyId })
+						.from(pregnancyChildren)
+						.where(eq(pregnancyChildren.childPatientId, id))
+					const pregnancyIds = [
+						...new Set(links.map(link => link.pregnancyId)),
+					]
+					if (pregnancyIds.length) {
+						await db
+							.update(patientPregnancies)
+							.set({
+								deliveryDate: data.dob,
+								updatedAt: new Date().toISOString(),
+							})
+							.where(inArray(patientPregnancies.id, pregnancyIds))
+					}
+				}
+
 				return result[0]
 			}
 			const result = await db.insert(patients).values(values).returning()

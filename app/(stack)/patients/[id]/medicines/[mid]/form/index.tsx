@@ -13,7 +13,9 @@ import { KeyboardAvoidingScrollView } from '@/components/KeyboardAvoidingScrollV
 import { Avatar } from '@/components/ui/avatar'
 import { Form } from '@/components/ui/form'
 import { Grid, GridItem } from '@/components/ui/grid'
+import { Spinner } from '@/components/ui/spinner'
 import { Text } from '@/components/ui/text'
+import { usePatientIdParam } from '@/hooks/usePatientIdParam'
 import { useDeleteMedicineMutation } from '@/mutations/useDeleteMedicineMutation'
 import { usePatientMedicineDeleteMutation } from '@/mutations/usePatientMedicineDeleteMutation'
 import {
@@ -26,8 +28,9 @@ import { usePatientMedicineByIdQuery } from '@/queries/usePatientMedicineByIdQue
 import { paths } from '@/utils/paths'
 
 export default function Screen() {
-	const { id, mid } = useLocalSearchParams()
-	const { data } = usePatientMedicineByIdQuery(Number(mid))
+	const { mid } = useLocalSearchParams()
+	const { patientId, isValid: hasPatientId } = usePatientIdParam()
+	const { data, isPending } = usePatientMedicineByIdQuery(Number(mid))
 
 	const { data: medicines, refetch: refetchMedicines } = useMedicinesQuery()
 	const { mutateAsync: deleteMedicine } = useDeleteMedicineMutation()
@@ -38,12 +41,18 @@ export default function Screen() {
 	const form = useForm({
 		resolver: zodResolver(zPatientMedicine),
 		defaultValues: {
-			patientId: Number(id),
+			patientId,
 			medicine: {
 				name: '',
 			},
 		},
 	})
+
+	useEffect(() => {
+		if (hasPatientId) {
+			form.setValue('patientId', patientId)
+		}
+	}, [form, hasPatientId, patientId])
 
 	const onSubmit = useCallback(
 		async (data: TZPatientMedicine) => {
@@ -129,7 +138,7 @@ export default function Screen() {
 		if (data) {
 			form.reset({
 				id: data.id,
-				patientId: data.patientId ?? Number(id),
+				patientId: data.patientId ?? patientId,
 				startDate: data.startDate,
 				endDate: data.endDate,
 				schedule: data.schedule,
@@ -141,7 +150,16 @@ export default function Screen() {
 				},
 			})
 		}
-	}, [form, data, id])
+	}, [form, data, patientId])
+
+	if (mid !== 'new' && isPending) {
+		return (
+			<View className="flex-1 items-center justify-center px-4">
+				<Stack.Screen options={{ title: 'Loading...' }} />
+				<Spinner size="large" />
+			</View>
+		)
+	}
 
 	if (mid !== 'new' && !data) {
 		return (

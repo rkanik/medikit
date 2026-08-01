@@ -1,0 +1,2 @@
+ALTER TABLE `patient_pregnancies` ADD `fatherPatientId` integer REFERENCES patients(id);--> statement-breakpoint
+CREATE INDEX `pregnancy_father_patient_id_idx` ON `patient_pregnancies` (`fatherPatientId`);

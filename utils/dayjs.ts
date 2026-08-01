@@ -24,11 +24,12 @@ export const $dfr = (start: any, end: any) => {
 
 export const $d = dayjs
 
-export const $daf = (dob: any) => {
+export const $daf = (dob: any, at?: any) => {
 	const birth = $d(dob).startOf('day')
 	if (!birth.isValid()) return ''
 
-	const today = $d().startOf('day')
+	const today = $d(at ?? undefined).startOf('day')
+	if (!today.isValid()) return ''
 	if (birth.isAfter(today)) return ''
 
 	const years = today.diff(birth, 'year')

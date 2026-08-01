@@ -142,7 +142,7 @@ export default function Screen() {
 		}
 	}, [selectedAttachments])
 
-	const { data: patients } = usePatientsListQuery()
+	const { data: patients } = usePatientsListQuery({ includePrivate: true })
 
 	return (
 		<View className="flex-1 relative">

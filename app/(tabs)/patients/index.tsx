@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { RefreshControl, View } from 'react-native'
 import { useScrollToTop } from '@react-navigation/native'
 import { router } from 'expo-router'
@@ -10,6 +10,7 @@ import { PatientCard } from '@/components/PatientCard'
 import { usePatientsQuery } from '@/queries/usePatientsQuery'
 
 export default function PatientsScreen() {
+	const [showPrivate, setShowPrivate] = useState(false)
 	const {
 		data,
 		isFetching,
@@ -20,6 +21,7 @@ export default function PatientsScreen() {
 	} = usePatientsQuery({
 		page: 1,
 		perPage: 10,
+		includePrivate: showPrivate,
 	})
 
 	const patients = useMemo(() => {
@@ -44,6 +46,7 @@ export default function PatientsScreen() {
 				renderItem={({ item, index }) => (
 					<PatientCard
 						data={item}
+						dimPrivate
 						className={cn({
 							'mt-1': index > 0,
 							'rounded-t-3xl': index === 0,
@@ -65,27 +68,23 @@ export default function PatientsScreen() {
 					}
 				}}
 			/>
-			{patients.length > 0 && (
-				<BaseActions
-					className="bottom-8"
-					data={[
-						// {
-						// 	icon: 'x',
-						// 	onPress: onClear,
-						// },
-						// {
-						// 	icon: 'list',
-						// 	onPress: onGenerate,
-						// },
-						{
-							pill: true,
-							prependIcon: 'plus',
-							title: 'Add Patient',
-							onPress: () => router.push('/patients/new/form'),
-						},
-					]}
-				/>
-			)}
+			<BaseActions
+				className="bottom-8"
+				data={[
+					{
+						pill: true,
+						prependIcon: showPrivate ? 'eye' : 'eye-off',
+						variant: showPrivate ? 'primary' : 'secondary',
+						onPress: () => setShowPrivate(value => !value),
+					},
+					{
+						pill: true,
+						prependIcon: 'plus',
+						title: 'Add Patient',
+						onPress: () => router.push('/patients/new/form'),
+					},
+				]}
+			/>
 		</View>
 	)
 }

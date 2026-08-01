@@ -35,7 +35,11 @@ export const Grid = ({ gap = 0, cols = 1, children, ...props }: TGridProps) => {
 		<Context.Provider value={{ style }}>
 			<View {...props}>
 				<View
-					style={{ marginLeft: -gap, marginTop: -gap }}
+					style={{
+						marginLeft: -gap,
+						marginTop: -gap,
+						opacity: width > 0 ? 1 : 0,
+					}}
 					onLayout={onLayout}
 					className="flex-row flex-wrap"
 				>

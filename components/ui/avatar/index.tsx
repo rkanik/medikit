@@ -1,7 +1,7 @@
 import { Text } from '@/components/ui/text'
 import { TMaybe } from '@/types'
 import { Image } from 'expo-image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Pressable, ViewProps } from 'react-native'
 import { cn, tv, VariantProps } from 'tailwind-variants'
 
@@ -12,7 +12,7 @@ const avatarVariants = tv({
 			primary:
 				'bg-white border border-white dark:bg-neutral-700 dark:border-neutral-700',
 			secondary:
-				'bg-neutral-200 border border-neutral-200 dark:bg-black dark:border-black',
+				'bg-neutral-200 border border-neutral-200 dark:bg-neutral-600 dark:border-neutral-600',
 		},
 	},
 	defaultVariants: {
@@ -38,6 +38,11 @@ export const Avatar = ({
 	...props
 }: TAvatarProps) => {
 	const [error, setError] = useState(false)
+
+	useEffect(() => {
+		setError(false)
+	}, [image])
+
 	const shouldShowText = text && (!image || error)
 	return (
 		<Pressable {...props} className={avatarVariants({ variant, className })}>
@@ -50,7 +55,7 @@ export const Avatar = ({
 						.join('')}
 				</Text>
 			)}
-			{image && (
+			{image && !error ? (
 				<Image
 					source={{ uri: image }}
 					className={imageClassName}
@@ -63,7 +68,7 @@ export const Avatar = ({
 					}}
 					onError={() => setError(true)}
 				/>
-			)}
+			) : null}
 		</Pressable>
 	)
 }

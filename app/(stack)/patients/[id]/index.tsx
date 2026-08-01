@@ -1,47 +1,61 @@
-import { Fragment, useCallback } from 'react'
+import { Fragment, useCallback, useMemo } from 'react'
 import { Alert, ScrollView, View } from 'react-native'
-import { router, Stack, useLocalSearchParams } from 'expo-router'
-import { cn } from 'tailwind-variants'
+import { router, Stack } from 'expo-router'
 import { BaseActions } from '@/components/base/actions'
 import { BaseListItem } from '@/components/base/ListItem'
-import { FlashList } from '@/components/FlashList'
-import { NoPatientMedicines } from '@/components/NoPatientMedicines'
-import { PatientMedicineCard } from '@/components/PatientMedicineCard'
+import { PatientCard } from '@/components/PatientCard'
 import { Avatar } from '@/components/ui/avatar'
 import { Subtitle, Text, Title } from '@/components/ui/text'
+import { usePatientIdParam } from '@/hooks/usePatientIdParam'
 import { useDeletePatientsMutation } from '@/mutations/useDeletePatientsMutation'
 import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
-import { usePatientMedicinesQuery } from '@/queries/usePatientMedicinesQuery'
+import { usePatientFamilyQuery } from '@/queries/usePatientFamilyQuery'
+import { usePatientPregnanciesQuery } from '@/queries/usePatientPregnanciesQuery'
 import { useInvalidatePatientsQuery } from '@/queries/usePatientsQuery'
 import { $d, $daf, $df } from '@/utils/dayjs'
 import { paths } from '@/utils/paths'
+import {
+	formatGestationalAge,
+	gestationalAgeFromEdd,
+	isCurrentlyPregnant,
+} from '@/utils/pregnancy'
 
-/** Gestational age from EDD (40 weeks from LMP ≈ 280 days). */
-function gestationalAgeParts(edd: string) {
-	const today = $d().startOf('day')
-	const due = $d(edd).startOf('day')
-	const daysUntilDue = due.diff(today, 'day')
-	const gestationalDays = Math.max(0, 280 - daysUntilDue)
-	const weeks = Math.floor(gestationalDays / 7)
-	const weekDays = gestationalDays % 7
-	const months = Math.floor(gestationalDays / 30)
-	const monthDays = gestationalDays % 30
-	return { weeks, weekDays, months, monthDays }
-}
-
-function plural(n: number, one: string, many: string) {
-	return `${n} ${n === 1 ? one : many}`
-}
-
-export default function Screen() {
-	const { id } = useLocalSearchParams()
-	const { data } = usePatientByIdQuery(Number(id))
+export default function PatientInfoScreen() {
+	const { id, patientId } = usePatientIdParam()
+	const { data } = usePatientByIdQuery(patientId)
 	const { mutate: deletePatient } = useDeletePatientsMutation()
-	const { data: medicinesData } = usePatientMedicinesQuery({
-		patientId: Number(id),
-	})
 	const invalidatePatientsQuery = useInvalidatePatientsQuery()
-	const medicines = medicinesData.filter(item => !!item.medicine)
+	const { data: pregnanciesData } = usePatientPregnanciesQuery({
+		patientId,
+		perPage: 20,
+	})
+	const { data: family } = usePatientFamilyQuery(patientId)
+
+	const pregnancies = useMemo(() => {
+		return (pregnanciesData?.pages ?? []).flatMap(page => page.data ?? [])
+	}, [pregnanciesData?.pages])
+
+	const activePregnancy = useMemo(() => {
+		return pregnancies.find(pregnancy => isCurrentlyPregnant(pregnancy))
+	}, [pregnancies])
+
+	const runningWeeksText = useMemo(() => {
+		if (!activePregnancy?.expectedDate) return null
+		const age = gestationalAgeFromEdd(activePregnancy.expectedDate)
+		if (!age) return null
+		return formatGestationalAge(age)
+	}, [activePregnancy])
+
+	const parents = family?.parents ?? []
+	const spouses = family?.spouses ?? []
+	const babies = family?.babies ?? []
+
+	const showFatherOnBabyCards = useMemo(() => {
+		const list = family?.babies ?? []
+		if (list.length < 2) return false
+		const firstKey = list[0]?.father?.id ?? null
+		return list.some(baby => (baby.father?.id ?? null) !== firstKey)
+	}, [family?.babies])
 
 	const onDelete = useCallback(() => {
 		Alert.alert('Delete', 'Are you sure you want to delete this item?', [
@@ -49,7 +63,7 @@ export default function Screen() {
 			{
 				text: 'Delete',
 				onPress: () => {
-					deletePatient(Number(id), {
+					deletePatient(patientId, {
 						onSuccess() {
 							invalidatePatientsQuery()
 							router.back()
@@ -58,154 +72,209 @@ export default function Screen() {
 				},
 			},
 		])
-	}, [id, deletePatient, invalidatePatientsQuery])
+	}, [patientId, deletePatient, invalidatePatientsQuery])
 
 	if (!data) {
 		return (
-			<Fragment>
-				<Stack.Screen options={{ title: 'Not Found!' }} />
-				<View className="flex-1 px-5">
-					<Text>Patient not found!</Text>
-				</View>
-			</Fragment>
+			<View className="flex-1 px-5">
+				<Text>Patient not found!</Text>
+			</View>
 		)
 	}
 
-	let eddListText: string | undefined
-	if (data.edd) {
-		const { weeks, weekDays, months, monthDays } = gestationalAgeParts(data.edd)
-		const weeksStr = `${plural(weeks, 'week', 'weeks')} ${plural(weekDays, 'day', 'days')}`
-		const monthsStr = `${plural(months, 'month', 'months')} ${plural(monthDays, 'day', 'days')}`
-		eddListText = `${$df(data.edd, 'DD MMMM, YYYY')} (${weeksStr}, ${monthsStr})`
-	}
-
 	return (
-		<View className="flex-1">
-			<Stack.Screen options={{ title: 'Patient Details' }} />
-			<ScrollView
-				contentContainerClassName="px-4 pb-32 justify-end"
-				contentContainerStyle={{ flexGrow: 1 }}
-			>
-				<View className="items-center">
-					<Avatar
-						className="h-24 w-24"
-						textClassName="text-2xl"
-						text={data.name}
-						image={paths.document(data.avatar?.uri)}
-					/>
-					<Title className="mt-5 text-2xl">{data.name}</Title>
-					{data.dob && (
-						<Subtitle>
-							{$df(data.dob, 'DD MMMM, YYYY')} ({$d().diff(data.dob, 'years')}
-							yrs)
-						</Subtitle>
-					)}
-				</View>
-
-				<View className="mt-8">
-					<Text className="uppercase text-sm tracking-wide ml-2">Basic</Text>
-					<View className="rounded-3xl mt-2 gap-1 overflow-hidden ">
-						<BaseListItem
+		<>
+			<Stack.Screen options={{ title: 'Basic' }} />
+			<View className="flex-1">
+				<ScrollView
+					contentContainerClassName="px-4 pb-32 justify-end"
+					contentContainerStyle={{ flexGrow: 1 }}
+				>
+					<View className="items-center">
+						<Avatar
+							className="h-24 w-24"
+							textClassName="text-2xl"
 							text={data.name}
-							icon="user"
-							label="Name"
-							className="bg-white dark:bg-neutral-800 rounded-lg"
+							image={paths.document(data.avatar?.uri)}
 						/>
+						<Title className="mt-5 text-2xl">{data.name}</Title>
 						{data.dob && (
-							<Fragment>
-								<BaseListItem
-									text={$df(data.dob, 'DD MMMM, YYYY')}
-									icon="calendar"
-									label="Date of Birth"
-									className="bg-white dark:bg-neutral-800 rounded-lg"
-								/>
-								<BaseListItem
-									text={$daf(data.dob)}
-									icon="clock"
-									label="Age"
-									className="bg-white dark:bg-neutral-800 rounded-lg"
-								/>
-							</Fragment>
+							<Subtitle>
+								{$df(data.dob, 'DD MMMM, YYYY')} (
+								{$d(data.dod ?? undefined).diff(data.dob, 'years')} yrs)
+							</Subtitle>
 						)}
-						{data.gender && (
-							<Fragment>
+						{data.dod ? (
+							<Subtitle className="mt-1">
+								Died {$df(data.dod, 'DD MMMM, YYYY')}
+							</Subtitle>
+						) : null}
+					</View>
+
+					<View className="mt-8">
+						<Text className="uppercase text-sm tracking-wide ml-2">Basic</Text>
+						<View className="rounded-3xl mt-2 gap-1 overflow-hidden">
+							<BaseListItem
+								text={data.name}
+								icon="user"
+								label="Name"
+								className="bg-white dark:bg-neutral-800 rounded-lg"
+							/>
+							{data.dob && (
+								<Fragment>
+									<BaseListItem
+										text={$df(data.dob, 'DD MMMM, YYYY')}
+										icon="calendar"
+										label="Date of Birth"
+										className="bg-white dark:bg-neutral-800 rounded-lg"
+									/>
+									<BaseListItem
+										text={$daf(data.dob, data.dod)}
+										icon="clock"
+										label={data.dod ? 'Age at Death' : 'Age'}
+										className="bg-white dark:bg-neutral-800 rounded-lg"
+									/>
+								</Fragment>
+							)}
+							{data.dod ? (
+								<BaseListItem
+									text={$df(data.dod, 'DD MMMM, YYYY')}
+									icon="calendar"
+									label="Date of Death"
+									className="bg-white dark:bg-neutral-800 rounded-lg"
+								/>
+							) : null}
+							{data.gender && (
 								<BaseListItem
 									text={data.gender}
 									icon="user"
 									label="Gender"
 									className="bg-white dark:bg-neutral-800 rounded-lg"
 								/>
-							</Fragment>
-						)}
-						{eddListText && (
-							<Fragment>
+							)}
+							{data.public === false ? (
 								<BaseListItem
-									text={eddListText}
-									icon="calendar"
-									label="Expected Delivery Date"
+									text="Private"
+									icon="eye-off"
+									label="Visibility"
 									className="bg-white dark:bg-neutral-800 rounded-lg"
 								/>
-							</Fragment>
-						)}
+							) : null}
+							{runningWeeksText ? (
+								<BaseListItem
+									text={runningWeeksText}
+									icon="calendar"
+									label="Gestational Age"
+									className="bg-white dark:bg-neutral-800 rounded-lg"
+								/>
+							) : null}
+						</View>
 					</View>
-				</View>
 
-				<View className="mt-8">
-					<Text className="uppercase text-sm tracking-wide ml-2">
-						Medicines
-					</Text>
-					<FlashList
-						data={medicines}
-						keyExtractor={item => item.id?.toString() ?? ''}
-						contentContainerStyle={{ flexGrow: 1 }}
-						className="mt-2"
-						renderItem={({ item, index }) => (
-							<PatientMedicineCard
-								data={item}
-								className={cn({
-									'mt-1': index > 0,
-									'rounded-t-3xl': index === 0,
-									'rounded-b-3xl': index === medicines.length - 1,
-								})}
-								onPress={() =>
-									router.push(`/patients/${id}/medicines/${item.id}/form`)
-								}
-							/>
-						)}
-						ListFooterComponent={() => {
-							if (!medicines.length)
-								return <NoPatientMedicines patientId={Number(id)} />
-							return null
-						}}
-					/>
-				</View>
+					{parents.length > 0 ? (
+						<View className="mt-8">
+							<Text className="uppercase text-sm tracking-wide ml-2">
+								Parents
+							</Text>
+							<View className="mt-2 gap-1">
+								{parents.map((parent, index) => (
+									<PatientCard
+										key={`${parent.role}-${parent.patient.id}`}
+										data={parent.patient}
+										subtitle={parent.role}
+										className={
+											index === 0 && index === parents.length - 1
+												? 'rounded-3xl'
+												: index === 0
+													? 'rounded-t-3xl'
+													: index === parents.length - 1
+														? 'rounded-b-3xl'
+														: undefined
+										}
+										onPress={() =>
+											router.push(`/patients/${parent.patient.id}`)
+										}
+									/>
+								))}
+							</View>
+						</View>
+					) : null}
 
-				{/* <BaseJson data={data} /> */}
-			</ScrollView>
-			<BaseActions
-				className="bottom-12"
-				data={[
-					{
-						pill: true,
-						variant: 'destructive',
-						prependIcon: 'trash',
-						onPress: onDelete,
-					},
-					{
-						pill: true,
-						prependIcon: 'plus',
-						title: 'Medicine',
-						hidden: !medicines.length,
-						onPress: () => router.push(`/patients/${id}/medicines/new/form`),
-					},
-					{
-						pill: true,
-						prependIcon: 'edit',
-						title: 'Update',
-						onPress: () => router.push(`/patients/${id}/form`),
-					},
-				]}
-			/>
-		</View>
+					{spouses.length > 0 ? (
+						<View className="mt-8">
+							<Text className="uppercase text-sm tracking-wide ml-2">
+								Spouse
+							</Text>
+							<View className="mt-2 gap-1">
+								{spouses.map((spouse, index) => (
+									<PatientCard
+										key={spouse.id}
+										data={spouse}
+										className={
+											index === 0 && index === spouses.length - 1
+												? 'rounded-3xl'
+												: index === 0
+													? 'rounded-t-3xl'
+													: index === spouses.length - 1
+														? 'rounded-b-3xl'
+														: undefined
+										}
+										onPress={() => router.push(`/patients/${spouse.id}`)}
+									/>
+								))}
+							</View>
+						</View>
+					) : null}
+
+					{babies.length > 0 ? (
+						<View className="mt-8">
+							<Text className="uppercase text-sm tracking-wide ml-2">
+								Babies
+							</Text>
+							<View className="mt-2 gap-1">
+								{babies.map((baby, index) => (
+									<PatientCard
+										key={baby.patient.id}
+										data={baby.patient}
+										className={
+											index === 0 && index === babies.length - 1
+												? 'rounded-3xl'
+												: index === 0
+													? 'rounded-t-3xl'
+													: index === babies.length - 1
+														? 'rounded-b-3xl'
+														: undefined
+										}
+										subtitle={
+											showFatherOnBabyCards && baby.father
+												? baby.father.name
+												: undefined
+										}
+										onPress={() => router.push(`/patients/${baby.patient.id}`)}
+									/>
+								))}
+							</View>
+						</View>
+					) : null}
+				</ScrollView>
+				<BaseActions
+					className="bottom-8"
+					data={[
+						{
+							pill: true,
+							variant: 'destructive',
+							prependIcon: 'trash',
+							onPress: onDelete,
+						},
+						{
+							pill: true,
+							prependIcon: 'edit',
+							title: 'Update',
+							onPress: () => router.push(`/patients/${id}/form`),
+						},
+					]}
+				/>
+			</View>
+		</>
 	)
 }
