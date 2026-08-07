@@ -26,7 +26,7 @@ const tabItems = [
 			!pathname.includes('/form'),
 	},
 	{
-		title: 'Growth',
+		title: 'Health',
 		path: 'growth' as const,
 		icon: 'trending-up' as const,
 		match: (pathname: string, basePath: string) =>
@@ -87,9 +87,10 @@ export default function PatientLayout() {
 									<Pressable className="flex-1 items-center">
 										<View
 											className={cn(
-												'w-12 h-8 flex items-center justify-center rounded-3xl',
+												'w-12 h-8 flex items-center justify-center',
 												{ 'bg-primary': focused },
 											)}
+											style={{ borderRadius: 24 }}
 										>
 											<Icon name={item.icon} className="text-xl" />
 										</View>

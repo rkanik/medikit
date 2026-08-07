@@ -95,7 +95,9 @@ const BaseSelectInner = <
 											'text-neutral-500 dark:text-neutral-400': !v.field.value,
 										})}
 									>
-										{getOptionLabel(option) || props.placeholder}
+										{option != null
+											? getOptionLabel(option)
+											: props.placeholder}
 									</Text>
 									<View className="flex-none flex-row items-center gap-2">
 										{v.field.value ? (
