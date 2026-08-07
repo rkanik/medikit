@@ -1,97 +1,129 @@
-import { useMemo, useRef } from 'react'
-import { RefreshControl, View } from 'react-native'
-import { useScrollToTop } from '@react-navigation/native'
+import type { TMetricHistoryItem } from '@/components/PatientMetricHistoryModal'
+import type { TTimelineMetricKey } from '@/const/timelineMetrics'
+import { useMemo, useState } from 'react'
+import { RefreshControl, ScrollView, View } from 'react-native'
 import { router } from 'expo-router'
-import { cn } from 'tailwind-variants'
-import { BaseActions } from '@/components/base/actions'
-import { FlashList } from '@/components/FlashList'
-import { NoPatientTimeline } from '@/components/NoPatientTimeline'
-import { PatientTimelineCard } from '@/components/PatientTimelineCard'
+import { PatientMetricCard } from '@/components/PatientMetricCard'
+import { PatientMetricHistoryModal } from '@/components/PatientMetricHistoryModal'
+import {
+	TIMELINE_METRICS,
+	toTimelineMetricNumber,
+} from '@/const/timelineMetrics'
 import { usePatientIdParam } from '@/hooks/usePatientIdParam'
-import { usePatientByIdQuery } from '@/queries/usePatientByIdQuery'
 import { usePatientTimelineQuery } from '@/queries/usePatientTimelineQuery'
+import {
+	formatPercentChange,
+	percentChange,
+} from '@/utils/growthIdeals'
 
 export default function PatientGrowthScreen() {
 	const { id, patientId } = usePatientIdParam()
-	const { data: patient } = usePatientByIdQuery(patientId)
-	const {
-		data,
-		isFetching,
-		hasNextPage,
-		isFetchingNextPage,
-		refetch,
-		fetchNextPage,
-	} = usePatientTimelineQuery({
+	const [selectedKey, setSelectedKey] = useState<TTimelineMetricKey | null>(
+		null,
+	)
+	const { data, isFetching, refetch } = usePatientTimelineQuery({
 		patientId,
 		page: 1,
-		perPage: 10,
+		perPage: 500,
 	})
 
 	const timelineData = useMemo(() => {
 		return (data?.pages ?? []).flatMap(page => page.data ?? [])
 	}, [data?.pages])
 
-	const listRef = useRef<any>(null)
-	useScrollToTop(listRef)
+	const metricSummaries = useMemo(() => {
+		return TIMELINE_METRICS.map(metric => {
+			const history: TMetricHistoryItem[] = []
+			for (const entry of timelineData) {
+				const value = entry.values?.find(item => item.key === metric.key)
+				if (!value?.value?.trim()) continue
+				history.push({
+					entry,
+					value: value.value,
+					unit: value.unit,
+				})
+			}
+			const latest = history[0] ?? null
+			const previous = history[1] ?? null
+			const currentNum = toTimelineMetricNumber(metric.key, latest?.value)
+			const previousNum = toTimelineMetricNumber(metric.key, previous?.value)
+			const changeLabel = formatPercentChange(
+				currentNum != null && previousNum != null
+					? percentChange(currentNum, previousNum)
+					: null,
+			)
+			return { metric, history, latest, changeLabel }
+		})
+	}, [timelineData])
+
+	const selected = useMemo(() => {
+		if (!selectedKey) return null
+		return (
+			metricSummaries.find(item => item.metric.key === selectedKey) ?? null
+		)
+	}, [metricSummaries, selectedKey])
+
+	const openMetricForm = (metricKey: TTimelineMetricKey, entryId?: number) => {
+		const base =
+			entryId != null
+				? `/patients/${id}/growth/${entryId}/form`
+				: `/patients/${id}/growth/new/form`
+		router.push(`${base}?metric=${metricKey}` as any)
+	}
 
 	return (
 		<View className="flex-1 relative">
-			<FlashList
-				ref={listRef}
-				data={timelineData}
-				keyExtractor={item => item.id?.toString() ?? ''}
+			<ScrollView
 				contentContainerStyle={{
 					flexGrow: 1,
-					paddingBottom: timelineData.length > 0 ? 16 * 6 : 16,
-					justifyContent: 'flex-end',
 					paddingHorizontal: 16,
-				}}
-				renderItem={({ item, index }) => (
-					<PatientTimelineCard
-						data={item}
-						previous={timelineData[index + 1]}
-						dob={patient?.dob}
-						gender={patient?.gender}
-						isFirst={index === 0}
-						isLast={index === timelineData.length - 1}
-						className={cn({
-							'mt-1': index > 0,
-							'rounded-t-3xl': index === 0,
-							'rounded-b-3xl': index === timelineData.length - 1,
-						})}
-						onPress={() =>
-							router.push(`/patients/${id}/growth/${item.id}/form`)
-						}
-					/>
-				)}
-				ListFooterComponent={() => {
-					if (!timelineData.length)
-						return <NoPatientTimeline patientId={patientId} />
-					return null
+					paddingTop: 16,
+					paddingBottom: 32,
 				}}
 				refreshControl={
 					<RefreshControl refreshing={isFetching} onRefresh={refetch} />
 				}
-				onEndReached={() => {
-					if (hasNextPage && !isFetchingNextPage) {
-						fetchNextPage()
-					}
+			>
+				<View className="flex-row flex-wrap gap-3">
+					{metricSummaries.map(({ metric, latest, changeLabel }) => (
+						<View key={metric.key} className="w-[47%] grow">
+							<PatientMetricCard
+								metric={metric}
+								value={latest?.value}
+								unit={latest?.unit}
+								date={latest?.entry.date}
+								changeLabel={changeLabel}
+								onPress={() => {
+									if (!latest) {
+										openMetricForm(metric.key)
+										return
+									}
+									setSelectedKey(metric.key)
+								}}
+							/>
+						</View>
+					))}
+				</View>
+			</ScrollView>
+
+			<PatientMetricHistoryModal
+				metric={selected?.metric ?? null}
+				history={selected?.history ?? []}
+				visible={selectedKey != null}
+				setVisible={visible => {
+					if (!visible) setSelectedKey(null)
+				}}
+				onAdd={() => {
+					const metricKey = selectedKey
+					setSelectedKey(null)
+					if (metricKey) openMetricForm(metricKey)
+				}}
+				onSelectEntry={entryId => {
+					const metricKey = selectedKey
+					setSelectedKey(null)
+					if (metricKey) openMetricForm(metricKey, entryId)
 				}}
 			/>
-			{timelineData.length > 0 && (
-				<BaseActions
-					className="bottom-8"
-					data={[
-						{
-							pill: true,
-							prependIcon: 'plus',
-							title: 'Growth',
-							onPress: () =>
-								router.push(`/patients/${id}/growth/new/form`),
-						},
-					]}
-				/>
-			)}
 		</View>
 	)
 }
