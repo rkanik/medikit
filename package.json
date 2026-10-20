@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.4.0",
   "scripts": {
-    "start": "node api.js && expo start",
+    "start": "expo start",
     "android": "npm run pba && expo run:android --device",
     "ios": "npm run pbi && expo run:ios --device",
     "web": "expo start --web",
